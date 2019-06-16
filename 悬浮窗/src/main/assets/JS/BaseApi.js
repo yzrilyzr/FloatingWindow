@@ -38,6 +38,7 @@ var VECfile=com.yzrilyzr.icondesigner.VECfile;
 function px(i){
 	return util.px(i);
 }
+/*
 var ModPE={
 	setItem:function(a,b,c,d,e){_cbk.print("设置物品,id:"+a+",名称:"+b+",damage:"+c+",贴图名:"+d+",可堆叠数:"+e);},
 	setFoodItem:function(a,b,c,d,e,f){_cbk.print("设置食物物品,id:"+a+",名称:"+b+",damage:"+c+",恢复饥饿:"+d+",贴图名:"+e+",可堆叠数:"+f);},
@@ -51,7 +52,7 @@ var Block={
 }
 function getPlayerEnt(){
 	return null;
-}
+}*/
 //设置合成
 /*
 Item.addShapedRecipe(物品id组[9],1,0,[" c "," cc","c  "],["c",物品id组[8],0]);

@@ -6,9 +6,6 @@ import com.yzrilyzr.myclass.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Locale;
-import com.yzrilyzr.floatingwindow.Window;
-import com.yzrilyzr.icondesigner.VECfile;
-import com.yzrilyzr.floatingwindow.API;
 
 public class JSEnv implements Runnable
 {
@@ -30,11 +27,14 @@ public class JSEnv implements Runnable
 							@Override
 							public Object get(String name, Scriptable start)
 							{
-								System.out.println(name);
-								/*if (name.equals("getClass"))
-								 {
-								 return NOT_FOUND;
-								 }*/
+								if (name.equals("getClass")||
+								name.equals("delete")||
+								name.equals("deleteOnExit")||
+								name.equals("getRuntime")
+								)
+								{
+									return NOT_FOUND;
+								}
 								return super.get(name, start);
 							}
 						};
@@ -44,7 +44,8 @@ public class JSEnv implements Runnable
 					@Override
 					public boolean visibleToScripts(String p1)
 					{
-						System.out.println(p1);
+						if(p1.equals("java.lang.Runtime")||
+						p1.equals("java.lang.reflect"))return false;
 						return true;
 					}
 				});
@@ -64,7 +65,9 @@ public class JSEnv implements Runnable
 			util.runInTime(this,10000);
 		}
 		catch (Exception e)
-		{}
+		{
+			e.printStackTrace();
+		}
 		//new Thread(Thread.currentThread().getThreadGroup(),this,"js解析线程",256*1024).start();
 	}
 	public void setName(String name)
@@ -93,6 +96,11 @@ public class JSEnv implements Runnable
 			scope = cx.initStandardObjects();
 			ScriptableObject.putProperty(scope, "javaContext", cx.javaToJS(util.ctx, scope));
 			ScriptableObject.putProperty(scope, "javaLoader", cx.javaToJS(JSEnv.class.getClassLoader(), scope));
+			
+			ScriptableObject.defineClass(scope,ModPE.class);
+			scope.put("ModPE", scope, cx.newObject(scope, "ModPE",new Object[]{this}));
+			
+			
 			BufferedReader i=new BufferedReader(new InputStreamReader(util.ctx.getAssets().open("JS/BaseApi.js")));
 			final StringBuilder b=new StringBuilder();
 			String x=null;
@@ -105,7 +113,105 @@ public class JSEnv implements Runnable
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			function("print","js执行失败:\n"+util.getStackTrace(e));
+			print("js执行失败:\n"+util.getStackTrace(e));
 		}
+	}
+
+	private void print(String e)
+	{
+		function("print",e);
+	}
+	public static class ModPE extends ScriptableObject
+	{
+		private static final long serialVersionUID = 1L;
+		JSEnv e;
+		@Override
+		public String getClassName()
+		{
+			// TODO: Implement this method
+			return "ModPE";
+		}
+		public void dumpVtable(String p1,int p2){
+			//e.print(p1+p2);
+		}
+		public void getBytesFromTexturePack(String p1){
+			//e.print("");
+		}
+		public void getI18n(String p1){
+			//e.print("");
+		}
+		public void getLanguage(){
+			//e.print("");
+		}
+		public void getMinecraftVersion(){
+			//e.print("");
+		}
+		public void langEdit(String p1, String p2){
+			//e.print("");
+		}
+		public void leaveGame(){
+			//e.print("");
+		}
+		public void log(String p1){
+			//e.print("");
+		}
+		public void openInputStreamFromTexturePack(String p1){
+			//e.print("");
+		}
+		public void overrideTexture(String p1, String p){
+			//e.print("");
+		}
+		public void readData(String p){
+			//e.print("");
+		}
+		public void removeData(String p){
+			//e.print("");
+		}
+		public void resetFov(){
+			//e.print("");
+		}
+		public void resetImages(){
+			//e.print("");
+		}
+		public void saveData(String p1, String p){
+			//e.print("");
+		}
+		public void selectLevel(String p){
+			//e.print("");
+		}
+		public void setCamera(Object p){
+			//e.print("");
+		}
+		public void setFoodItem(int p1, String p2, int p3, int p4, String p5, int p6){
+			//e.print("");
+		}
+		public void setFov(double p){
+			e.print("设置相机视野"+p);
+		}
+		public void setGameSpeed(double p){
+			//e.print("");
+		}
+		public void setGuiBlocks(String p){
+			//e.print("");
+		}
+		public void setItem(int p1, String p2, int p3, String p4, int p){
+			//e.print("");
+		}
+		public void setItems(String p){
+			//e.print("");
+		}
+		public void setTerrain(String p){
+			//e.print("");
+		}
+		public void setUiRenderDebug(boolean p){
+			//e.print("");
+		}
+		public void showTipMessage(String p){
+			//e.print("");
+		}
+		public void takeScreenshot(String p){
+			//e.print("");
+		}
+		
 	}
 }
