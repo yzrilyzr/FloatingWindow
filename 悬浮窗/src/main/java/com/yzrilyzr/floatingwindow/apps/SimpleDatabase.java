@@ -22,7 +22,7 @@ import android.widget.ListView;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
 import com.yzrilyzr.icondesigner.VECfile;
-import com.yzrilyzr.myclass.myComp;
+import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import com.yzrilyzr.ui.myDialog;
 import com.yzrilyzr.ui.myEditText;
@@ -91,7 +91,7 @@ public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickLi
 				String ek=edit.getText().toString().toLowerCase();
 				if("".equals(ek))for(String d:m.keySet())ml.add(d);
 				else for(String d:m.keySet())if(d.toLowerCase().contains(ek))ml.add(d);
-				Collections.sort(ml,new myComp<String>(){
+				Collections.sort(ml,new Comparator<String>(){
 					@Override
 					public int compare(String p1, String p2)
 					{

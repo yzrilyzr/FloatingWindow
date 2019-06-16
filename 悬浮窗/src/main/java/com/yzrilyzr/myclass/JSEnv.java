@@ -1,16 +1,16 @@
 package com.yzrilyzr.myclass;
 
+import com.cloudbees.util.rhino.sandbox.SandboxContextFactory;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
-import com.cloudbees.util.rhino.sandbox.SandboxContextFactory;
-import org.mozilla.javascript.ContextFactory;
+import java.util.Locale;
 
 public class JSEnv implements Runnable
 {
@@ -18,6 +18,8 @@ public class JSEnv implements Runnable
 	private String js;
 	private Object cbk;
 	private String name;
+	private SandboxContextFactory sand;
+	private Context rhino;
 	public JSEnv(String js,Object cbk)
 	{
 		this.js=js;
@@ -36,26 +38,30 @@ public class JSEnv implements Runnable
 	}
 	public void eval(String func)
 	{
-		Context rhino=Context.enter();
 		rhino.evaluateString(scope,func,"JS",1, null);
 	}
 	public void function(String name,Object... o)
 	{
-		Context rhino=Context.enter();
+		try{
 		((Function)scope.get(name,scope)).call(rhino, scope, scope,o);
+		}catch(Throwable e){
+			e.printStackTrace();
+		}
 	}
 	@Override
 	public void run()
 	{
 		try
 		{
-			SandboxContextFactory sand=new SandboxContextFactory();
+			sand=new SandboxContextFactory();
 			//sand.initGlobal);
-			final Context rhino = sand.enter();
+			rhino = sand.enter();
 			rhino.setOptimizationLevel(-1);
-			scope = rhino.initStandardObjects();
-			ScriptableObject.putProperty(scope, "javaContext", Context.javaToJS(util.ctx, scope));
-			ScriptableObject.putProperty(scope, "javaLoader", Context.javaToJS(JSEnv.class.getClassLoader(), scope));
+			rhino.setLocale(Locale.CHINA);
+			rhino.setLanguageVersion(rhino.VERSION_1_8);
+			scope = rhino.initStandardObjects(null);
+			ScriptableObject.putProperty(scope, "javaContext", rhino.javaToJS(util.ctx, scope));
+			ScriptableObject.putProperty(scope, "javaLoader", rhino.javaToJS(JSEnv.class.getClassLoader(), scope));
 			BufferedReader i=new BufferedReader(new InputStreamReader(util.ctx.getAssets().open("JS/BaseApi.js")));
 			final StringBuilder b=new StringBuilder();
 			String x=null;
@@ -80,7 +86,6 @@ public class JSEnv implements Runnable
 			e.printStackTrace();
 			try
 			{
-				Context rhino = Context.enter();
 				((Function)scope.get("print",scope)).call(rhino, scope, scope,new Object[]{"js执行失败，详情查看控制台"});
 			}
 			catch(Throwable ee)

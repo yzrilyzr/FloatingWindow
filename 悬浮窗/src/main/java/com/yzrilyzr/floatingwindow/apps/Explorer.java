@@ -31,7 +31,7 @@ import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
 import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.icondesigner.VecView;
-import com.yzrilyzr.myclass.myComp;
+import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
@@ -1531,7 +1531,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 			w.setTitle(pf.getName());
 			pathtext.setText(pf.getAbsolutePath());
 			l.clear();
-			myComp<mFile> cp=new myComp<mFile>(){
+			Comparator<mFile> cp=new Comparator<mFile>(){
 				@Override
 				public int compare(mFile p1, mFile p2)
 				{

@@ -30,7 +30,7 @@ import com.yzrilyzr.floatingwindow.viewholder.BaseHolder;
 import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.icondesigner.VecView;
 import com.yzrilyzr.myclass.MusicID3;
-import com.yzrilyzr.myclass.myComp;
+import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -196,7 +196,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			File[] pf=new File(path).getParentFile().listFiles();
 			for(File ff:pf)
 				if(util.getMIMEType(ff).contains("audio/"))queue.add(ff);
-			Collections.sort(queue,new myComp<File>(){
+			Collections.sort(queue,new Comparator<File>(){
 				@Override
 				public int compare(File p1, File p2)
 				{
@@ -732,7 +732,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 		@Override
 		public void onPostExecute(Object s)
 		{
-			Collections.sort(music,new myComp<File>(){
+			Collections.sort(music,new Comparator<File>(){
 				@Override
 				public int compare(File p1, File p2)
 				{
@@ -746,7 +746,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 		@Override
 		public void onCancelled(Object o)
 		{
-			Collections.sort(music,new myComp<File>(){
+			Collections.sort(music,new Comparator<File>(){
 				@Override
 				public int compare(File p1, File p2)
 				{

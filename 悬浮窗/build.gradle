@@ -7,7 +7,6 @@ android {
     defaultConfig {
         applicationId "com.yzrilyzr.floatingwindow"
         minSdkVersion 7
-		maxSdkVersion 23
         targetSdkVersion 18
         versionCode 8
         versionName "0.8 alpha"

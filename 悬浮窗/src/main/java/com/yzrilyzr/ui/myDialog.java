@@ -4,6 +4,7 @@ import android.view.*;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.widget.AdapterView;
@@ -15,10 +16,6 @@ import android.widget.ListAdapter;
 import android.widget.ScrollView;
 import com.yzrilyzr.icondesigner.VecView;
 import com.yzrilyzr.myclass.util;
-import com.yzrilyzr.icondesigner.VECfile;
-import android.graphics.drawable.ColorDrawable;
-import java.util.List;
-import android.annotation.TargetApi;
 public class myDialog extends Dialog
 {
 	myLinearLayout content;
@@ -53,7 +50,7 @@ public class myDialog extends Dialog
 		p=new LayoutParams(-1,-2);
 		p.weight=1;
 		content.addView(view=new LinearLayout(c),p);
-		
+
 		LayoutParams lp=new LayoutParams(-2,util.px(40));
 		m=util.px(5);
 		lp.setMargins(m,m,m,m);
@@ -101,19 +98,6 @@ public class myDialog extends Dialog
 		title.setVisibility(titlep==null?8:0);
 		if(titlep!=null)title.setText(titlep);
 	}
-	@Override
-	@TargetApi(28)
-	public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> data, Menu menu, int deviceId)
-	{
-		// TODO: Implement this method
-	}
-	@TargetApi(28)
-	@Override
-	public void onPointerCaptureChanged(boolean hasCapture)
-	{
-		// TODO: Implement this method
-	}
-	
 	public static class Builder
     {
 		private Context ctx;
@@ -191,13 +175,13 @@ public class myDialog extends Dialog
 			dialog.pos.setText(text);
 			dialog.pos.setVisibility(0);
 			dialog.pos.setOnClickListener(new View.OnClickListener(){
-					@Override
-					public void onClick(View p1)
-					{
-						if(listener!=null)listener.onClick(null,-1);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onClick(View p1)
+				{
+					if(listener!=null)listener.onClick(null,-1);
+					dialog.dismiss();
+				}
+			});
 			return this;
 		}
         public Builder setNegativeButton(int textId, DialogInterface.OnClickListener listener)
@@ -211,13 +195,13 @@ public class myDialog extends Dialog
 			dialog.neg.setText(text);
 			dialog.neg.setVisibility(0);
 			dialog.neg.setOnClickListener(new View.OnClickListener(){
-					@Override
-					public void onClick(View p1)
-					{
-						if(listener!=null)listener.onClick(null,-1);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onClick(View p1)
+				{
+					if(listener!=null)listener.onClick(null,-1);
+					dialog.dismiss();
+				}
+			});
 			return this;
 		}
         public Builder setNeutralButton(int textId, DialogInterface.OnClickListener listener)
@@ -231,13 +215,13 @@ public class myDialog extends Dialog
 			dialog.neu.setText(text);
 			dialog.neu.setVisibility(0);
 			dialog.neu.setOnClickListener(new View.OnClickListener(){
-					@Override
-					public void onClick(View p1)
-					{
-						if(listener!=null)listener.onClick(null,-1);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onClick(View p1)
+				{
+					if(listener!=null)listener.onClick(null,-1);
+					dialog.dismiss();
+				}
+			});
 			return this;
 		}
         public Builder setCancelable(boolean cancelable)
@@ -270,47 +254,48 @@ public class myDialog extends Dialog
 		{
 			myListView m=dialog.list;
 			m.setAdapter(new BaseAdapter(){
-					@Override
-					public int getCount()
+				@Override
+				public int getCount()
+				{
+					return items.length;
+				}
+				@Override
+				public Object getItem(int p1)
+				{
+					return null;
+				}
+				@Override
+				public long getItemId(int p1)
+				{
+					return 0;
+				}
+				@Override
+				public View getView(int p1, View p2, ViewGroup p3)
+				{
+					IViewHolder h=null;
+					if(p2==null)
 					{
-						return items.length;
+						myTextView t=new myTextView(ctx);
+						p2=t;
+						h=new IViewHolder();
+						h.text=t;
+						p2.setTag(h);
+						int y=util.px(10);
+						t.setPadding(y,y,y,y);
+						t.setText(items[p1]);
 					}
-					@Override
-					public Object getItem(int p1)
-					{
-						return null;
-					}
-					@Override
-					public long getItemId(int p1)
-					{
-						return 0;
-					}
-					@Override
-					public View getView(int p1, View p2, ViewGroup p3)
-					{
-						IViewHolder h=null;
-						if(p2==null){
-							myTextView t=new myTextView(ctx);
-							p2=t;
-							h=new IViewHolder();
-							h.text=t;
-							p2.setTag(h);
-							int y=util.px(10);
-							t.setPadding(y,y,y,y);
-							t.setText(items[p1]);
-						}
-						else h=(myDialog.IViewHolder) p2.getTag();
-						return p2;
-					}
-				});
+					else h=(myDialog.IViewHolder) p2.getTag();
+					return p2;
+				}
+			});
 			m.setOnItemClickListener(new OnItemClickListener(){
-					@Override
-					public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
-					{
-						if(listener!=null)listener.onClick(null,p3);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+				{
+					if(listener!=null)listener.onClick(null,p3);
+					dialog.dismiss();
+				}
+			});
 			m.setLayoutParams(new LayoutParams(-1,-2));
 			setView(m);
 			return this;
@@ -320,13 +305,13 @@ public class myDialog extends Dialog
 			myListView m=dialog.list;
 			m.setAdapter(adapter);
 			m.setOnItemClickListener(new OnItemClickListener(){
-					@Override
-					public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
-					{
-						if(listener!=null)listener.onClick(null,p3);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+				{
+					if(listener!=null)listener.onClick(null,p3);
+					dialog.dismiss();
+				}
+			});
 			m.setLayoutParams(new LayoutParams(-1,-2));
 			setView(m);
 			return this;
@@ -340,60 +325,61 @@ public class myDialog extends Dialog
 		{
 			myListView m=dialog.list;
 			m.setAdapter(new BaseAdapter(){
-					@Override
-					public int getCount()
+				@Override
+				public int getCount()
+				{
+					return items.length;
+				}
+				@Override
+				public Object getItem(int p1)
+				{
+					return null;
+				}
+				@Override
+				public long getItemId(int p1)
+				{
+					return 0;
+				}
+				@Override
+				public View getView(int p1, View p2, ViewGroup p3)
+				{	
+					MViewHolder h=null;
+					if(p2==null)
 					{
-						return items.length;
+						LinearLayout l=new LinearLayout(ctx);
+						l.setDescendantFocusability(myListView.FOCUS_BLOCK_DESCENDANTS);
+						myTextView t=new myTextView(ctx);
+						final myCheckBox r=new myCheckBox(ctx);
+						r.setChecked(checkedItems[p1]);
+						r.setClickable(false);
+						int y=util.px(10);
+						t.setPadding(y,y,y,y);
+						t.setText(items[p1]);
+						LayoutParams p=new LayoutParams(-1,-2);
+						p.weight=1;
+						l.addView(t,p);
+						l.addView(r);
+						l.setGravity(Gravity.CENTER);
+						p2=l;
+						h=new MViewHolder();
+						h.text=t;
+						h.lay=l;
+						h.radio=r;
+						p2.setTag(h);
 					}
-					@Override
-					public Object getItem(int p1)
-					{
-						return null;
-					}
-					@Override
-					public long getItemId(int p1)
-					{
-						return 0;
-					}
-					@Override
-					public View getView(int p1, View p2, ViewGroup p3)
-					{	
-						MViewHolder h=null;
-						if(p2==null){
-							LinearLayout l=new LinearLayout(ctx);
-							l.setDescendantFocusability(myListView.FOCUS_BLOCK_DESCENDANTS);
-							myTextView t=new myTextView(ctx);
-							final myCheckBox r=new myCheckBox(ctx);
-							r.setChecked(checkedItems[p1]);
-							r.setClickable(false);
-							int y=util.px(10);
-							t.setPadding(y,y,y,y);
-							t.setText(items[p1]);
-							LayoutParams p=new LayoutParams(-1,-2);
-							p.weight=1;
-							l.addView(t,p);
-							l.addView(r);
-							l.setGravity(Gravity.CENTER);
-							p2=l;
-							h=new MViewHolder();
-							h.text=t;
-							h.lay=l;
-							h.radio=r;
-							p2.setTag(h);
-						}
-						else h=(myDialog.MViewHolder) p2.getTag();
-						return p2;
-					}
-				});
+					else h=(myDialog.MViewHolder) p2.getTag();
+					return p2;
+				}
+			});
 			m.setOnItemClickListener(new OnItemClickListener(){
-					@Override
-					public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
-					{
-						myCheckBox c=(myCheckBox)((ViewGroup)p2).getChildAt(1);
-						c.setChecked(!c.isChecked());
-						if(listener!=null)listener.onClick(null,p3,c.isChecked());
-					}
-				});
+				@Override
+				public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+				{
+					myCheckBox c=(myCheckBox)((ViewGroup)p2).getChildAt(1);
+					c.setChecked(!c.isChecked());
+					if(listener!=null)listener.onClick(null,p3,c.isChecked());
+				}
+			});
 			m.setLayoutParams(new LayoutParams(-1,-2));
 			setView(m);
 			return this;
@@ -407,59 +393,60 @@ public class myDialog extends Dialog
 		{
 			myListView m=dialog.list;
 			m.setAdapter(new BaseAdapter(){
-					@Override
-					public int getCount()
+				@Override
+				public int getCount()
+				{
+					return items.length;
+				}
+				@Override
+				public Object getItem(int p1)
+				{
+					return null;
+				}
+				@Override
+				public long getItemId(int p1)
+				{
+					return 0;
+				}
+				@Override
+				public View getView(int p1, View p2, ViewGroup p3)
+				{	
+					SViewHolder h=null;
+					if(p2==null)
 					{
-						return items.length;
+						LinearLayout l=new LinearLayout(ctx);
+						l.setDescendantFocusability(myListView.FOCUS_BLOCK_DESCENDANTS);
+						myTextView t=new myTextView(ctx);
+						myRadioButton r=new myRadioButton(ctx);
+						if(p1==checkedItem)r.setChecked(true);
+						r.setClickable(false);
+						int y=util.px(10);
+						t.setPadding(y,y,y,y);
+						t.setText(items[p1]);
+						LayoutParams p=new LayoutParams(-1,-2);
+						p.weight=1;
+						l.addView(t,p);
+						l.addView(r);
+						l.setGravity(Gravity.CENTER);
+						p2=l;
+						h=new SViewHolder();
+						h.text=t;
+						h.lay=l;
+						h.radio=r;
+						p2.setTag(h);
 					}
-					@Override
-					public Object getItem(int p1)
-					{
-						return null;
-					}
-					@Override
-					public long getItemId(int p1)
-					{
-						return 0;
-					}
-					@Override
-					public View getView(int p1, View p2, ViewGroup p3)
-					{	
-						SViewHolder h=null;
-						if(p2==null){
-							LinearLayout l=new LinearLayout(ctx);
-							l.setDescendantFocusability(myListView.FOCUS_BLOCK_DESCENDANTS);
-							myTextView t=new myTextView(ctx);
-							myRadioButton r=new myRadioButton(ctx);
-							if(p1==checkedItem)r.setChecked(true);
-							r.setClickable(false);
-							int y=util.px(10);
-							t.setPadding(y,y,y,y);
-							t.setText(items[p1]);
-							LayoutParams p=new LayoutParams(-1,-2);
-							p.weight=1;
-							l.addView(t,p);
-							l.addView(r);
-							l.setGravity(Gravity.CENTER);
-							p2=l;
-							h=new SViewHolder();
-							h.text=t;
-							h.lay=l;
-							h.radio=r;
-							p2.setTag(h);
-						}
-						else h=(myDialog.SViewHolder) p2.getTag();
-						return p2;
-					}
-				});
+					else h=(myDialog.SViewHolder) p2.getTag();
+					return p2;
+				}
+			});
 			m.setOnItemClickListener(new OnItemClickListener(){
-					@Override
-					public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
-					{
-						if(listener!=null)listener.onClick(null,p3);
-						dialog.dismiss();
-					}
-				});
+				@Override
+				public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+				{
+					if(listener!=null)listener.onClick(null,p3);
+					dialog.dismiss();
+				}
+			});
 			m.setLayoutParams(new LayoutParams(-1,-2));
 			setView(m);
 			return this;
@@ -502,17 +489,20 @@ public class myDialog extends Dialog
 		}
 
     }
-	private static class SViewHolder{
+	private static class SViewHolder
+	{
 		myTextView text;
 		myRadioButton radio;
 		LinearLayout lay;
 	}
-	private static class MViewHolder{
+	private static class MViewHolder
+	{
 		myTextView text;
 		myCheckBox radio;
 		LinearLayout lay;
 	}
-	private static class IViewHolder{
+	private static class IViewHolder
+	{
 		myTextView text;
 	}
 }
