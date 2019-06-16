@@ -187,18 +187,11 @@ public final class util
 		if(x>0&&y<0)a+=2*Math.PI;
 		return a;
 	}
-	public static Object execInTime(Callable<?> call,int timeMillis)
+	public static void runInTime(Runnable call,int timeMillis)throws Exception
 	{
 		final ExecutorService exec = Executors.newFixedThreadPool(1);  
-		try
-		{  
-			Future<?> future = exec.submit(call);  
-			return future.get(timeMillis, TimeUnit.MILLISECONDS); //任务处理超时时间设为 1 秒  
-		}
-		catch (Exception e)
-		{
-			return e;
-		}  
+		Future<?> future = exec.submit(call);  
+		future.get(timeMillis, TimeUnit.MILLISECONDS);
 	}
     public static String getStackTrace(Throwable t)
     {
