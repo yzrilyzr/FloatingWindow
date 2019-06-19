@@ -133,7 +133,7 @@ public class Load implements Runnable,OnClickListener
 			public void run()
 			{
 				int a=0xff000000;
-				uidata.UI_DENSITY=(float)util.getScreenWidth()/360f;
+				uidata.UI_DENSITY=(float)Math.min(util.getScreenWidth(),util.getScreenHeight())/360f;
 				uidata.TEXTSIZE=12f;
 				uidata.TEXTMAIN=-1447447;
 				uidata.TEXTBACK=-1;
