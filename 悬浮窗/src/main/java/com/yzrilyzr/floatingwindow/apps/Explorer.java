@@ -1717,7 +1717,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		TextView text1,text2;
 		VecView icon;
 	}
-	static class mFile extends File{
+	public static class mFile extends File{
 		String path;
 		public mFile(String f){
 			super(f);

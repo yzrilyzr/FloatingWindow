@@ -92,6 +92,7 @@ public class Settings implements Window.OnButtonDown,myViewPager.OnPageChangeLis
 		final View v=pq.findViewById(R.id.windowsettingsLinearLayout1);
 		final View v2=pq.findViewById(R.id.windowsettingsLinearLayout2);
 		final View v3=pq.findViewById(R.id.windowsettingsLinearLayout3);
+		final View v4=pq.findViewById(R.id.windowsettingsLinearLayout4);
 		OnClickListener o=new OnClickListener(){
 			@Override
 			public void onClick(final View p1)
@@ -189,11 +190,21 @@ public class Settings implements Window.OnButtonDown,myViewPager.OnPageChangeLis
 					.show();
 					util.toast("注意:如果js文件有变动则默认禁用");
 				}
+				else if(p1==v4){
+					File dir=new File(util.mainDir+"设置备份");
+					if(!dir.exists())dir.mkdirs();
+					Explorer ex=new Explorer(ctx,new Intent().putExtra("path",dir.getAbsolutePath()));
+					Explorer.mFile m= new Explorer.mFile("/data/data/com.yzrilyzr.floatingwindow/shared_prefs");
+					Explorer.mFile[] k=m.listFiles();
+					for(Explorer.mFile d:k)ex.clip.add(d);
+					ex.paste(new Explorer.mFile(dir.getAbsolutePath()));
+				}
 			}
 		};
 		v.setOnClickListener(o);
 		v2.setOnClickListener(o);
 		v3.setOnClickListener(o);
+		v4.setOnClickListener(o);
 		final mySwitch r=(mySwitch) pq.findViewById(R.id.windowsettingsmySwitch1);
 		final mySwitch r2=(mySwitch) pq.findViewById(R.id.windowsettingsmySwitch3);
 		final mySwitch r3=(mySwitch) pq.findViewById(R.id.windowsettingsmySwitch4);

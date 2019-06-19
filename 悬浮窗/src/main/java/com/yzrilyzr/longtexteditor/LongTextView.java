@@ -803,6 +803,24 @@ public class LongTextView extends View
 			if(!smoved)
 			{
 				float x=event.getX(),y=event.getY();
+				if(System.currentTimeMillis()-LongClickMillis>200&&!longClick&&
+				Math.abs(x-lastX)<util.px(5)&&Math.abs(y-lastY)<util.px(5))
+				{
+					longClick=true;
+					new myDialog.Builder(getContext())
+					.setItems(!isSelection?
+					("全选,粘贴,格式化文本,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","):
+					("全选,剪切,复制,粘贴,重复选中的文本,转为大写,转为小写,首字母大写,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","),
+					new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface p1, int p2)
+						{
+							// TODO: Implement this method
+							clicki(p2);
+						}
+					})
+					.show();
+				}
 				if(event.getAction()==MotionEvent.ACTION_DOWN)
 					if(menuKey.size()!=0&&menu!=null&&menu.contains(x,y))menuTouch=true;
 					else menuTouch=false;
@@ -918,24 +936,7 @@ public class LongTextView extends View
 							}
 							break;
 					}
-					if(System.currentTimeMillis()-LongClickMillis>500&&!longClick&&
-					Math.abs(x-lastX)<10&&Math.abs(y-lastY)<10)
-					{
-						longClick=true;
-						new myDialog.Builder(getContext())
-						.setItems(!isSelection?
-						("全选,粘贴,格式化文本,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","):
-						("全选,剪切,复制,粘贴,重复选中的文本,转为大写,转为小写,首字母大写,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","),
-						new DialogInterface.OnClickListener(){
-							@Override
-							public void onClick(DialogInterface p1, int p2)
-							{
-								// TODO: Implement this method
-								clicki(p2);
-							}
-						})
-						.show();
-					}
+					
 				}
 				else
 					switch(event.getAction())
@@ -1162,9 +1163,13 @@ public class LongTextView extends View
 	}
 	public void highLight()
 	{
-		for(int i=(int)(-yOff/th);i<(-yOff+getHeight())/th&&i>=0&&i<stringLines.size()&&curSyntax!=null;i++)
+		if(curSyntax!=null)
+		for(int i=(int)(-yOff/th);i<(-yOff+getHeight())/th&&i>=0&&i<stringLines.size();i++)
 		{
-			CopyOnWriteArrayList<Span> s=new CopyOnWriteArrayList<Span>();
+			
+			CopyOnWriteArrayList<Span> s=span.get(Integer.toString(i));
+			if(s==null)s=new CopyOnWriteArrayList<Span>();
+			else s.clear();
 			String l=getLine(i);
 			Matcher m=curSyntax.pattern.matcher(l);
 			while(m.find())
