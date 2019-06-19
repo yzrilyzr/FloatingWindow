@@ -35,6 +35,12 @@ var Window=com.yzrilyzr.floatingwindow.Window;
 var API=com.yzrilyzr.floatingwindow.API;
 var UI=com.yzrilyzr.ui;
 var VECfile=com.yzrilyzr.icondesigner.VECfile;
+var view=android.view;
+var OCL=view.View.OnClickListener;
+var Gravity=view.Gravity;
+var Runnable=java.lang.Runnable;
+var File=java.io.File;
+var cls=com.yzrilyzr.floatingwindow.apps.cls
 function px(i){
 	return util.px(i);
 }

@@ -64,7 +64,7 @@ public class LongTextView extends View
 	private long LongClickMillis,doubleClickMillis;
 	private Path han=new Path(),hanl=new Path(),hanr=new Path();
 	private Cursor[] cursors=new Cursor[]{new Cursor(),new Cursor()};
-	public ConcurrentHashMap<String,CopyOnWriteArrayList<Span>> span=new ConcurrentHashMap<String,CopyOnWriteArrayList<Span>>();
+	public ConcurrentHashMap<Integer,CopyOnWriteArrayList<Span>> span=new ConcurrentHashMap<Integer,CopyOnWriteArrayList<Span>>();
 	public CopyOnWriteArrayList<Span> nowspan=new CopyOnWriteArrayList<Span>();
 	private TextWatcher textWatcher;
 	public static int textColor=0xffffffff,
@@ -706,10 +706,11 @@ public class LongTextView extends View
 				int ed=util.limit(getIndexByX(s,w)+1,0,s.length());
 				pa.setColor(textColor);
 				canvas.drawText(s.substring(st,ed).replace("\t",TAB),measureText(s,0,st)+lineNumWidth+xOff,dy,pa);
-				/*if(curSyntax!=null)
+				if(curSyntax!=null)
 				{
-					CopyOnWriteArrayList<Span> gg=span.get(Integer.toString(i));
+					CopyOnWriteArrayList<Span> gg=null;
 					if(cursors[0].line==i)gg=nowspan;
+					else gg=span.get(i);
 					if(gg!=null)
 						for(Span spp:gg)
 						{
@@ -718,7 +719,7 @@ public class LongTextView extends View
 							pa.setColor(spp.color);
 							canvas.drawText(spp.ch.replace("\t",TAB),xx,dy,pa);
 						}
-				}*/
+				}
 				pa.setColor(enterColor);
 				canvas.drawText("↲",lineNumWidth+xOff+measureText(s),dy,pa);
 			}
@@ -803,24 +804,6 @@ public class LongTextView extends View
 			if(!smoved)
 			{
 				float x=event.getX(),y=event.getY();
-				if(System.currentTimeMillis()-LongClickMillis>200&&!longClick&&
-				Math.abs(x-lastX)<util.px(5)&&Math.abs(y-lastY)<util.px(5))
-				{
-					longClick=true;
-					new myDialog.Builder(getContext())
-					.setItems(!isSelection?
-					("全选,粘贴,格式化文本,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","):
-					("全选,剪切,复制,粘贴,重复选中的文本,转为大写,转为小写,首字母大写,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","),
-					new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface p1, int p2)
-						{
-							// TODO: Implement this method
-							clicki(p2);
-						}
-					})
-					.show();
-				}
 				if(event.getAction()==MotionEvent.ACTION_DOWN)
 					if(menuKey.size()!=0&&menu!=null&&menu.contains(x,y))menuTouch=true;
 					else menuTouch=false;
@@ -884,12 +867,33 @@ public class LongTextView extends View
 									cursors[0].computeLineIndex(x,y);
 									showHan=300;
 								}
+								if(touchHan!=-1){
+									new myDialog.Builder(getContext())
+									.setItems(!isSelection?
+									("全选,粘贴,格式化文本,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","):
+									("全选,剪切,复制,粘贴,重复选中的文本,转为大写,转为小写,首字母大写,跳转到开头,跳转到结尾,跳转至…,插入时间,字数统计").split(","),
+									new DialogInterface.OnClickListener(){
+										@Override
+										public void onClick(DialogInterface p1, int p2)
+										{
+											// TODO: Implement this method
+											clicki(p2);
+										}
+									})
+									.show();
+								}
 								//isSelection=false;
 							}
 							else
 							{
 								isEdit=false;
 							}
+							/*if(/*System.currentTimeMillis()-LongClickMillis>200&&touchHan==0&&
+							Math.abs(x-lastX)<util.px(5)&&Math.abs(y-lastY)<util.px(5))
+							{
+								//longClick=true;
+								
+							}*/
 							touchHan=-1;
 							break;
 						case MotionEvent.ACTION_MOVE:
@@ -936,7 +940,6 @@ public class LongTextView extends View
 							}
 							break;
 					}
-					
 				}
 				else
 					switch(event.getAction())
@@ -1167,9 +1170,9 @@ public class LongTextView extends View
 		for(int i=(int)(-yOff/th);i<(-yOff+getHeight())/th&&i>=0&&i<stringLines.size();i++)
 		{
 			
-			CopyOnWriteArrayList<Span> s=span.get(Integer.toString(i));
-			if(s==null)s=new CopyOnWriteArrayList<Span>();
-			else s.clear();
+			CopyOnWriteArrayList<Span> s=new CopyOnWriteArrayList<Span>();//span.get(Integer.toString(i));
+			//if(s==null)s=new CopyOnWriteArrayList<Span>();
+			//else s.clear();
 			String l=getLine(i);
 			Matcher m=curSyntax.pattern.matcher(l);
 			while(m.find())
@@ -1179,7 +1182,7 @@ public class LongTextView extends View
 					if(curSyntax.patterns.get(d).matcher(f).matches())
 						s.add(new Span(curSyntax.colors.get(d),measureText(l,0,m.start()),f));
 			}
-			span.put(Integer.toString(i),s);
+			span.put(i,s);
 		}
 	}
 	public void highLightNow()
