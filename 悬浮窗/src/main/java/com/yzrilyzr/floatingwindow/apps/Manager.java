@@ -581,7 +581,11 @@ public class Manager implements Runnable,Window.OnButtonDown
 			io.addPoint((int)(iof*10000f));
 			net.setMax(10000);
 			net.addPoint((int)(netf*10000f));
-			
+			graph.update();
+			cpu.update();
+			mem.update();
+			io.update();
+			net.update();
 			int pg=page.getCurrentItem();
 			if(pg==0)((Adapter)l.getAdapter()).notifyDataSetChanged();
 			else if(pg==1)((Adapter2)l2.getAdapter()).notifyDataSetChanged();

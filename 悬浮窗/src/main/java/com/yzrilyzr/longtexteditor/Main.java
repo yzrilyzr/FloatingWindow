@@ -41,7 +41,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 	public Main(Context c,Intent e)
 	{
 		ctx=c;
-		w=new Window(c,util.px(310),util.px(440))
+		w=new Window(c,util.px(310),util.px(350))
 			.setTitle("文本编辑器")
 			.setOnButtonDown(this)
 			.setOnCrash(this)

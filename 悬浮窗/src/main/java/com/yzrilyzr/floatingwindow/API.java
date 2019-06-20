@@ -43,7 +43,7 @@ public class API
     }
 	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetClass)
     {
-		startServiceForResult(ctx,new Intent(),parent,h,null,targetClass);
+		startServiceForResult(ctx,intent,parent,h,null,targetClass);
 	}
 	//main
 	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetPkg,String targetClass)
