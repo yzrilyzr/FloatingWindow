@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class mBroadcastReceiver extends BroadcastReceiver
 {
 	public static int index=1;
-	public static final HashMap<Integer,BroadcastReceiver> cbk=new HashMap<Integer,BroadcastReceiver>();
+	public static final HashMap<Integer,Object> cbk=new HashMap<Integer,Object>();
     @Override
     public void onReceive(Context p1, Intent p2)
     {
@@ -23,8 +23,9 @@ public class mBroadcastReceiver extends BroadcastReceiver
 			if(code!=0){
 				try
 				{
-					BroadcastReceiver h=cbk.remove(code);
-					h.onReceive(p1,p2);
+					Object h=cbk.remove(code);
+					if(h instanceof BroadcastReceiver)((BroadcastReceiver)h).onReceive(p1,p2);
+					else h.getClass().getMethod("onReceive",Context.class,Intent.class).invoke(h,p1,p2);
 				}
 				catch (Throwable e)
 				{}

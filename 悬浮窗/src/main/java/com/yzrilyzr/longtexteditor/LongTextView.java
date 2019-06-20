@@ -619,8 +619,8 @@ public class LongTextView extends View
 				p.reset();
 				p.moveTo(hx,hy);
 				p.lineTo(hx+s,hy+s);
-				p.lineTo(hx+s,hy+4*s);
-				p.lineTo(hx-s,hy+4*s);
+				p.lineTo(hx+s,hy+2*s);
+				p.lineTo(hx-s,hy+2*s);
 				p.lineTo(hx-s,hy+s);
 				p.close();
 			}
@@ -665,16 +665,16 @@ public class LongTextView extends View
 				 p.lineTo(hx-s*2,hy+s);*/
 				p.moveTo(hx,hy);
 				p.lineTo(hx+s,hy+s);
-				p.lineTo(hx+s,hy+4*s);
-				p.lineTo(hx-s,hy+4*s);
+				p.lineTo(hx+s,hy+2*s);
+				p.lineTo(hx-s,hy+2*s);
 				p.lineTo(hx-s,hy+s);
 				p.close();
 				p=hanr;
 				p.reset();
 				p.moveTo(hx1,hy1);
 				p.lineTo(hx1+s,hy1+s);
-				p.lineTo(hx1+s,hy1+4*s);
-				p.lineTo(hx1-s,hy1+4*s);
+				p.lineTo(hx1+s,hy1+2*s);
+				p.lineTo(hx1-s,hy1+2*s);
 				p.lineTo(hx1-s,hy1+s);
 				/*p.moveTo(hx1,hy1);
 				 p.lineTo(hx1,hy1+4*s);
@@ -919,7 +919,7 @@ public class LongTextView extends View
 								isEdit=false;
 							}
 							//选择拖动条
-							int h=util.px(40);
+							int h=util.px(30);
 							if(touchHan==0)
 							{
 								cursors[0].computeLineIndex(x,y-h);

@@ -23,32 +23,48 @@ public class API
     {
         startService(ctx,new Intent(),targetClass);
     }
-	public static void startServiceForResult(Context ctx,Intent intent,BroadcastReceiver h,String targetClass)
+	public static void startServiceForResult(Context ctx,Intent intent,Object h,String targetClass)
     {
+		startServiceForResult(ctx,intent,null,h,null,targetClass);
+    }
+	public static void startServiceForResult(Context ctx,Window parent,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,new Intent(),parent,h,null,targetClass);
+		//int ind=mBroadcastReceiver.index++;
+		//mBroadcastReceiver.cbk.put(ind,h);
+        //startService(ctx,new Intent().putExtra("rescode",ind).putExtra("parentIndex",Window.windowList.indexOf(parent)),targetClass);
+    }
+    public static void startServiceForResult(Context ctx,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,new Intent(),null,h,null,targetClass);
+		//int ind=mBroadcastReceiver.index++;
+		//mBroadcastReceiver.cbk.put(ind,h);
+       // startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
+    }
+	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,new Intent(),parent,h,null,targetClass);
+	}
+	//main
+	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetPkg,String targetClass)
+    {
+		if(intent==null)intent=new Intent();
+		if(targetPkg==null)targetPkg="com.yzrilyzr.floatingwindow";
 		int ind=mBroadcastReceiver.index++;
 		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,intent.putExtra("rescode",ind),targetClass);
+        intent
+		.putExtra("rescode",ind)
+		.putExtra("parentIndex",parent==null?-1:Window.windowList.indexOf(parent));
+		intent.setAction("com.yzrilyzr.Service");
+        intent.setPackage("com.yzrilyzr.floatingwindow");
+        intent.putExtra("pkg",targetPkg);
+        intent.putExtra("class",targetClass);
+        ctx.startService(intent);
     }
-	public static void startServiceForResult(Context ctx,Intent intent,Window parent,BroadcastReceiver h,String targetClass)
-    {
-		int ind=mBroadcastReceiver.index++;
-		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,intent.putExtra("rescode",ind).putExtra("parentIndex",Window.windowList.indexOf(parent)),targetClass);
-    }
-	public static void startServiceForResult(Context ctx,Window parent,BroadcastReceiver h,String targetClass)
-    {
-		int ind=mBroadcastReceiver.index++;
-		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,new Intent().putExtra("rescode",ind).putExtra("parentIndex",Window.windowList.indexOf(parent)),targetClass);
-    }
-    public static void startServiceForResult(Context ctx,BroadcastReceiver h,String targetClass)
-    {
-		int ind=mBroadcastReceiver.index++;
-		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
-    }
+	//main
     public static void startService(Context ctx,Intent intent,String targetClass)
     {
+		if(intent==null)intent=new Intent();
         intent.setAction("com.yzrilyzr.Service");
         intent.setPackage("com.yzrilyzr.floatingwindow");
         intent.putExtra("pkg",ctx.getPackageName());

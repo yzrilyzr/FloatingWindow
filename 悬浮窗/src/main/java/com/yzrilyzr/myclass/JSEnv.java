@@ -2,6 +2,7 @@ package com.yzrilyzr.myclass;
 
 import org.mozilla.javascript.*;
 
+import android.content.Intent;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -120,6 +121,16 @@ public class JSEnv implements Runnable
 	private void print(String e)
 	{
 		function("print",e);
+	}
+	public static class API extends com.yzrilyzr.floatingwindow.API{
+		public static void startService(android.content.Context ctx,Intent intent,String targetClass)
+		{
+			intent.setAction("com.yzrilyzr.Service");
+			intent.setPackage("com.yzrilyzr.floatingwindow");
+			intent.putExtra("pkg","com.yzrilyzr.floatingwindow");
+			intent.putExtra("class",targetClass);
+			ctx.startService(intent);
+		}
 	}
 	public static class ModPE extends ScriptableObject
 	{
