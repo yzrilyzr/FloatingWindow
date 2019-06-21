@@ -40,7 +40,7 @@ public class FrontSight implements Window.OnButtonDown,OnClickListener,OnChecked
 		.setMinWin(true);
 		w=new Window(c,-1,-1);
 		w.setCanResize(false)
-		.setTitle("准星")
+		.setTitle("准星(在屏)")
 		.setCanFocus(false)
 		.setIcon("frontsight");
 		w.getLayoutParams().flags=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;

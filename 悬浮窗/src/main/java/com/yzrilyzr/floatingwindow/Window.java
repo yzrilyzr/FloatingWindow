@@ -37,7 +37,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
     private VecView addButton2,buttonMinWin,buttonMaxWin,buttonCloseWin,minButton,addButton;
     private LinearLayout.LayoutParams outline;
 	private byte outlineW=0;//1:l,2:lb,3:b,4:rb,5:r
-    private int width=-2,height=-2;
+    private int width=-2,height=-2,bcolor=uidata.BACK,color=uidata.MAIN;
     private OnButtonDown onButtonDown;
 	private OnPositionChanged onPositionChanged;
 	private OnCrash onCrash;
@@ -158,14 +158,16 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 	}
 	public Window setColor(int c)
 	{
+		color=c;
 		Back b=(Window.Back)winView.getBackground();
-		b.setColor(c);
+		b.setColor(color);
 		return this;
 	}
 	public Window setBColor(int c)
 	{
+		bcolor=c;
 		Back b=(Window.Back)winView.getBackground();
-		b.setBcolor(c);
+		b.setBcolor(bcolor);
 		return this;
 	}
 	public boolean isCanFocus()
@@ -174,6 +176,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 	}
 	public Window setAddButton(String vecAsset)
 	{
+		if("".equals(vecAsset))vecAsset=null;
 		addButton.setVisibility(vecAsset==null?8:0);
 		setIcon(addButton,null,vecAsset);
 		return this;
@@ -296,8 +299,11 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 			//parent.mask.setVisibility(0);
 			if(parent.winView.getBackground()!=null&&!parent.canFocus)
 			{
-				int c=uidata.getMainSColor(0.15f);
-				if(parent.minwin)c=uidata.MAIN;
+				float[] hsv=new float[3];
+				Color.colorToHSV(color,hsv);
+				hsv[1]=0.15f;
+				int c=Color.HSVToColor(color>>24,hsv);
+				if(parent.minwin)c=color;
 				Back b=(Window.Back)parent.winView.getBackground();
 				b.setColor(c);
 				b.setRadius(parent.maxwin?0:uidata.UI_RADIUS);
@@ -326,9 +332,8 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 			//parent.mask.setVisibility(8);
 			if(parent.winView.getBackground()!=null&&!parent.canFocus)
 			{
-				int c=uidata.MAIN;
 				Back b=(Window.Back)parent.winView.getBackground();
-				b.setColor(c);
+				b.setColor(color);
 				b.setRadius(parent.maxwin?0:uidata.UI_RADIUS);
 			}
 		}
@@ -420,6 +425,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
     }
     public Window setIcon(String vecAsset)
 	{
+		if("".equals(vecAsset))vecAsset=null;
 		setIcon(icon,null,vecAsset);
 		setIcon(minButton,null,vecAsset);
 		int w=util.px(30);
@@ -463,8 +469,11 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 			window.updateViewLayout(winView,windowParam);
 			if(winView.getBackground()!=null)
 			{
-				int c=f?uidata.MAIN:uidata.getMainSColor(0.15f);
-				if(minwin)c=uidata.MAIN;
+				float[] hsv=new float[3];
+				Color.colorToHSV(color,hsv);
+				hsv[1]=0.15f;
+				int c=f?color:Color.HSVToColor(color>>24,hsv);
+				if(minwin)c=color;
 				Back b=(Window.Back)winView.getBackground();
 				b.setColor(c);
 				b.setRadius(maxwin?0:uidata.UI_RADIUS);
@@ -527,7 +536,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 		int mg=b?0:util.px(4);
 		lp.setMargins(mg,0,mg,mg);
 		Back pb=(Window.Back)winView.getBackground();
-		pb.setColor(uidata.MAIN);
+		pb.setColor(color);
 		pb.setRadius(b?0:uidata.UI_RADIUS);
 		window.updateViewLayout(winView,windowParam);
 		checkFocus();
@@ -549,6 +558,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
     }
     public Window setMinWin(boolean b)
     {
+		if(!isShowing())return this;
 		minwin=b;
         if(b)
         {

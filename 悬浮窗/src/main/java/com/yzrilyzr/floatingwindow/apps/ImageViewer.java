@@ -3,21 +3,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.ImageView;
+import android.view.WindowManager;
 import com.yzrilyzr.floatingwindow.Window;
 import com.yzrilyzr.floatingwindow.view.mImageView;
 import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.myclass.util;
 import java.io.File;
 import java.io.IOException;
+import com.yzrilyzr.ui.uidata;
+import android.os.Handler;
 
 public class ImageViewer implements Window.OnButtonDown
 {
 	Bitmap b;
+	boolean lock=false;
+	private Window w;
+	Context ctx;
+	File f=null;
+
+	private int type;
 	public ImageViewer(Context c,Intent e) throws IOException
 	{
-		int type=e.getIntExtra("type",0);
-		File f=null;
+		ctx=c;
+		type=e.getIntExtra("type",0);
+		f=null;
 		String ll=e.getStringExtra("path");
 		if(ll!=null)f=new File(ll);
 		mImageView iv=new mImageView(c);
@@ -35,23 +44,69 @@ public class ImageViewer implements Window.OnButtonDown
 			byte[] h=e.getByteArrayExtra("data");
 			b=BitmapFactory.decodeByteArray(h,0,h.length);
 		}
-		if(b==null){
+		if(b==null)
+		{
 			util.toast("无法打开图像");
 			return;
 		}
-		new Window(c,util.px(300),util.px(300))
-			.setTitle(f==null?"图片预览":f.getName())
-			.setBar(0,0,0)
-			.setCanFocus(false)
-			.setOnButtonDown(this)
-			.addView(iv)
-			.setIcon(type==1||type==3?"image":(type==2?"class":"floatingwindow"))
-			.show();
+		w=new Window(c,util.px(300),util.px(300))
+		.setTitle(f==null?"图片预览":f.getName())
+		.setBar(0,0,0)
+		.setAddButton("lock")
+		.setCanFocus(false)
+		.setOnButtonDown(this)
+		.addView(iv)
+		.setIcon(type==1||type==3?"image":(type==2?"class":"floatingwindow"))
+		.show();
 		iv.setImage(b);
 	}
 	@Override
 	public void onButtonDown(int code)
 	{
 		if(code==Window.ButtonCode.CLOSE)b.recycle();
+		else if(code==Window.ButtonCode.ADD)
+		{
+			lock=!lock;
+			if(lock)
+			{
+				w
+				.setColor(0)
+				.setBColor(0)
+				.setTitle("")
+				.setBar(8,8,8)
+				.setAddButton("")
+				.setIcon("");
+				w.getLayoutParams().flags=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+				w.update();
+				final Window fp=new Window(ctx,util.px(30),util.px(30));
+				fp.setTitle("图片预览-解除锁定按钮")
+				.show()
+				.setIcon("unlock")
+				.setCanFocus(false)
+				.setCanResize(false)
+				.setMinWin(true)
+				.setOnButtonDown(new Window.OnButtonDown(){
+					@Override
+					public void onButtonDown(int code)
+					{
+						if(code==Window.ButtonCode.MIN)
+						{
+							lock=!lock;
+							fp.dismiss();
+							w
+							.setColor(uidata.MAIN)
+							.setBColor(uidata.BACK)
+							.setTitle(f==null?"图片预览":f.getName())
+							.setBar(0,0,0)
+							.setAddButton("lock")
+							.setIcon(type==1||type==3?"image":(type==2?"class":"floatingwindow"))
+							.setMaxWin(w.getMax());
+						}
+					}
+				});
+
+			}
+			
+		}
 	}
 }
