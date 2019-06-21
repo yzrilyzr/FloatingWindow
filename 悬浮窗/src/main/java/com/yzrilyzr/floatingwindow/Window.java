@@ -487,6 +487,12 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
         windowParam.y=(int) y;
 		return this;
     }
+	public int getPositionX(){
+		return windowParam.x;
+	}
+	public int getPositionY(){
+		return windowParam.y;
+	}
     public boolean getMin()
     {
         return minwin;

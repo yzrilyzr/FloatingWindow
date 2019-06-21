@@ -75,8 +75,9 @@ public class ImageViewer implements Window.OnButtonDown
 				.setTitle("")
 				.setBar(8,8,8)
 				.setAddButton("")
+				.setPosition(w.getPositionX(),w.getPositionY()-util.getStatusBarHeight())
 				.setIcon("");
-				w.getLayoutParams().flags=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+				w.getLayoutParams().flags=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
 				w.update();
 				final Window fp=new Window(ctx,util.px(30),util.px(30));
 				fp.setTitle("图片预览-解除锁定按钮")
@@ -98,6 +99,7 @@ public class ImageViewer implements Window.OnButtonDown
 							.setBColor(uidata.BACK)
 							.setTitle(f==null?"图片预览":f.getName())
 							.setBar(0,0,0)
+							.setPosition(w.getPositionX(),w.getPositionY()+util.getStatusBarHeight())
 							.setAddButton("lock")
 							.setIcon(type==1||type==3?"image":(type==2?"class":"floatingwindow"))
 							.setMaxWin(w.getMax());

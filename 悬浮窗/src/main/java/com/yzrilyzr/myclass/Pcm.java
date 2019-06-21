@@ -20,6 +20,11 @@ public class Pcm
 		}
 		return sh;
 	}
+	public static float ft(float al,float[] y){
+		float a=0,l=y.length;
+		for(float i=0;i<l;i++)a+=y[(int)i]*Math.sin(al*i/l);
+		return a/l;
+	}
 	public static int[] mono_8Bit_PCM(byte[] data)
 	{
 		int[] sh=new int[data.length];
