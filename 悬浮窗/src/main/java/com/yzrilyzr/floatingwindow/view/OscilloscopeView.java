@@ -10,7 +10,7 @@ import com.yzrilyzr.myclass.util;
 public class OscilloscopeView extends View
 {
 	int[] data=new int[48000];
-	float period=1,gain=1,sr=48000;
+	float period=0.001f,gain=1,sr=48000;
 	Path path=new Path();
 	Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 	int avail=48;
@@ -63,7 +63,7 @@ public class OscilloscopeView extends View
 			float gap=(float)avail/c;
 			for(float i=0;i<c;i++)
 			{
-				int in=(int)util.limit(i*gap,0,avail);
+				int in=util.limit((int)util.limit(i*gap,0,avail),0,data.length-1);
 				float y=util.limit(getHeight()/2+data[in]*gain/getHeight(),0,getHeight());
 				if(i==0)path.moveTo(i,y);
 				else path.lineTo(i,y);
@@ -72,7 +72,7 @@ public class OscilloscopeView extends View
 			//canvas.drawLine(0,getHeight()/2,getWidth(),getHeight()/2,p);
 			canvas.drawPath(path,p);
 			p.setStyle(Paint.Style.FILL);
-			canvas.drawText(String.format("%fHz",(float)data.length/(float)avail),0,getHeight()-p.getTextSize()*1.2f,p);
+			canvas.drawText(String.format("w=%fHz",(float)data.length/(float)avail),0,getHeight()-p.getTextSize()*1.2f,p);
 		}
 		catch(Throwable e)
 		{

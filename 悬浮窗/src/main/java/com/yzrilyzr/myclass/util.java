@@ -443,6 +443,10 @@ public final class util
 	{
 		return Math.max(Math.min(x,max),min);
 	}
+	public static long limit(long x,long min,long max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
 	public static int limit(int x,int min,int max)
 	{
 		return Math.max(Math.min(x,max),min);
