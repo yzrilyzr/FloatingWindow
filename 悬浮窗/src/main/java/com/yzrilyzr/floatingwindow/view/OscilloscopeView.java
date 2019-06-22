@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Paint;
 import com.yzrilyzr.myclass.util;
+import com.yzrilyzr.myclass.Pcm;
 
 public class OscilloscopeView extends View
 {
@@ -13,7 +14,9 @@ public class OscilloscopeView extends View
 	float period=0.001f,gain=1,sr=48000;
 	Path path=new Path();
 	Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-	int avail=48;
+	int avail=48000;
+	boolean hold=false;
+	private Runnable run;
 	public OscilloscopeView(Context c)
 	{
 		this(c,null);
@@ -26,10 +29,28 @@ public class OscilloscopeView extends View
 		p.setTextSize(util.px(12));
 		p.setStrokeJoin(Paint.Join.ROUND);
 	}
+
+	public void setHold(boolean hold)
+	{
+		this.hold=hold;
+	}
+	public void setft()
+	{
+		new Thread(run=new Runnable(){
+			@Override
+			public void run()
+			{
+				int[] data2=new int[data.length];
+				System.arraycopy(data,0,data2,0,data.length);
+				for(int i=0;i<data.length&&run==this;i++)data[i]=-Math.abs(Pcm.ft(i,data2));
+			}
+		}).start();
+	}
 	public void append(int[] x)
 	{
+		if(hold)return;
 		int cl=Math.min(avail,x.length);
-			System.arraycopy(x,0,data,0,cl);
+		System.arraycopy(x,0,data,0,cl);
 		//cur+=avail;
 		//cur%=x.length;
 	}

@@ -1,4 +1,5 @@
 package com.yzrilyzr.floatingwindow.apps;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFormat;
@@ -6,9 +7,15 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.ToggleButton;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
@@ -17,19 +24,15 @@ import com.yzrilyzr.floatingwindow.view.FloatPicker;
 import com.yzrilyzr.floatingwindow.view.OscilloscopeView;
 import com.yzrilyzr.myclass.Pcm;
 import com.yzrilyzr.myclass.util;
+import com.yzrilyzr.ui.myButton;
+import com.yzrilyzr.ui.mySeekBar;
 import com.yzrilyzr.ui.mySpinner;
 import com.yzrilyzr.ui.mySpinnerAdapter;
-import android.content.BroadcastReceiver;
-import java.io.RandomAccessFile;
 import java.io.IOException;
-import com.yzrilyzr.ui.mySeekBar;
-import android.widget.LinearLayout;
-import com.yzrilyzr.ui.myButton;
-import android.view.View.OnClickListener;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.SeekBar;
+import java.io.RandomAccessFile;
+import android.widget.CompoundButton;
 
-public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Window.OnButtonDown
+public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Window.OnButtonDown,OnClickListener
 {
 	AudioRecord record;
 	OscilloscopeView osc;
@@ -37,6 +40,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	boolean recing=false;
 	Context ctx;
 	protected Window w;
+	View b1,b2;
 	public Oscilloscope(Context c,Intent e)
 	{
 		ctx=c;
@@ -53,6 +57,10 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		pb=(FloatPicker) vg.findViewById(R.id.windowoscilloscopeFloatPicker2);
 		pa.setListener(this);
 		pb.setListener(this);
+		b1=vg.findViewById(R.id.windowoscilloscopeButton1);
+		b2=vg.findViewById(R.id.windowoscilloscopeButton2);
+		b1.setOnClickListener(this);
+		b2.setOnClickListener(this);
 		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
@@ -71,6 +79,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 				}
 				else if(p3==2)
 				{
+					recing=false;
 					API.startServiceForResult(ctx,w,new BroadcastReceiver(){
 
 						private RandomAccessFile raf;
@@ -80,7 +89,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 						{
 							try
 							{
-								byte[] by=new byte[q/8*ch*sr/20];
+								byte[] by=new byte[q/8*ch*sr];
 								pos=util.limit(pos,44,raf.length()-by.length);
 								raf.seek(pos+44l);
 								raf.read(by);
@@ -272,6 +281,12 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		});
 	}
 
+	@Override
+	public void onClick(View p1)
+	{
+		if(p1==b1)osc.setHold(((CompoundButton)p1).isChecked());
+		if(p1==b2)osc.setft();
+	}
 	@Override
 	public void onButtonDown(int code)
 	{

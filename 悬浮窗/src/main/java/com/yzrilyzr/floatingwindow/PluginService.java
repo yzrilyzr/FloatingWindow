@@ -97,10 +97,12 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 				e.printStackTrace();
 			}
 	}
-	public static final InputStream getPluginPkgFile(String pkg,String file) throws Exception{
+	public static final InputStream getPluginPkgFile(String pkg,String file) throws Exception
+	{
 		File f=new File(pkg);
 		if(f.isDirectory())return new BufferedInputStream(new FileInputStream(f.getAbsolutePath()+"/"+file));
-		else if(f.isFile()){
+		else if(f.isFile())
+		{
 			ZipFile ff=new ZipFile(f);
 			ZipEntry en=ff.getEntry(file);
 			return ff.getInputStream(en);
@@ -116,7 +118,8 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 			pkg=intent.getStringExtra("pkg");
 			if(pkg==null)return;
             clazz=intent.getStringExtra("class");
-            if(pkg.startsWith("pkg:")){
+            if(pkg.startsWith("pkg:"))
+			{
 				pkg=pkg.substring(4);
 				PluginContext pc=new PluginContext(ctx,pkg,pkg);
 				pc.setIntent(intent);
@@ -201,9 +204,11 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 		 }
 		 if(value==null)throw new RuntimeException("");*/
 		if(!util.sup)util.toast("不支持的设备");
-		Thread.setDefaultUncaughtExceptionHandler(this);
-		ct.setUncaughtExceptionHandler(this);
-		//if(Resources.getSystem().getDisplayMetrics().density!=3f)
+		
+			//Thread.setDefaultUncaughtExceptionHandler(this);
+			//ct.setUncaughtExceptionHandler(this);
+		
+		//if(Resurces.getSystem().getDisplayMetrics().density!=3f)
 		//Toast.makeText(this,"安全警告:\n不支持的DPI\n您可以在设置中调节显示效果",1).show();
 		API.startService(this,cls.LOAD);
 

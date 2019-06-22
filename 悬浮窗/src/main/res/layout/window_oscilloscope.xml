@@ -74,5 +74,25 @@
 
 	</LinearLayout>
 
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="center">
+
+		<com.yzrilyzr.ui.myToggleButton
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textOff="保持"
+			android:id="@+id/windowoscilloscopeButton1"/>
+
+		<com.yzrilyzr.ui.myButton
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="分析频谱"
+			android:id="@+id/windowoscilloscopeButton2"/>
+
+	</LinearLayout>
+
 </LinearLayout>
 

@@ -20,10 +20,10 @@ public class Pcm
 		}
 		return sh;
 	}
-	public static float ft(float al,float[] y){
+	public static int ft(float al,int[] y){
 		float a=0,l=y.length;
-		for(float i=0;i<l;i++)a+=y[(int)i]*Math.sin(al*i/l);
-		return a/l;
+		for(float i=0;i<l;i++)a+=(float)y[(int)i]*Math.sin(al*i*Math.PI*2f/l);
+		return (int)(a/l);
 	}
 	public static int[] mono_8Bit_PCM(byte[] data)
 	{
