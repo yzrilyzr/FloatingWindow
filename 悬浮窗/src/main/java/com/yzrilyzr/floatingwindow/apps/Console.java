@@ -51,10 +51,10 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 		setIntent(e);
 		ctx=c;
 		w=new Window(c,util.px(300),util.px(360))
-			.setTitle("控制台")
-			.setIcon("console")
-			.setOnButtonDown(this)
-			.show();
+		.setTitle("控制台")
+		.setIcon("console")
+		.setOnButtonDown(this)
+		.show();
 		myTabLayout t=new myTabLayout(c);
 		myViewPager p=new myViewPager(c);
 		t.setViewPager(p);
@@ -99,21 +99,29 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 		n.gotoend();
 		m.gotoend();
 		out.o.add(oa=new OS.OnWrite(){
-					  @Override
-					  public void onWrite(byte[] b, int o, int l)
-					  {
-						  n.setText(out.os.toString());
-						  n.gotoend();
-					  }
-				  });
+			@Override
+			public void onWrite(byte[] b, int o, int l)
+			{
+				String s= new String(b,o,l);
+				if(!"\n".equals(s))
+				{
+					n.addText(s);
+					n.gotoend();
+				}
+			}
+		});
 		err.o.add(ob=new OS.OnWrite(){
-					  @Override
-					  public void onWrite(byte[] b, int o, int l)
-					  {
-						  m.setText(err.os.toString());
-						  m.gotoend();
-					  }
-				  });
+			@Override
+			public void onWrite(byte[] b, int o, int l)
+			{
+				String s= new String(b,o,l);
+				if(!"\n".equals(s))
+				{
+					m.addText(s);
+					m.gotoend();
+				}
+			}
+		});
 		String js=e.getStringExtra("jstext");
 		if(js!=null)
 		{
@@ -126,7 +134,7 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 			print("#打开一个JS文件以执行");
 		}
 	}
-	
+
 	public void print(Object o)
 	{
 		b.addText(o+"");
@@ -137,7 +145,7 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 		b.clear();
 		if(js.contains("com.mojang.minecraftpe.MainActivity"))
 			ctx.startActivity(new Intent(ctx,com.mojang.minecraftpe.MainActivity.class)
-							  .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 		env=new JSEnv(js,this);
 	}
 	@Override
@@ -146,20 +154,20 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 		if(p1==op)
 		{
 			API.startServiceForResult(ctx,w,new BroadcastReceiver(){
-					@Override
-					public void onReceive(Context c,Intent e)
+				@Override
+				public void onReceive(Context c,Intent e)
+				{
+					try
 					{
-						try
-						{
-							String file=e.getStringExtra("path");
-							initjs(util.readwithN(file));
-						}
-						catch(Exception ex)
-						{
-							print("打开失败");
-						}
+						String file=e.getStringExtra("path");
+						initjs(util.readwithN(file));
 					}
-				},cls.EXPLORER);
+					catch(Exception ex)
+					{
+						print("打开失败");
+					}
+				}
+			},cls.EXPLORER);
 		}
 		else if(p1==op2)
 		{
@@ -229,10 +237,10 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 			myImageView i=new myImageView(ctx);
 			i.setImageResource(R.drawable.sugar);
 			new myDialog.Builder(ctx)
-				.setTitle("JavaScript语法糖")
-				.setView(i)
-				.setPositiveButton("了解！",null)
-				.show();
+			.setTitle("JavaScript语法糖")
+			.setView(i)
+			.setPositiveButton("了解！",null)
+			.show();
 		}
 	}
 	protected static final class OS extends OutputStream

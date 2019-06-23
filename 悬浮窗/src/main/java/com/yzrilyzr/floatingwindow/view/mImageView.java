@@ -32,6 +32,9 @@ public class mImageView extends View
 			canvas.drawBitmap(img,m,pa);
 		}
 	}
+	public void update(){
+		postInvalidate();
+	}
 	public void setImage(Bitmap b)
 	{
 		img=b;

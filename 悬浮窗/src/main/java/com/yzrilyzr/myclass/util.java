@@ -180,7 +180,14 @@ public final class util
         }
         return sb.toString();
     }
-	public static double getArc(double x,double y,double r)
+	public static boolean inSectionOpen(int x,int miu,int sigma){
+		if(x<miu+sigma&&x>miu-sigma)return true;
+		return false;
+	}
+	public static boolean inSectionOpen(float x,float miu,float sigma){
+		if(x<miu+sigma&&x>miu-sigma)return true;
+		return false;
+	}	public static double getArc(double x,double y,double r)
 	{
 		double a=Math.asin(y/r);
 		if(x<0)a=Math.PI-a;

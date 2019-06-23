@@ -22,6 +22,8 @@ public class ImageViewer implements Window.OnButtonDown
 	File f=null;
 
 	private int type;
+
+	private mImageView iv;
 	public ImageViewer(Context c,Intent e) throws IOException
 	{
 		ctx=c;
@@ -29,7 +31,7 @@ public class ImageViewer implements Window.OnButtonDown
 		f=null;
 		String ll=e.getStringExtra("path");
 		if(ll!=null)f=new File(ll);
-		mImageView iv=new mImageView(c);
+		iv=new mImageView(c);
 		if(type==1)
 		{
 			b=BitmapFactory.decodeFile(f.getAbsolutePath());
@@ -64,11 +66,12 @@ public class ImageViewer implements Window.OnButtonDown
 	public void onButtonDown(int code)
 	{
 		if(code==Window.ButtonCode.CLOSE)b.recycle();
-		else if(code==Window.ButtonCode.ADD)
+		else if(code==Window.ButtonCode.ADD||code==Window.ButtonCode.ADD_LONG)
 		{
 			lock=!lock;
 			if(lock)
 			{
+				if(code==Window.ButtonCode.ADD_LONG)iv.setAlpha(0.5f);
 				w
 				.setColor(0)
 				.setBColor(0)
@@ -94,6 +97,7 @@ public class ImageViewer implements Window.OnButtonDown
 						{
 							lock=!lock;
 							fp.dismiss();
+							iv.setAlpha(1);
 							w
 							.setColor(uidata.MAIN)
 							.setBColor(uidata.BACK)

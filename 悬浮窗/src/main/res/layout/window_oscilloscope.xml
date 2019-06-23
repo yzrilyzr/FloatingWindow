@@ -49,7 +49,7 @@
 			<com.yzrilyzr.ui.myTextView
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:text="扫描频率(Hz)"/>
+				android:text="时基"/>
 
 		</LinearLayout>
 
@@ -86,10 +86,10 @@
 			android:textOff="保持"
 			android:id="@+id/windowoscilloscopeButton1"/>
 
-		<com.yzrilyzr.ui.myButton
+		<com.yzrilyzr.ui.myToggleButton
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:text="分析频谱"
+			android:textOff="分析频谱"
 			android:id="@+id/windowoscilloscopeButton2"/>
 
 	</LinearLayout>
