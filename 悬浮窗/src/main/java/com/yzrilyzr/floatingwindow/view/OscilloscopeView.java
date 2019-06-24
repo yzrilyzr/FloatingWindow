@@ -14,7 +14,7 @@ import android.graphics.Matrix;
 
 public class OscilloscopeView extends View
 {
-	int[] data=new int[48000];
+	int[] data=new int[48000],ft=new int[8000];
 	float period=1f,gain=1,sr=48000;
 	Path path=new Path();
 	Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -60,10 +60,11 @@ public class OscilloscopeView extends View
 						p.setStrokeWidth(1);
 						//int[] data2=new int[x2-x1];
 						//System.arraycopy(data,x1,data2,0,data2.length);
-						float lastx=0,lasty=bmp.getHeight()/2;
-						for(int i=0;i<8000&&run==this;i++)
+						float lastx=0,lasty=0;
+						for(int i=0;i<ft.length&&run==this;i++)
 						{
 							float o=Math.abs(Pcm.ft(i,data,32767));
+							ft[i]=(int)o;
 							c.drawLine(lastx,lasty,lastx=(bmp.getWidth()*i/8000f),lasty=(bmp.getHeight()-o),p);
 							//if(i%10==0)postInvalidate();
 						}
@@ -111,6 +112,7 @@ public class OscilloscopeView extends View
 	{
 		float c=getWidth();
 		float gap=c/(float)avail;
+		if(run!=null)gap=1;
 		float x=event.getX();
 		switch(event.getAction())
 		{
@@ -129,18 +131,37 @@ public class OscilloscopeView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		canvas.drawColor(0xff000000);
-		path.reset();
-		x1=util.limit(x1,1,avail-1);
-		x2=util.limit(x2,x1,avail-1);
 		if(run!=null&&bmp!=null)
 		{
 			p.setColor(0xffffffff);
 			p.setStyle(Paint.Style.FILL);
 			canvas.drawBitmap(bmp,0,0,p);
+			x1=util.limit(x1,0,getWidth());
+			x2=util.limit(x2,x1,getWidth());
+			int hz=0,yy=0;
+			int d=(int)(x1*ft.length/(float)getWidth());
+			int e=(int)(x2*ft.length/(float)getWidth());
+			for(int i=d;i<e;i++)yy=Math.max(yy,ft[i]);
+			for(int i=d;i<e;i++)
+			if(ft[i]==yy){
+				hz=i;
+				break;
+			}
+			p.setStyle(Paint.Style.FILL);
+			p.setColor(0xffff1086);
+			canvas.drawLine(x1,0,x1,getHeight(),p);
+			p.setColor(0xff8610ff);
+			canvas.drawLine(x2,0,x2,getHeight(),p);
+			p.setColor(0xff10ff86);
+			canvas.drawText(String.format("p=%dHz,y=%d",hz,yy),0,getHeight()-p.getTextSize()*1.2f,p);
+			
 		}
 		else
 			try
 			{
+				path.reset();
+				x1=util.limit(x1,1,avail-1);
+				x2=util.limit(x2,x1,avail-1);
 				float c=getWidth();
 				float gap=(float)avail/c;
 				for(float i=0;i<c;i++)
