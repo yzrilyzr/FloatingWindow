@@ -30,7 +30,7 @@ public class StarterView extends View
 	private int SEL=-1,lSel;
 	private static String[] tip=new String[]{"添加程序","添加程序","添加程序","菜单","退出"};
 	private static String[] pkg=new String[4],
-							cls=new String[4];
+	cls=new String[4];
 	public StarterView(Context c)
     {
         super(c);
@@ -81,7 +81,7 @@ public class StarterView extends View
 			{}
 		}
 	}
-    
+
     public void open()
     {
 		rect=new RectF(kx-2f*dd,ky-2f*dd,kx+2f*dd,ky+2f*dd);
@@ -140,7 +140,8 @@ public class StarterView extends View
 			}
 		if(progress>=360)
 		{
-			if(SEL<0||SEL>=tip.length){
+			if(SEL<0||SEL>=tip.length)
+			{
 				Matrix Matrix=new Matrix();
 				Matrix.postScale(ee/(float)bmp[5].getWidth(),ee/(float)bmp[5].getHeight());
 				Matrix.postTranslate(kx-ee/2,ky-ee/2);
@@ -185,7 +186,7 @@ public class StarterView extends View
     public boolean onTouchEvent(MotionEvent event)
     {
         // TODO: Implement this method
-        if(isAnim)return false;
+        if(isAnim)return true;
         float xx=event.getX(),yy=event.getY();
         float rr=(float)Math.sqrt(Math.pow(kx-xx,2)+Math.pow(ky-yy,2));
 		if(rr<dd*135f/180f)SEL=5;
@@ -199,7 +200,8 @@ public class StarterView extends View
         }
 		else SEL=-1;
 		int act=event.getAction();
-		if(act==MotionEvent.ACTION_DOWN){
+		if(act==MotionEvent.ACTION_DOWN)
+		{
 			longcli=false;
 			lSel=SEL;
 			selmoved=false;
@@ -226,12 +228,12 @@ public class StarterView extends View
 			catch (Exception e)
 			{}
 			util.getSPWrite("pluginpicker")
-				.putString("pkg"+SEL,null)
-				.putString("cls"+SEL,null)
-				.putString("tip"+SEL,null)
-				.putString("ico"+SEL,null)
-				.commit();
-			}
+			.putString("pkg"+SEL,null)
+			.putString("cls"+SEL,null)
+			.putString("tip"+SEL,null)
+			.putString("ico"+SEL,null)
+			.commit();
+		}
 		invalidate();
         return true;
     }

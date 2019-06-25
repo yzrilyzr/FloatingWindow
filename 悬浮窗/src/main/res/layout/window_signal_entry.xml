@@ -9,7 +9,7 @@
 	<com.yzrilyzr.icondesigner.VecView
 		android:layout_height="30dp"
 		android:layout_width="30dp"
-		vec="sinewave"/>
+		vec="sinwave"/>
 
 	<LinearLayout
 		android:layout_height="wrap_content"
@@ -19,22 +19,26 @@
 
 		<com.yzrilyzr.ui.myTextView
 			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"/>
+			android:layout_width="wrap_content"
+			android:id="@+id/windowsignalentrymyTextView1"/>
 
 		<com.yzrilyzr.ui.myTextView
 			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"/>
+			android:layout_width="wrap_content"
+			android:id="@+id/windowsignalentrymyTextView2"/>
 
 		<com.yzrilyzr.ui.myTextView
 			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"/>
+			android:layout_width="wrap_content"
+			android:id="@+id/windowsignalentrymyTextView3"/>
 
 	</LinearLayout>
 
 	<com.yzrilyzr.floatingwindow.view.FloatPicker
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:id="@+id/windowsignalentryFloatPicker1"/>
+		android:layout_height="55dp"
+		android:layout_width="55dp"
+		android:id="@+id/windowsignalentryFloatPicker1"
+		android:layout_marginRight="30dp"/>
 
 	<com.yzrilyzr.icondesigner.VecView
 		android:layout_height="30dp"

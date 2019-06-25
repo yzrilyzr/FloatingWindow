@@ -1,34 +1,25 @@
 package com.yzrilyzr.floatingwindow.apps;
+import android.widget.*;
 import com.yzrilyzr.ui.*;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.os.Handler;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
 import com.yzrilyzr.floatingwindow.view.PianoRoll;
-import com.yzrilyzr.icondesigner.VECfile;
+import com.yzrilyzr.floatingwindow.viewholder.BaseHolder;
 import com.yzrilyzr.myclass.Pcm;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedReader;
@@ -36,8 +27,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.yzrilyzr.floatingwindow.view.FloatPicker;
 
-public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,Runnable,OnItemClickListener,OnClickListener
+public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runnable,OnClickListener
 {
 	//WaveView view;
 	AudioTrack track;
@@ -62,19 +54,19 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 	private PianoRoll roll=null;
 	View file,inst,qua,trac,start,end,play2,edit,copy,paste;
 	TextView filestat;
-	public SignalGenerator(Context c,Intent e)
+	public Synthesizer(Context c,Intent e)
 	{
 		ctx=c;
 		w=new Window(c,util.px(260),util.px(450))
 		.setIcon("signal")
-		.setTitle("信号发生器")
+		.setTitle("音频合成器")
 		.setOnButtonDown(this)
 		.show();
 		path=util.getSPRead().getString("SignalGeneratorPath",null);
 		ViewGroup vg=(ViewGroup)w.addView(R.layout.window_signalgenerator);
 		myTabLayout t=new myTabLayout(ctx);
 		myViewPager v=new myViewPager(ctx);
-		t.setItems("信号发生器","VVVF模拟器","8BIT音乐制作");
+		t.setItems("音色编辑","音乐制作");
 		t.setViewPager(v);
 		v.setTabLayout(t);
 		vg.addView(t,0);
@@ -107,7 +99,7 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 		edit.setOnClickListener(this);
 		copy.setOnClickListener(this);
 		paste.setOnClickListener(this);
-				
+
 		v.setPages(list,b,vg2);
 		sosc=vg.findViewById(R.id.windowsignalgeneratormyButton1);
 		play=vg.findViewById(R.id.windowsignalgeneratorVecView2);
@@ -128,16 +120,17 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 					//x A f fai   ftri sync syncRatio
 					if(l==0)waves.add(new float[]{0,10000,1000,0});
 					else if(l==1)waves.add(new float[]{0,10000,1000,0.4f,0.1f,0.1f,0});
-					else if(l==2)waves.add(new float[]{0,10000,1000,0,10000,0,1});
+					//else if(l==2)waves.add(new float[]{0,10000,1000,0,10000,0,1});
 					for(float[] c:waves)c[0]=0;
+					notifyDataSetChanged();
 				}
 			});
 		}
 		list.setAdapter(this);
-		list.setOnItemClickListener(this);
+		//list.setOnItemClickListener(this);
 		track=new AudioTrack(TEST_STREAM_TYPE,TEST_SR,TEST_CONF,TEST_FORMAT,minBuffSize*2,TEST_MODE);
 		track.play();
-		new Thread(this,"信号发生器").start();
+		new Thread(this,"音频合成").start();
 		filestat.setText(String.format("BPM:%d %d%d Q:%d",roll.bpm,roll.beats,roll.beatsUnit,roll.qlen));
 	}
 	@Override
@@ -173,8 +166,10 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 		{
 			parse=true;
 		}
-		else{
-			if(p1==file){
+		else
+		{
+			if(p1==file)
+			{
 				LinearLayout l=new LinearLayout(ctx);
 				l.setOrientation(1);
 				final TextView q=new myTextView(ctx);
@@ -216,7 +211,8 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 				.setNegativeButton("取消",null)
 				.show();
 			}
-			else if(p1==inst){
+			else if(p1==inst)
+			{
 				new myDialog.Builder(ctx)
 				.setTitle("波形设置")
 				.setPositiveButton("确定",new DialogInterface.OnClickListener(){
@@ -232,16 +228,17 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 			filestat.setText(String.format("BPM:%d %d%d Q:%d",roll.bpm,roll.beats,roll.beatsUnit,roll.qlen));
 		}
 	}
+	/*
 	@Override
 	public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
 	{
-		if(p3==waves.size())
+		//if(p3==waves.size())
 		{
 			//waves.add(new Wave(1000,10000,0));
 			notifyDataSetChanged();
 			//for(Wave w:waves)w.ω=0;
 		}
-	}
+	}*/
 	@Override
 	public void onButtonDown(int code)
 	{
@@ -273,12 +270,12 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 					for(int i=0;i<data.length;i++)
 					{
 						data[i]=0;
-						/*for(int j=0;j<waves.size();j++)
-						 {
-						 Wave w=waves.get(j);
-						 data[i]+=w.getY();
-						 w.next();
-						 }*/
+						for(int j=0;j<waves.size();j++)
+						{
+							float[] w=waves.get(j);
+							if(w.length==4)data[i]+=w[1]*sin(w[0],1f/w[2],w[3]);
+							w[0]+=1f/w[2];
+						}
 					}
 				else
 				{
@@ -325,49 +322,89 @@ public class SignalGenerator extends BaseAdapter implements Window.OnButtonDown,
 	@Override
 	public View getView(int p1, View convertView, ViewGroup p3)
 	{
-		//if(p1==waves.size())
-		return addl;
-		/*else
-		 {
-		 Holder hd=null;
-		 if(convertView==null)
-		 {
-		 hd=new Holder(ctx);
-		 convertView=hd.vg;
-		 convertView.setTag(hd);
-		 }
-		 else hd=(Holder)convertView.getTag();
-		 if(hd==null)
-		 {
-		 hd=new Holder(ctx);
-		 convertView=hd.vg;
-		 convertView.setTag(hd);
-		 }
-		 hd.set(waves.get(p1));
-		 return convertView;
-		 }*/
+		if(p1==waves.size())return addl;
+		else
+		{
+			Holder hd=null;
+			if(convertView==null)
+			{
+				hd=new Holder(ctx);
+				convertView=hd.vg;
+				convertView.setTag(hd);
+			}
+			else hd=(Holder)convertView.getTag();
+			if(hd==null)
+			{
+				hd=new Holder(ctx);
+				convertView=hd.vg;
+				convertView.setTag(hd);
+			}
+			hd.set(waves.get(p1));
+			return convertView;
+		}
 	}
 	static String[] ws=new String[]{"正弦波","PWM波","SPWM波","自己画…"};
 	//A f fai
 	//A f width rise fall delay
 	//A f fai   ftri sync syncRatio
-	/*private class Holder extends BaseHolder
-	 {
-	 EditText d,e,f;
-	 Wave w;
-	 boolean j=false;
-	 public Holder(Context ctx)
-	 {
-	 super(ctx,R.layout.window_signal_entry);
-	 }
-	 @Override
-	 public void set(Object data)
-	 {
-	 w=(Wave)data;
+	private class Holder extends BaseHolder implements OnClickListener,FloatPicker.FloatPickerEvent
+	{
+		TextView d,e,f;
+		View c;
+		float[] w;
+		int wh=1;
+		FloatPicker p;
+		public Holder(Context ctx)
+		{
+			super(ctx,R.layout.window_signal_entry);
+		}
 
-	 }
-	 }*/
-	
+		@Override
+		public void onClick(View p1)
+		{
+			if(p1==d)wh=1;
+			else if(p1==e)wh=2;
+			else if(p1==f)wh=3;
+			else if(p1==c){
+				waves.remove(w);
+				notifyDataSetChanged();
+			}
+			if(wh==1)p.setValue(w[2]);
+			else if(wh==2)p.setValue(w[1]);
+			else if(wh==3)p.setValue(w[3]);
+			setText();
+		}
+
+		@Override
+		public void onChange(FloatPicker p, float f)
+		{
+			if(wh==1)w[2]=f;
+			else if(wh==2)w[1]=f;
+			else if(wh==3)w[3]=f;
+			setText();
+		}
+		void setText(){
+			d.setText((wh==1?">":"")+"f:"+w[2]);
+			e.setText((wh==2?">":"")+"A:"+w[1]);
+			f.setText((wh==3?">":"")+"φ:"+w[3]);
+		}
+		@Override
+		public void set(Object data)
+		{
+			w=(float[])data;
+			c=find(R.id.windowsignalentryVecView1);
+			d=(TextView) find(R.id.windowsignalentrymyTextView1);
+			e=(TextView) find(R.id.windowsignalentrymyTextView2);
+			f=(TextView) find(R.id.windowsignalentrymyTextView3);
+			p=(FloatPicker)find(R.id.windowsignalentryFloatPicker1);
+			d.setOnClickListener(this);
+			e.setOnClickListener(this);
+			f.setOnClickListener(this);
+			c.setOnClickListener(this);
+			setText();
+		}
+	}
+
 	static float pwm(float x,float period,float width,float rise,float fall,float delay)
 	{
 		float r=period*rise;

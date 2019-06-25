@@ -6,7 +6,7 @@
 		浏览器:.apps.WebViewer@Vinternet;
 		下载器:.apps.Downloader@Vdownload;
 		音乐:.apps.Player@Vmusic;
-		信号发生器:.apps.SignalGenerator@Vsignal;
+		音频合成器:.apps.Synthesizer@Vsignal;
 		文件管理:.apps.Explorer@Vexplorer;
 		文件改动校验:.apps.FileCheckChanged@Vfilechanged;
 		性能测试:.apps.PerformanceTest@Vperformance;
