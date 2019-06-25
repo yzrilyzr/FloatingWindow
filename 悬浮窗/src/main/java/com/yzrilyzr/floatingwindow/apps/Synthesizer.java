@@ -369,7 +369,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 				waves.remove(w);
 				notifyDataSetChanged();
 			}
-			if(wh==1)p.setValue(w[2]);
+			if(wh==1)p.setValue(1f/w[2]);
 			else if(wh==2)p.setValue(w[1]);
 			else if(wh==3)p.setValue(w[3]);
 			setText();
@@ -378,13 +378,13 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 		@Override
 		public void onChange(FloatPicker p, float f)
 		{
-			if(wh==1)w[2]=f;
+			if(wh==1)w[2]=1f/f;
 			else if(wh==2)w[1]=f;
 			else if(wh==3)w[3]=f;
 			setText();
 		}
 		void setText(){
-			d.setText((wh==1?">":"")+"f:"+w[2]);
+			d.setText((wh==1?">":"")+"f:"+(1f/w[2]));
 			e.setText((wh==2?">":"")+"A:"+w[1]);
 			f.setText((wh==3?">":"")+"φ:"+w[3]);
 		}
@@ -401,6 +401,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			e.setOnClickListener(this);
 			f.setOnClickListener(this);
 			c.setOnClickListener(this);
+			p.setListener(this);
 			setText();
 		}
 	}

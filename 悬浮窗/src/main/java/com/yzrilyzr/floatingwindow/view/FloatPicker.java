@@ -92,6 +92,7 @@ public class FloatPicker extends View
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		// TODO: Implement this method
+		getParent().requestDisallowInterceptTouchEvent(true);
 		float c=width/2;
 		float r=width/6;
 		float x=event.getX(),y=event.getY();
