@@ -39,7 +39,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 	int TEST_FORMAT= AudioFormat.ENCODING_PCM_16BIT;
 	int TEST_MODE =AudioTrack.MODE_STREAM;
 	int TEST_STREAM_TYPE = AudioManager.STREAM_MUSIC;
-	int minBuffSize = AudioTrack.getMinBufferSize(TEST_SR, TEST_CONF, TEST_FORMAT);
+	int minBuffSize =AudioTrack.getMinBufferSize(TEST_SR, TEST_CONF, TEST_FORMAT);
 	myListView list;
 	boolean run=true;
 	CopyOnWriteArrayList<float[]> waves=new CopyOnWriteArrayList<float[]>();
@@ -115,11 +115,11 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 				@Override
 				public void onClick(View p1)
 				{
-					//x A f fai
-					//x A f width rise fall delay
-					//x A f fai   ftri sync syncRatio
-					if(l==0)waves.add(new float[]{0,10000,1000,0});
-					else if(l==1)waves.add(new float[]{0,10000,1000,0.4f,0.1f,0.1f,0});
+					//x A p fai
+					//x A p width rise fall delay
+					//x A p fai   ftri sync syncRatio
+					if(l==0)waves.add(new float[]{0,10000,1,0});
+					else if(l==1)waves.add(new float[]{0,10000,1,0.4f,0.1f,0.1f,0});
 					//else if(l==2)waves.add(new float[]{0,10000,1000,0,10000,0,1});
 					for(float[] c:waves)c[0]=0;
 					notifyDataSetChanged();
@@ -273,8 +273,10 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 						for(int j=0;j<waves.size();j++)
 						{
 							float[] w=waves.get(j);
-							if(w.length==4)data[i]+=w[1]*sin(w[0],1f/w[2],w[3]);
-							w[0]+=1f/w[2];
+							if(w.length==4)data[i]+=w[1]*sin(w[0],w[2],w[3]);
+							else if(w.length==7)data[i]+=w[1]*pwm(w[0],w[2],w[3],w[4],w[5],w[6]);
+							w[0]+=1f/(float)TEST_SR;
+							w[0]%=1;
 						}
 					}
 				else
@@ -322,7 +324,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 	@Override
 	public View getView(int p1, View convertView, ViewGroup p3)
 	{
-		if(p1==waves.size())return addl;
+		if(p1==0)return addl;
 		else
 		{
 			Holder hd=null;
@@ -339,7 +341,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 				convertView=hd.vg;
 				convertView.setTag(hd);
 			}
-			hd.set(waves.get(p1));
+			hd.set(waves.get(p1-1));
 			return convertView;
 		}
 	}
@@ -349,10 +351,9 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 	//A f fai   ftri sync syncRatio
 	private class Holder extends BaseHolder implements OnClickListener,FloatPicker.FloatPickerEvent
 	{
-		TextView d,e,f;
-		View c;
+		TextView d,e,f,g,h,i;
+		View c,q;
 		float[] w;
-		int wh=1;
 		FloatPicker p;
 		public Holder(Context ctx)
 		{
@@ -362,31 +363,42 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 		@Override
 		public void onClick(View p1)
 		{
-			if(p1==d)wh=1;
-			else if(p1==e)wh=2;
-			else if(p1==f)wh=3;
-			else if(p1==c){
+			q=p1;
+			if(p1==c){
 				waves.remove(w);
 				notifyDataSetChanged();
 			}
-			if(wh==1)p.setValue(1f/w[2]);
-			else if(wh==2)p.setValue(w[1]);
-			else if(wh==3)p.setValue(w[3]);
+			if(d==q)p.setValue(1f/w[2]);
+			else if(e==q)p.setValue(w[1]);
+			else if(f==q&&w.length==4)p.setValue(w[3]);
+			else if(f==q&&w.length==7)p.setValue(w[3]*100f);
+			else if(g==q)p.setValue(w[4]*100f);
+			else if(h==q)p.setValue(w[5]*100f);
+			else if(i==q)p.setValue(w[6]*100f);
 			setText();
 		}
 
 		@Override
-		public void onChange(FloatPicker p, float f)
+		public void onChange(FloatPicker p, float pf)
 		{
-			if(wh==1)w[2]=1f/f;
-			else if(wh==2)w[1]=f;
-			else if(wh==3)w[3]=f;
+			if(d==q)w[2]=1f/pf;
+			else if(e==q)w[1]=pf;
+			else if(f==q&&w.length==4)w[3]=pf;
+			else if(f==q&&w.length==7)w[3]=pf/100f;
+			else if(g==q)w[4]=pf/100f;
+			else if(h==q)w[5]=pf/100f;
+			else if(i==q)w[6]=pf/100f;
 			setText();
 		}
 		void setText(){
-			d.setText((wh==1?">":"")+"f:"+(1f/w[2]));
-			e.setText((wh==2?">":"")+"A:"+w[1]);
-			f.setText((wh==3?">":"")+"φ:"+w[3]);
+			d.setText((d==q?">":"")+"f:"+(int)(1f/w[2]*100)/100f);
+			e.setText((e==q?">":"")+"A:"+(int)(w[1]*100)/100f);
+			f.setText((f==q?">":"")+(w.length==4?"φ:"+(int)(w[3]*180.0/Math.PI*10000)/10000f+"°":w.length==7?"w:"+(int)(w[3]*10000)/100f+"%":""));
+			if(w.length<=4)return;
+			g.setText((g==q?">":"")+"r:"+(int)(w[4]*10000)/100f+"%");
+			h.setText((h==q?">":"")+"f:"+(int)(w[5]*10000)/100f+"%");
+			i.setText((i==q?">":"")+"d:"+(int)(w[6]*10000)/100f+"%");
+			
 		}
 		@Override
 		public void set(Object data)
@@ -396,13 +408,31 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			d=(TextView) find(R.id.windowsignalentrymyTextView1);
 			e=(TextView) find(R.id.windowsignalentrymyTextView2);
 			f=(TextView) find(R.id.windowsignalentrymyTextView3);
+			g=(TextView) find(R.id.windowsignalentrymyTextView4);
+			h=(TextView) find(R.id.windowsignalentrymyTextView5);
+			i=(TextView) find(R.id.windowsignalentrymyTextView6);
 			p=(FloatPicker)find(R.id.windowsignalentryFloatPicker1);
 			d.setOnClickListener(this);
 			e.setOnClickListener(this);
 			f.setOnClickListener(this);
+			g.setOnClickListener(this);
+			h.setOnClickListener(this);
+			i.setOnClickListener(this);
 			c.setOnClickListener(this);
 			p.setListener(this);
+			if(w.length==4){
+				g.setVisibility(8);
+				h.setVisibility(8);
+				i.setVisibility(8);
+			}
 			setText();
+			if(d==q)p.setValue(1f/w[2]);
+			else if(e==q)p.setValue(w[1]);
+			else if(f==q&&w.length==4)p.setValue(w[3]);
+			else if(f==q&&w.length==7)p.setValue(w[3]*100f);
+			else if(g==q)p.setValue(w[4]*100f);
+			else if(h==q)p.setValue(w[5]*100f);
+			else if(i==q)p.setValue(w[6]*100f);
 		}
 	}
 

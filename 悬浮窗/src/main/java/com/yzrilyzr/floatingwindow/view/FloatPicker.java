@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Typeface;
+import android.os.Looper;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -86,7 +86,8 @@ public class FloatPicker extends View
 		float v=getValue();
 		//if(v==0)canvas.drawText("/",cx,cy+met.bottom*1.2f,paint);
 		//else 
-			canvas.drawText(Float.toString(v),cx,cy+met.bottom*1.2f,paint);
+		paint.setTextSize(r/2);
+			canvas.drawText(Float.toString(v),cx,cy+met.bottom,paint);
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
@@ -156,6 +157,9 @@ public class FloatPicker extends View
 		tvalue=Math.pow(10,i-2);
 		degree=(v2-tvalue)/9/tvalue*(Math.PI*2.0)-Math.PI/2.0;
 		value=v2;
+		Looper l=util.ctx.getMainLooper();
+		if(l.isCurrentThread())invalidate();
+		else postInvalidate();
 	}
 	public interface FloatPickerEvent
 	{
