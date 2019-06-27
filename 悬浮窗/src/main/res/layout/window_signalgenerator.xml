@@ -25,7 +25,7 @@
 		<com.yzrilyzr.ui.myTextView
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:text="使用曲谱生成:"/>
+			android:text="载入参数:"/>
 
 		<com.yzrilyzr.icondesigner.VecView
 			android:layout_height="30dp"
@@ -36,7 +36,7 @@
 		<com.yzrilyzr.icondesigner.VecView
 			android:layout_height="30dp"
 			android:layout_width="30dp"
-			vec="play"
+			vec="save"
 			android:id="@+id/windowsignalgeneratorVecView2"/>
 
 	</LinearLayout>

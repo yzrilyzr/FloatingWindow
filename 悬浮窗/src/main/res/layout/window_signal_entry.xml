@@ -9,7 +9,8 @@
 	<com.yzrilyzr.icondesigner.VecView
 		android:layout_height="30dp"
 		android:layout_width="30dp"
-		vec="sinwave"/>
+		vec="sinwave"
+		android:id="@+id/windowsignalentryVecView2"/>
 
 	<LinearLayout
 		android:layout_height="wrap_content"

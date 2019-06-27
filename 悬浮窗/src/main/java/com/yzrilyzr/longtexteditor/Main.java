@@ -42,42 +42,42 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 	{
 		ctx=c;
 		w=new Window(c,util.px(310),util.px(350))
-			.setTitle("文本编辑器")
-			.setOnButtonDown(this)
-			.setOnCrash(this)
-			.setIcon("lte")
-			.show();
+		.setTitle("文本编辑器")
+		.setOnButtonDown(this)
+		.setOnCrash(this)
+		.setIcon("lte")
+		.show();
 		/*if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M){
-			util.toast("不支持该系统");
-			try
-			{
-				String p=e.getStringExtra("path");
-				StringBuilder sb=new StringBuilder();
-				if(p!=null)
-				{
-					File f=new File(p);
-					file=f.getAbsolutePath();
-					String st="";
-					BufferedReader br=new BufferedReader(new FileReader(p));
-					while((st=br.readLine())!=null)
-					{
-						sb.append(st);
-					}
-					br.close();
-				}
-				p=e.getStringExtra("text");
-				if(p!=null)
-				{
-					sb.append(p);
-				}
-				w.setMessage(sb.toString());
-			}
-			catch(Exception ex)
-			{
-			}
-			return;
-		}
-		*/
+		 util.toast("不支持该系统");
+		 try
+		 {
+		 String p=e.getStringExtra("path");
+		 StringBuilder sb=new StringBuilder();
+		 if(p!=null)
+		 {
+		 File f=new File(p);
+		 file=f.getAbsolutePath();
+		 String st="";
+		 BufferedReader br=new BufferedReader(new FileReader(p));
+		 while((st=br.readLine())!=null)
+		 {
+		 sb.append(st);
+		 }
+		 br.close();
+		 }
+		 p=e.getStringExtra("text");
+		 if(p!=null)
+		 {
+		 sb.append(p);
+		 }
+		 w.setMessage(sb.toString());
+		 }
+		 catch(Exception ex)
+		 {
+		 }
+		 return;
+		 }
+		 */
 		v=(ViewGroup) w.addView(R.layout.window_longtexteditor);
 		l=(LongTextView)v.findViewById(R.id.mainLongTextView1);
 		((View)v.findViewById(R.id.windowlongtexteditorVecView1)).setOnClickListener(this);
@@ -139,9 +139,9 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 					for(File k:fs)
 					{
 						API.startService(ctx,new Intent()
-										 .putExtra("path",k.getAbsolutePath())
-										 .putExtra("crash",true)
-										 ,cls.TEXTEDITOR);
+						.putExtra("path",k.getAbsolutePath())
+						.putExtra("crash",true)
+						,cls.TEXTEDITOR);
 					}
 				}
 			}
@@ -159,12 +159,12 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 			if("	".equals(s))t.setText("↹");
 			t.setGravity(Gravity.CENTER);
 			t.setOnClickListener(new OnClickListener(){
-					@Override
-					public void onClick(View p1)
-					{
-						l.commitText(s,0);
-					}
-				});
+				@Override
+				public void onClick(View p1)
+				{
+					l.commitText(s,0);
+				}
+			});
 			sc.addView(t);
 		}
 		SharedPreferences sp=util.getSPRead("longtexteditor");
@@ -189,8 +189,11 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 			{
 				while(!destroy)try
 					{
-						if(l.curSyntax!=null)l.highLight();
-						else l.span.clear();
+						if(!w.getMin())
+						{
+							if(l.curSyntax!=null)l.highLight();
+							else l.span.clear();
+						}
 						Thread.sleep(2);
 					}
 					catch(Throwable e)
@@ -202,8 +205,11 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 			{
 				while(!destroy)try
 					{
-						if(l.curSyntax!=null)l.highLightNow();
-						else l.nowspan.clear();
+						if(!w.getMin())
+						{
+							if(l.curSyntax!=null)l.highLightNow();
+							else l.nowspan.clear();
+						}
 						Thread.sleep(2);
 					}
 					catch(Throwable e)
@@ -234,31 +240,31 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 		{
 			if(changed)
 				new myDialog.Builder(ctx)
-					.setMessage("是否保存对 \""+new File(file).getName()+"\" 的更改?")
-					.setPositiveButton("保存",new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface p1, int p2)
-						{
-							Main.this.onClick(v.findViewById(R.id.windowlongtexteditorVecView2));
-							destroy=true;
-						}
-					})
-					.setNegativeButton("不保存",new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface p1, int p2)
-						{
-							destroy=true;
-						}
-					})
-					.setNeutralButton("返回",new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface p1, int p2)
-						{
-							w.show();
-						}
-					})
-					.show()
-					.setCancelable(false);
+				.setMessage("是否保存对 \""+new File(file).getName()+"\" 的更改?")
+				.setPositiveButton("保存",new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface p1, int p2)
+					{
+						Main.this.onClick(v.findViewById(R.id.windowlongtexteditorVecView2));
+						destroy=true;
+					}
+				})
+				.setNegativeButton("不保存",new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface p1, int p2)
+					{
+						destroy=true;
+					}
+				})
+				.setNeutralButton("返回",new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface p1, int p2)
+					{
+						w.show();
+					}
+				})
+				.show()
+				.setCancelable(false);
 			else destroy=true;
 		}
 	}
@@ -284,69 +290,69 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 		{
 			case R.id.windowlongtexteditorVecView1:
 				API.startServiceForResult(ctx,w,new BroadcastReceiver(){
-						@Override
-						public void onReceive(Context c,Intent e)
+					@Override
+					public void onReceive(Context c,Intent e)
+					{
+						try
 						{
-							try
-							{
-								file=e.getStringExtra("path");
-								l.clear();
-								l.span.clear();
-								l.yOff=0;
-								l.yVel=0;
-								BufferedReader read=new BufferedReader(new FileReader(file));
-								String b="";
-								while((b=read.readLine())!=null)l.addText(b);
-								read.close();
-								w.setTitle(new File(file).getName());
-								((View)v.findViewById(R.id.windowlongtexteditorVecView14)).setVisibility(file.toLowerCase().endsWith(".js")?0:8);
-							}
-							catch(Exception ex)
-							{
-								myToast.makeText(ctx,"打开失败",0).show();
-							}
+							file=e.getStringExtra("path");
+							l.clear();
+							l.span.clear();
+							l.yOff=0;
+							l.yVel=0;
+							BufferedReader read=new BufferedReader(new FileReader(file));
+							String b="";
+							while((b=read.readLine())!=null)l.addText(b);
+							read.close();
+							w.setTitle(new File(file).getName());
+							((View)v.findViewById(R.id.windowlongtexteditorVecView14)).setVisibility(file.toLowerCase().endsWith(".js")?0:8);
 						}
-					},cls.EXPLORER);
+						catch(Exception ex)
+						{
+							myToast.makeText(ctx,"打开失败",0).show();
+						}
+					}
+				},cls.EXPLORER);
 				break;
 			case R.id.windowlongtexteditorVecView2:
 				if(new File(file).exists())
 					new myDialog.Builder(ctx)
-						.setMessage("文件已存在，是否覆盖？")
-						.setPositiveButton("确定",new DialogInterface.OnClickListener(){
-							@Override
-							public void onClick(DialogInterface p1, int p2)
-							{
-								save();
-							}
-						})
-						.setNegativeButton("取消",null)
-						.show();
+					.setMessage("文件已存在，是否覆盖？")
+					.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface p1, int p2)
+						{
+							save();
+						}
+					})
+					.setNegativeButton("取消",null)
+					.show();
 				else API.startServiceForResult(ctx,new Intent().putExtra("save",true).putExtra("savefile","新建文件.txt"),w,new BroadcastReceiver(){
-							@Override
-							public void onReceive(Context c,Intent e)
-							{
-								file=e.getStringExtra("path");
-								if(new File(file).exists())
-									new myDialog.Builder(ctx)
-										.setMessage("文件已存在，是否覆盖？")
-										.setPositiveButton("确定",new DialogInterface.OnClickListener(){
-											@Override
-											public void onClick(DialogInterface p1, int p2)
-											{
-												save();
-											}
-										})
-										.setNegativeButton("取消",new DialogInterface.OnClickListener(){
-											@Override
-											public void onClick(DialogInterface p1, int p2)
-											{
-												file="";
-											}
-										})
-										.show();
-								else save();
-							}
-						},cls.EXPLORER);
+						@Override
+						public void onReceive(Context c,Intent e)
+						{
+							file=e.getStringExtra("path");
+							if(new File(file).exists())
+								new myDialog.Builder(ctx)
+								.setMessage("文件已存在，是否覆盖？")
+								.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+									@Override
+									public void onClick(DialogInterface p1, int p2)
+									{
+										save();
+									}
+								})
+								.setNegativeButton("取消",new DialogInterface.OnClickListener(){
+									@Override
+									public void onClick(DialogInterface p1, int p2)
+									{
+										file="";
+									}
+								})
+								.show();
+							else save();
+						}
+					},cls.EXPLORER);
 				break;
 			case R.id.windowlongtexteditorVecView3:
 				View g=v.findViewById(R.id.mainLinearLayout2);
@@ -374,24 +380,24 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 					b.append(s).append(",");
 				final String[] ss=b.toString().substring(0,b.length()-1).split(",");
 				new myDialog.Builder(ctx)
-					.setTitle("选择高亮语法")
-					.setItems(ss,new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface pp1, int p2)
+				.setTitle("选择高亮语法")
+				.setItems(ss,new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface pp1, int p2)
+					{
+						if(p2==0)
 						{
-							if(p2==0)
-							{
-								l.curSyntax=null;
-								((VecView)p1).setImageVec("highlightoff");
-							}
-							else
-							{
-								l.curSyntax=l.syntax.get(ss[p2]);
-								((VecView)p1).setImageVec("highlight");
-							}
+							l.curSyntax=null;
+							((VecView)p1).setImageVec("highlightoff");
 						}
-					})
-					.show();
+						else
+						{
+							l.curSyntax=l.syntax.get(ss[p2]);
+							((VecView)p1).setImageVec("highlight");
+						}
+					}
+				})
+				.show();
 				break;
 			case R.id.windowlongtexteditorVecView7:
 
@@ -400,7 +406,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 
 				break;
 			case R.id.windowlongtexteditorVecView9:
-API.startService(ctx,"com.yzrilyzr.longtexteditor.Settings");
+				API.startService(ctx,"com.yzrilyzr.longtexteditor.Settings");
 				break;
 			case R.id.windowlongtexteditorVecView10:
 				l.findUp(((EditText)v.findViewById(R.id.mainEditText1)).getText().toString());

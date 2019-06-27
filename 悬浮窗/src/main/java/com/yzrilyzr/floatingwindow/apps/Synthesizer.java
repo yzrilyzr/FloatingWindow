@@ -1,5 +1,4 @@
 package com.yzrilyzr.floatingwindow.apps;
-import android.widget.*;
 import com.yzrilyzr.ui.*;
 
 import android.content.BroadcastReceiver;
@@ -13,28 +12,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
+import com.yzrilyzr.floatingwindow.view.FloatPicker;
 import com.yzrilyzr.floatingwindow.view.PianoRoll;
 import com.yzrilyzr.floatingwindow.viewholder.BaseHolder;
+import com.yzrilyzr.icondesigner.VecView;
 import com.yzrilyzr.myclass.Pcm;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import com.yzrilyzr.floatingwindow.view.FloatPicker;
 
 public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runnable,OnClickListener
 {
 	//WaveView view;
 	AudioTrack track;
 	int TEST_SR =48000;
-    int BufferSize=2000;
+    int BufferSize=2400;
 	int TEST_CONF =AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	int TEST_FORMAT= AudioFormat.ENCODING_PCM_16BIT;
 	int TEST_MODE =AudioTrack.MODE_STREAM;
@@ -46,7 +51,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 	private Context ctx;
 	Oscilloscope osc=null;
 	private LinearLayout addl;
-	View sosc,play,open;
+	View sosc,save,open;
 	String path;
 	boolean parse=false;
 	private Window w;
@@ -62,7 +67,8 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 		.setTitle("音频合成器")
 		.setOnButtonDown(this)
 		.show();
-		path=util.getSPRead().getString("SignalGeneratorPath",null);
+		//path=util.getSPRead().getString("SignalGeneratorPath",null);
+		//open();
 		ViewGroup vg=(ViewGroup)w.addView(R.layout.window_signalgenerator);
 		myTabLayout t=new myTabLayout(ctx);
 		myViewPager v=new myViewPager(ctx);
@@ -102,10 +108,10 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 
 		v.setPages(list,b,vg2);
 		sosc=vg.findViewById(R.id.windowsignalgeneratormyButton1);
-		play=vg.findViewById(R.id.windowsignalgeneratorVecView2);
+		save=vg.findViewById(R.id.windowsignalgeneratorVecView2);
 		open=vg.findViewById(R.id.windowsignalgeneratorVecView1);
 		sosc.setOnClickListener(this);
-		play.setOnClickListener(this);
+		save.setOnClickListener(this);
 		open.setOnClickListener(this);
 		addl=(LinearLayout) LayoutInflater.from(ctx).inflate(R.layout.window_signal_addentry,null);
 		for(int i=0;i<3;i++)
@@ -155,6 +161,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 						util.getSPWrite()
 						.putString("SignalGeneratorPath",path)
 						.commit();
+						open();
 					}
 					catch(Exception ex)
 					{
@@ -162,9 +169,49 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 					}
 				}
 			},cls.EXPLORER);
-		else if(p1==play)
+		else if(p1==save)
 		{
-			parse=true;
+			//parse=true;
+			File f=new File(util.mainDir+"音频合成器/合成参数");
+			if(!f.exists())f.mkdirs();
+			if(new File(path).exists())
+				new myDialog.Builder(ctx)
+				.setMessage("文件已存在，是否覆盖？")
+				.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface p1, int p2)
+					{
+						save();
+					}
+				})
+				.setNegativeButton("取消",null)
+				.show();
+			else API.startServiceForResult(ctx,new Intent().putExtra("save",true).putExtra("savefile","新建文件.txt"),w,new BroadcastReceiver(){
+					@Override
+					public void onReceive(Context c,Intent e)
+					{
+						path=e.getStringExtra("path");
+						if(new File(path).exists())
+							new myDialog.Builder(ctx)
+							.setMessage("文件已存在，是否覆盖？")
+							.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+								@Override
+								public void onClick(DialogInterface p1, int p2)
+								{
+									save();
+								}
+							})
+							.setNegativeButton("取消",new DialogInterface.OnClickListener(){
+								@Override
+								public void onClick(DialogInterface p1, int p2)
+								{
+									path="";
+								}
+							})
+							.show();
+						else save();
+					}
+				},cls.EXPLORER);
 		}
 		else
 		{
@@ -228,17 +275,67 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			filestat.setText(String.format("BPM:%d %d%d Q:%d",roll.bpm,roll.beats,roll.beatsUnit,roll.qlen));
 		}
 	}
-	/*
-	@Override
-	public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+	public void open()
 	{
-		//if(p3==waves.size())
+		try
 		{
-			//waves.add(new Wave(1000,10000,0));
-			notifyDataSetChanged();
-			//for(Wave w:waves)w.ω=0;
+			BufferedReader br=new BufferedReader(new FileReader(path));
+			int line=1;
+			String st="";
+			HashMap<String,ArrayList<float[]>> sc=new HashMap<String,ArrayList<float[]>>();
+			ArrayList<float[]> wavs=null;
+			while((st=br.readLine())!=null)
+			{
+				try
+				{
+					if(st.startsWith("#"));
+					else if(st.startsWith("NAME:"))w.setTitle("音频合成器:"+st.substring(5));
+					else if(st.startsWith("SCHEME:"))sc.put(st.substring(7),wavs=new ArrayList<float[]>());
+					else if(st.startsWith("SIN:")){
+						String[] k=st.substring(4).split(" ");
+						if(k.length!=3)throw new 语法错误("参数错误:SIN 应该有3个参数",line);
+						float[] f=new float[4];
+						if(k[0].startsWith("B"))f[2]=1f/(512f*Float.parseFloat(k[0].substring(1)));
+						else f[2]=1f/Float.parseFloat(k[0]);
+						f[1]=Float.parseFloat(k[1]);
+						f[3]=(float)(Float.parseFloat(k[2])/180.0*Math.PI);
+						wavs.add(f);
+						waves.add(f);
+					}
+					else if(st.startsWith("PWM:"))
+					{
+						/*String[] k=st.substring(4).split(" ");
+						float[] f=new float[6];
+						for(String z:k)ins.add(Float.parseFloat(z));
+						if(ins.size()%4!=0)throw new 语法错误("参数错误:PWM 应该有6个参数",line);*/
+					}
+				}
+				catch(Throwable e)
+				{
+					throw new 语法错误("解析出错:"+st,line);
+				}
+			}
 		}
-	}*/
+		catch(Throwable e)
+		{
+			util.toast(e);
+		}
+	}
+	public void save()
+	{
+
+	}
+	/*
+	 @Override
+	 public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4)
+	 {
+	 //if(p3==waves.size())
+	 {
+	 //waves.add(new Wave(1000,10000,0));
+	 notifyDataSetChanged();
+	 //for(Wave w:waves)w.ω=0;
+	 }
+	 }*/
 	@Override
 	public void onButtonDown(int code)
 	{
@@ -275,8 +372,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 							float[] w=waves.get(j);
 							if(w.length==4)data[i]+=w[1]*sin(w[0],w[2],w[3]);
 							else if(w.length==7)data[i]+=w[1]*pwm(w[0],w[2],w[3],w[4],w[5],w[6]);
-							w[0]+=1f/(float)TEST_SR;
-							w[0]%=1;
+							w[0]=(w[0]+1f/(float)TEST_SR)%1f;
 						}
 					}
 				else
@@ -364,7 +460,8 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 		public void onClick(View p1)
 		{
 			q=p1;
-			if(p1==c){
+			if(p1==c)
+			{
 				waves.remove(w);
 				notifyDataSetChanged();
 			}
@@ -390,7 +487,8 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			else if(i==q)w[6]=pf/100f;
 			setText();
 		}
-		void setText(){
+		void setText()
+		{
 			d.setText((d==q?">":"")+"f:"+(int)(1f/w[2]*100)/100f);
 			e.setText((e==q?">":"")+"A:"+(int)(w[1]*100)/100f);
 			f.setText((f==q?">":"")+(w.length==4?"φ:"+(int)(w[3]*180.0/Math.PI*10000)/10000f+"°":w.length==7?"w:"+(int)(w[3]*10000)/100f+"%":""));
@@ -398,7 +496,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			g.setText((g==q?">":"")+"r:"+(int)(w[4]*10000)/100f+"%");
 			h.setText((h==q?">":"")+"f:"+(int)(w[5]*10000)/100f+"%");
 			i.setText((i==q?">":"")+"d:"+(int)(w[6]*10000)/100f+"%");
-			
+
 		}
 		@Override
 		public void set(Object data)
@@ -420,10 +518,18 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 			i.setOnClickListener(this);
 			c.setOnClickListener(this);
 			p.setListener(this);
-			if(w.length==4){
+			if(w.length==4)
+			{
 				g.setVisibility(8);
 				h.setVisibility(8);
 				i.setVisibility(8);
+				((VecView)find(R.id.windowsignalentryVecView2)).setImageVec("sinwave");
+			}
+			else if(w.length==7){
+				g.setVisibility(0);
+				h.setVisibility(0);
+				i.setVisibility(0);
+				((VecView)find(R.id.windowsignalentryVecView2)).setImageVec("rectwave");
 			}
 			setText();
 			if(d==q)p.setValue(1f/w[2]);
@@ -517,12 +623,12 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 					if(ins.size()%4!=0)throw new 语法错误("参数错误:PWM 应该有4个参数",line);
 				}
 				else if(st.startsWith("PITCH:"))pitches.add(Integer.parseInt(st.substring(6)));
-				else if(st.startsWith("PART:"))clist=new ArrayList<Integer>();
-				else if(st.startsWith("END"))
+				else if(st.startsWith("PART:"))list.add(clist=new ArrayList<Integer>());
+				/*else if(st.startsWith("END"))
 				{
 					list.add(clist);
 					clist=null;
-				}
+				}*/
 				else
 				{
 					if(bpm==0)throw new 语法错误("BPM不能为0",line);
