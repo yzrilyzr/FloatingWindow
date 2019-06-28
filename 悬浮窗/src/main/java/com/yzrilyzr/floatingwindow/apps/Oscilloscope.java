@@ -84,7 +84,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 
 						private RandomAccessFile raf;
 						long pos=0;
-						int ch=2,sr=44100,q=16;
+						int ch=2,sr=48000,q=16;
 						private void update()
 						{
 							try
@@ -169,7 +169,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 								 header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
 								 header[43] = (byte) ((totalAudioLen >> 24) & 0xff);*/
 								 q=16;
-								 sr=44100;
+								 sr=48000;
 								 ch=2;
 								osc.setSr(sr);
 								Window w=new Window(ctx,util.px(200),util.px(220))

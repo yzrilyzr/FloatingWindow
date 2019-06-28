@@ -715,7 +715,7 @@ public class Synthesizer extends BaseAdapter implements Window.OnButtonDown,Runn
 				{ol=o;pp=!pp;continue;}
 				if(oid==-100||oid==-300)
 				{o+=len;continue;}
-				float t=1f/16.414375f/(float)Math.pow(2,id/12f);
+				float t=1f/16.3515981f/(float)Math.pow(2,id/12f);
 				if(oid==33)t=olen/(float)TEST_SR;
 				else if(oid==34)t=2f*olen/(float)TEST_SR;
 				else if(oid==35)t=4f*olen/(float)TEST_SR;
