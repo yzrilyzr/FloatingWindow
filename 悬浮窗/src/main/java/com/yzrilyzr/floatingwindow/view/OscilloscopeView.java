@@ -157,10 +157,10 @@ public class OscilloscopeView extends View
 			p.setColor(0xff8610ff);
 			canvas.drawLine(e,0,e,getHeight(),p);
 			p.setColor(0xff10ff86);
+			float ff=x1*data.length/sr;
 			canvas.drawText(String.format("p=%dHz,y=%d,y%s=%f,%f",hz,yy,"%",(float)yy*100f/ftmax,ff),0,getHeight()-p.getTextSize()*1.2f,p);
 			Path b=new Path();
 			b.moveTo(getWidth()/2,getHeight()/2);
-			float ff=ff=x1*data.length/sr;
 			for(int j=0;j<data.length;j++){
 				b.lineTo(getWidth()/2+
 				(data[j]+32767)/100f*(float)Math.sin((float)j/(float)data.length*ff*Math.PI*2f),
