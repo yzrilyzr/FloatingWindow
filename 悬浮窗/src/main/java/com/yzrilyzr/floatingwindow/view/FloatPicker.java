@@ -138,7 +138,7 @@ public class FloatPicker extends View
 		if(ld<-1&&degree>4)tvalue/=10;
 		double aa=40.0/180.0*Math.PI;
 		if(mode==3)degree=Math.round((degree+Math.PI/2.0)/aa)*aa-Math.PI/2.0;
-		value=(degree+Math.PI/2.0)*9*tvalue/(Math.PI*2.0)+tvalue;
+		value=(float)((degree+Math.PI/2.0)*9.0*tvalue/(Math.PI*2.0)+tvalue);
 		if(event.getAction()==MotionEvent.ACTION_UP)mode=0;
 		if(listener!=null)listener.onChange(this,getValue());
 		invalidate();

@@ -14,17 +14,16 @@ import android.graphics.Matrix;
 
 public class OscilloscopeView extends View
 {
-	int[] data=new int[48000],ft=new int[8000];
-	float period=1f,gain=1,sr=48000;
+	int[] data=new int[2400],ft=new int[8000];
+	float sfreq=1f,gain=1,sr=48000;
 	Path path=new Path();
 	Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-	float avail=48000;
 	boolean hold=false;
 	private Runnable run;
-	float x1=-1,y1,x2=-1,y2;
+	int x1=-1,y1,x2=-1,y2;
+	float ftmax=0,yaverage=0,scanX=0;
 	int pointer=0;
 	Bitmap bmp=null;
-	float scanX=0;
 	public OscilloscopeView(Context c)
 	{
 		this(c,null);
@@ -52,6 +51,8 @@ public class OscilloscopeView extends View
 				{
 					try
 					{
+						x1=ft.length/3;
+						x2=ft.length*2/3;
 						bmp=Bitmap.createBitmap(getWidth(),getHeight(),Bitmap.Config.ARGB_8888);
 						Canvas c=new Canvas(bmp);
 						c.drawColor(0xff600000);
@@ -59,15 +60,18 @@ public class OscilloscopeView extends View
 						p.setColor(0xff10ff86);
 						p.setStyle(Paint.Style.STROKE);
 						p.setStrokeWidth(1);
-						//int[] data2=new int[x2-x1];
-						//System.arraycopy(data,x1,data2,0,data2.length);
 						float lastx=0,lasty=0;
+						ftmax=0;
+						int[] data2=new int[240];
+						System.arraycopy(data,0,data2,0,240);
 						for(int i=0;i<ft.length&&run==this;i++)
 						{
-							float o=Math.abs(Pcm.ft(i,data,32767));
+							float o=Math.abs(Pcm.ft(i*data.length/sr,data,32767));
+							//System.out.println(i);
 							ft[i]=(int)o;
-							c.drawLine(lastx,lasty,lastx=(bmp.getWidth()*i/8000f),lasty=(bmp.getHeight()-o/10f),p);
-							//if(i%10==0)postInvalidate();
+							ftmax=Math.max(ftmax,o);
+							c.drawPoint((bmp.getWidth()*i/8000f),lasty=(bmp.getHeight()-o/10f),p);
+							//c.drawLine(lastx,lasty,lastx=(bmp.getWidth()*i/8000f),lasty=(bmp.getHeight()-o/10f),p);
 						}
 					}
 					catch(Throwable e)
@@ -80,40 +84,38 @@ public class OscilloscopeView extends View
 	}
 	public void append(int[] x)
 	{
-		if(hold)return;
+		if(!hold)
 		System.arraycopy(x,0,data,0,Math.min(x.length,data.length));
-		//cur+=avail;
-		//cur%=x.length;
 	}
 	public void setSr(int x)
 	{
 		sr=x;
-		data=new int[x];
-		setAvail();
 	}
-	void setAvail()
+	public void setScan(float freq)
 	{
-		avail=sr*period;
-		x1=avail/3;
-		x2=avail*2/3;
-	}
-	public void setScan(float sc)
-	{
-		period=sc;
-		if(period>1)period=1;
-		setAvail();
+		sfreq=freq;
+		if(sfreq<1)sfreq=1;
+		x1=data.length/3;
+		x2=data.length*2/3;
 	}
 	public void setGain(float sc)
 	{
 		gain=sc;
 	}
-
+	public void lx(){
+		if(pointer==1)x1--;
+		else if(pointer==2)x2--;
+	}
+	public void rx(){
+		if(pointer==1)x1++;
+		else if(pointer==2)x2++;
+	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		float c=getWidth();
-		float gap=c/avail;
-		if(run!=null)gap=1;
+		float gap=c/data.length;
+		if(run!=null)gap=c/(float)ft.length;
 		float x=event.getX();
 		switch(event.getAction())
 		{
@@ -137,13 +139,13 @@ public class OscilloscopeView extends View
 			p.setColor(0xffffffff);
 			p.setStyle(Paint.Style.FILL);
 			canvas.drawBitmap(bmp,0,0,p);
-			x1=util.limit(x1,0,getWidth());
-			x2=util.limit(x2,x1,getWidth());
+			x1=util.limit(x1,0,ft.length);
+			x2=util.limit(x2,x1,ft.length);
 			int hz=0,yy=0;
-			int d=(int)(x1*ft.length/(float)getWidth());
-			int e=(int)(x2*ft.length/(float)getWidth());
-			for(int i=d;i<e;i++)yy=Math.max(yy,ft[i]);
-			for(int i=d;i<e;i++)
+			int d=(int)((float)getWidth()*x1/(float)ft.length);
+			int e=(int)((float)getWidth()*x2/(float)ft.length);
+			for(int i=x1;i<x2;i++)yy=Math.max(yy,ft[i]);
+			for(int i=x1;i<x2;i++)
 				if(ft[i]==yy)
 				{
 					hz=i;
@@ -151,56 +153,82 @@ public class OscilloscopeView extends View
 				}
 			p.setStyle(Paint.Style.FILL);
 			p.setColor(0xffff1086);
-			canvas.drawLine(x1,0,x1,getHeight(),p);
+			canvas.drawLine(d,0,d,getHeight(),p);
 			p.setColor(0xff8610ff);
-			canvas.drawLine(x2,0,x2,getHeight(),p);
+			canvas.drawLine(e,0,e,getHeight(),p);
 			p.setColor(0xff10ff86);
-			canvas.drawText(String.format("p=%dHz,y=%d",hz,yy),0,getHeight()-p.getTextSize()*1.2f,p);
-
+			canvas.drawText(String.format("p=%dHz,y=%d,y%s=%f,%f",hz,yy,"%",(float)yy*100f/ftmax,ff),0,getHeight()-p.getTextSize()*1.2f,p);
+			Path b=new Path();
+			b.moveTo(getWidth()/2,getHeight()/2);
+			float ff=ff=x1*data.length/sr;
+			for(int j=0;j<data.length;j++){
+				b.lineTo(getWidth()/2+
+				(data[j]+32767)/100f*(float)Math.sin((float)j/(float)data.length*ff*Math.PI*2f),
+				getHeight()/2+(data[j]+32767)/100f*(float)Math.cos((float)j/(float)data.length*ff*Math.PI*2f));
+			}
+			p.setStyle(Paint.Style.STROKE);
+			//canvas.drawLine(0,getHeight()/2,getWidth(),getHeight()/2,p);
+			canvas.drawPath(b,p);
+			p.setStyle(Paint.Style.FILL);
+			
 		}
 		else
 			try
 			{
-				path.reset();
-				x1=util.limit(x1,1,avail-1);
-				x2=util.limit(x2,x1,avail-1);
-				float c=getWidth();
-				float gap=avail/c;
-				/*for(float i=0;i<c;i++)
-				 {
-				 int in=util.limit((int)util.limit(i*gap,0,avail),0,data.length-1);
-				 float y=util.limit(getHeight()/2+data[in]*gain/getHeight(),0,getHeight());
-				 if(i==0)path.moveTo(i,y);
-				 else path.lineTo(i,y);
-				 }*/
-				int ya=0;
-				for(int i=0;i<c/*data.length*/;i++)
+				x1=util.limit(x1,0,data.length-1);
+				x2=util.limit(x2,0,data.length-1);
+				float c=getWidth(),d=getHeight();
+				if(!hold)
 				{
-					float y=util.limit(getHeight()/2+data[i]*gain/getHeight(),0,getHeight());
-					ya+=Math.abs(data[i]);
-					path.lineTo(scanX,y);
-					//canvas.drawPoint(scanX,y,p);
-					scanX+=c/sr/period;
-					if(scanX>c)
-					{
-						scanX=0;
-						path.moveTo(-1,getHeight()/2);
+					path.reset();
+					yaverage=0;
+					if(sfreq==1)
+						for(int i=0;i<data.length;i++)
+						{
+							/*int in=util.limit((int)util.limit(i*gap,0,avail),0,data.length-1);
+							ya+=Math.abs(data[(int)i]);
+							float y=util.limit(getHeight()/2+data[in]*gain/getHeight(),0,getHeight());
+							*/
+							float y=util.limit(d/2+data[i]*gain/d,0,d);
+							yaverage+=Math.abs(data[i]);
+							if(i==0)path.moveTo(i,y);
+							else path.lineTo(i,y);
+						}
+					else
+						for(int i=0;i<data.length;i++)
+						{
+							float y=util.limit(d/2+data[i]*gain/d,0,d);
+							yaverage+=Math.abs(data[i]);
+							if(i==0)path.moveTo(scanX,y);
+							else path.lineTo(scanX,y);
+							scanX+=c*sfreq/sr;//2400 p/s =1hz
+							if(scanX>c)
+							{
+								scanX=0;
+								path.moveTo(0,getHeight()/2);
+							}
+						}
+					yaverage/=data.length;
 					}
-				}
-				canvas.drawRect(0,getHeight()-util.px(10),getWidth()*ya/327/data.length,getHeight(),p);
+				y1=data[x1];
+				y2=data[x2];
+				//System.out.println(ya);
+				canvas.drawRect(0,d-util.px(10),util.limit(c*yaverage*3/32767f,0,c),d,p);
 				p.setColor(0xff10ff86);
 				p.setStyle(Paint.Style.STROKE);
 				//canvas.drawLine(0,getHeight()/2,getWidth(),getHeight()/2,p);
 				canvas.drawPath(path,p);
-				y1=data[(int)x1];
-				y2=data[(int)x2];
+				float gap=c/data.length;
 				p.setStyle(Paint.Style.FILL);
 				p.setColor(0xffff1086);
-				canvas.drawLine(x1/gap,0,x1/gap,getHeight(),p);
+				canvas.drawLine(x1*gap,0,x1*gap,getHeight(),p);
 				p.setColor(0xff8610ff);
-				canvas.drawLine(x2/gap,0,x2/gap,getHeight(),p);
+				canvas.drawLine(x2*gap,0,x2*gap,getHeight(),p);
 				p.setColor(0xff10ff86);
-				canvas.drawText(String.format("w=%fHz,dx=%fHz,y1=%f,y2=%f",(float)data.length/(float)avail,(float)data.length/(float)(x2-x1),y1,y2),0,getHeight()-p.getTextSize()*1.2f,p);
+				canvas.drawText(String.format("w=%fHz,dx=%fHz,y1=%d,y2=%d",
+				sfreq==1?(sr/(float)data.length):sfreq,
+				sfreq==1?sr/(float)Math.abs(x2-x1):sfreq*(float)data.length/(float)Math.abs(x2-x1),y1,y2),
+				0,getHeight()-p.getTextSize()*1.2f,p);
 			}
 			catch(Throwable e)
 			{

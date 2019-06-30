@@ -40,7 +40,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	boolean recing=false;
 	Context ctx;
 	protected Window w;
-	View b1,b2;
+	View b1,b2,b3,b4;
 	public Oscilloscope(Context c,Intent e)
 	{
 		ctx=c;
@@ -61,6 +61,10 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		b2=vg.findViewById(R.id.windowoscilloscopeButton2);
 		b1.setOnClickListener(this);
 		b2.setOnClickListener(this);
+		b3=vg.findViewById(R.id.windowoscilloscopemyButton3);
+		b4=vg.findViewById(R.id.windowoscilloscopemyButton4);
+		b3.setOnClickListener(this);
+		b4.setOnClickListener(this);
 		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
@@ -285,7 +289,9 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	public void onClick(View p1)
 	{
 		if(p1==b1)osc.setHold(((CompoundButton)p1).isChecked());
-		if(p1==b2)osc.setft();
+		else if(p1==b2)osc.setft();
+		else if(p1==b3)osc.lx();
+		else if(p1==b4)osc.rx();
 	}
 	@Override
 	public void onButtonDown(int code)
@@ -336,7 +342,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	public void onChange(FloatPicker p, float f)
 	{
 		if(f==0)f=0.01f;
-		if(p==pa)osc.setScan(1f/f);
+		if(p==pa)osc.setScan(f);
 		else if(p==pb)osc.setGain(f);
 	}
 }
