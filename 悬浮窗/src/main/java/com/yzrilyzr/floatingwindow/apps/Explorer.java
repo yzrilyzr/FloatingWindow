@@ -644,6 +644,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 							if(p1==a)sortstyle=0;
 							else if(p1==b)sortstyle=1;
 							else if(p1==c)sortstyle=2;
+							adap.notifyDataSetChanged();
 						}
 					}
 				};
@@ -667,6 +668,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 						y.setBackgroundColor(sorttype==5?uidata.ACCENT:0);
 						u.setBackgroundColor(sorttype==6?uidata.ACCENT:0);
 						i.setBackgroundColor(sorttype==7?uidata.ACCENT:0);
+						list();
 					}
 				};
 				a.setOnCheckedChangeListener(ol);
@@ -767,6 +769,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 	private void setSearchMode(boolean m)
 	{
 		searchmode=m;
+		butt[3].setBackgroundColor(searchmode?uidata.ACCENT:0);
 		if(!m&&searchThread!=null)searchThread.cancel(true);
 		pathtext.setText(m?"":path==null?"我的手机":path);
 		pathtext.setHint(m?"搜索…":"输入路径以跳转");
@@ -1530,27 +1533,16 @@ Window.OnButtonDown,Window.OnSizeChanged
 			if(src==null)return;
 			w.setTitle(pf.getName());
 			pathtext.setText(pf.getAbsolutePath());
-			l.clear();
-			Comparator<mFile> cp=new Comparator<mFile>(){
-				@Override
-				public int compare(mFile p1, mFile p2)
-				{
-					return p1.getName().compareToIgnoreCase(p2.getName());
-				}
-			};
-			Arrays.sort(src,cp);
-			int fc=0,dc=0;
+			ArrayList<mFile> dirs=new ArrayList<mFile>(),files=new ArrayList<mFile>();
 			for(mFile f:src)if(f.isDirectory())
 				{
-					l.add(f);
-					dc++;
+					dirs.add(f);
 				}
 			if(category==null)
 			{
 				for(mFile f:src)if(f.isFile())
 					{
-						l.add(f);
-						fc++;
+						files.add(f);
 					}
 			}
 			else
@@ -1558,17 +1550,52 @@ Window.OnButtonDown,Window.OnSizeChanged
 				for(mFile f:src)
 					if(f.isFile()&&util.getMIMEType(f).contains(category))
 					{
-						l.add(f);
-						fc++;
+						files.add(f);
 					}
 			}
-			ss="文件夹:"+dc+",文件:"+fc;
+			Comparator<mFile> cp=new Comparator<mFile>(){
+				@Override
+				public int compare(mFile p1, mFile p2)
+				{
+					return p1.getName().compareToIgnoreCase(p2.getName());
+				}
+			};
+			Collections.sort(files,cp);
+			Collections.sort(dirs,cp);
+			cp=new Comparator<mFile>(){
+				@Override
+				public int compare(mFile p1, mFile p2)
+				{
+					if(sorttype==0)return p1.getName().compareToIgnoreCase(p2.getName());
+					else if(sorttype==1)return getFileExt(p1).compareToIgnoreCase(getFileExt(p2));
+					else if(sorttype==2)return p1.length()>p2.length()?1:-1;
+					else if(sorttype==3)return p1.lastModified()>p2.lastModified()?1:-1;
+					else if(sorttype==4)return -p1.getName().compareToIgnoreCase(p2.getName());
+					else if(sorttype==5)return -getFileExt(p1).compareToIgnoreCase(getFileExt(p2));
+					else if(sorttype==6)return -p1.length()>p2.length()?1:-1;
+					else if(sorttype==7)return -p1.lastModified()>p2.lastModified()?1:-1;
+					return 0;
+				}
+			};
+			Collections.sort(files,cp);
+			Collections.sort(dirs,cp);
+			l.clear();
+			l.addAll(dirs);
+			l.addAll(files);
+			ss="文件夹:"+dirs.size()+",文件:"+files.size();
 		}
 		tmpinfo=ss;
 		info.setText(ss);
 		adap.notifyDataSetChanged();
 		Object sy=scrY.get(path);
 		if(sy!=null)mlv.setSelection((int)sy);
+	}
+	private String getFileExt(mFile f){
+		String a=f.getName();
+		int c=a.lastIndexOf(".");
+		if(c==-1)return a;
+		else if(c+1<a.length())return a.substring(c+1);
+		else return "";
 	}
 	private void prop(final mFile f)
 	{
