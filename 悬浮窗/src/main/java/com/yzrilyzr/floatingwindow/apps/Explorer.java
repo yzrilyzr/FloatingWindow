@@ -1560,9 +1560,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 					return p1.getName().compareToIgnoreCase(p2.getName());
 				}
 			};
-			Collections.sort(files,cp);
-			Collections.sort(dirs,cp);
-			cp=new Comparator<mFile>(){
+			Comparator<mFile> cp2=new Comparator<mFile>(){
 				@Override
 				public int compare(mFile p1, mFile p2)
 				{
@@ -1570,15 +1568,16 @@ Window.OnButtonDown,Window.OnSizeChanged
 					else if(sorttype==1)return getFileExt(p1).compareToIgnoreCase(getFileExt(p2));
 					else if(sorttype==2)return p1.length()>p2.length()?1:-1;
 					else if(sorttype==3)return p1.lastModified()>p2.lastModified()?1:-1;
-					else if(sorttype==4)return -p1.getName().compareToIgnoreCase(p2.getName());
-					else if(sorttype==5)return -getFileExt(p1).compareToIgnoreCase(getFileExt(p2));
-					else if(sorttype==6)return -p1.length()>p2.length()?1:-1;
-					else if(sorttype==7)return -p1.lastModified()>p2.lastModified()?1:-1;
+					else if(sorttype==4)return -(p1.getName().compareToIgnoreCase(p2.getName()));
+					else if(sorttype==5)return -(getFileExt(p1).compareToIgnoreCase(getFileExt(p2)));
+					else if(sorttype==6)return p1.length()<p2.length()?1:-1;
+					else if(sorttype==7)return p1.lastModified()<p2.lastModified()?1:-1;
 					return 0;
 				}
 			};
-			Collections.sort(files,cp);
-			Collections.sort(dirs,cp);
+			Collections.sort(files,cp2);
+			if(sorttype==0||sorttype==3||sorttype==4||sorttype==7)Collections.sort(dirs,cp2);
+			else Collections.sort(dirs,cp);
 			l.clear();
 			l.addAll(dirs);
 			l.addAll(files);
