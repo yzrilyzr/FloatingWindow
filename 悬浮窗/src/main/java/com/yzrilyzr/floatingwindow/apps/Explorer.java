@@ -760,7 +760,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		this.select=select;
 		selected.clear();
 		w.setTitle(select?w.getTitle()+"(多选模式)":path==null?"存储设备":new mFile(path).getName());
-		butt[4].setBackgroundColor(select?uidata.ACCENT:0);
+		butt[4].setBackgroundColor(select?uidata.ACCENT:uidata.BACK);
 		adap.notifyDataSetChanged();
 		((View)butt[8].getParent()).setVisibility(select?0:8);
 		info.setText(select?"已选择对象:"+selected.size():tmpinfo);
@@ -769,7 +769,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 	private void setSearchMode(boolean m)
 	{
 		searchmode=m;
-		butt[3].setBackgroundColor(searchmode?uidata.ACCENT:0);
+		butt[3].setBackgroundColor(searchmode?uidata.ACCENT:uidata.BACK);
 		if(!m&&searchThread!=null)searchThread.cancel(true);
 		pathtext.setText(m?"":path==null?"我的手机":path);
 		pathtext.setHint(m?"搜索…":"输入路径以跳转");
