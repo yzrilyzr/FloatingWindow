@@ -1686,7 +1686,8 @@ Window.OnButtonDown,Window.OnSizeChanged
 					{len+=f.length();fc++;}
 					if(f.isDirectory())
 					{dc++;
-						for(mFile k:f.listFiles())list(k);
+						mFile[] gg=f.listFiles();
+						if(gg!=null)for(mFile k:gg)list(k);
 					}
 				}
 				@Override

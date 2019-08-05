@@ -41,9 +41,9 @@ public class WebViewer implements DownloadListener,OnClickListener,Window.OnButt
 	{
 		ctx=c;
 		w=new Window(c,util.px(300),util.px(360))
-			.setTitle("WebViewer")
-			.setIcon("internet")
-			.show();
+		.setTitle("WebViewer")
+		.setIcon("internet")
+		.show();
 		ViewGroup v=(ViewGroup) w.addView(R.layout.window_webviewer);
 		web=(WebView)v.getChildAt(2);
 		prog=(myProgressBar) v.getChildAt(1);
@@ -79,100 +79,108 @@ public class WebViewer implements DownloadListener,OnClickListener,Window.OnButt
             s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 		web.setWebViewClient(new WebViewClient(){
-				@Override
-				public void onPageStarted(WebView view,String url,Bitmap favicon)
+			@Override
+			public void onPageStarted(WebView view,String url,Bitmap favicon)
+			{
+				edit.setText(url);
+				w.setIcon(new BitmapDrawable(favicon));
+				if(favicon==null)w.setIcon("internet");
+			}
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url)
+			{
+				if(url.startsWith("http"))
 				{
-					edit.setText(url);
-					w.setIcon(new BitmapDrawable(favicon));
-					if(favicon==null)w.setIcon("internet");
-				}
-				@Override
-				public boolean shouldOverrideUrlLoading(WebView view, String url) {
-					if(url.startsWith("http")){
 					web.loadUrl(url);
 					return false;
-					}else return true;
 				}
-			});
+				else return true;
+			}
+		});
 		web.setWebChromeClient(new WebChromeClient(){
 
-				private WebChromeClient.CustomViewCallback cbk;
-				private View cview;
-				
-				public void onProgressChanged(WebView view, int progress)   
-				{
-					ba.setEnabled(web.canGoBack());
-					bb.setEnabled(web.canGoForward());
-					prog.setVisibility(View.VISIBLE); 
-					prog.setProgress(progress);     
-					if(progress == 100)
-					{     
-						prog.setVisibility(View.GONE); 
-						w.setTitle(view.getTitle());
-					}
-				}
-				public boolean onJsAlert(WebView view,String url,String message,final JsResult result)
-				{
-					if(sho)new myDialog.Builder(ctx)
-							.setTitle("来自网页的提示")
-							.setCancelable(false)
-							.setMessage(message)
-							.setPositiveButton("确定",new DialogInterface.OnClickListener(){
-								@Override
-								public void onClick(DialogInterface v,int i)
-								{
-									result.confirm();
-								}
-							})
-							.setNeutralButton("不要再显示",new DialogInterface.OnClickListener(){
-								@Override
-								public void onClick(DialogInterface v,int i)
-								{
-									sho=false;
-									result.cancel();
-								}
-							})
-							.setNegativeButton("取消",new DialogInterface.OnClickListener(){
-								@Override
-								public void onClick(DialogInterface v,int i)
-								{
-									result.cancel();
-								}
-							})
-							.show();
-					else result.cancel();
-					return true;
-				}
-				@Override
-				public void onShowCustomView(View view, CustomViewCallback callback) {
-					if (cview != null) {
-						callback.onCustomViewHidden();
-						return;
-					}
-					cv.addView(view);
-					cview = view;
-					cbk = callback;
-					cv.show();
-				}
+			private WebChromeClient.CustomViewCallback cbk;
+			private View cview;
 
-				// 视频播放退出全屏会被调用的
-				@Override
-				public void onHideCustomView() {
-					if (cview == null)// 不是全屏播放状态
-						return;
-					cv.dismiss();
-					cview = null;
-					cbk.onCustomViewHidden();
+			public void onProgressChanged(WebView view, int progress)   
+			{
+				ba.setEnabled(web.canGoBack());
+				bb.setEnabled(web.canGoForward());
+				prog.setVisibility(View.VISIBLE); 
+				prog.setProgress(progress);     
+				if(progress == 100)
+				{     
+					prog.setVisibility(View.GONE); 
+					w.setTitle(view.getTitle());
 				}
+			}
+			public boolean onJsAlert(WebView view,String url,String message,final JsResult result)
+			{
+				if(sho)new myDialog.Builder(ctx)
+					.setTitle("来自网页的提示")
+					.setCancelable(false)
+					.setMessage(message)
+					.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface v,int i)
+						{
+							result.confirm();
+						}
+					})
+					.setNeutralButton("不要再显示",new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface v,int i)
+						{
+							sho=false;
+							result.cancel();
+						}
+					})
+					.setNegativeButton("取消",new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface v,int i)
+						{
+							result.cancel();
+						}
+					})
+					.show();
+				else result.cancel();
+				return true;
+			}
+			/*
+			@Override
+			public void onShowCustomView(View view, CustomViewCallback callback)
+			{
+				if (cview != null)
+				{
+					callback.onCustomViewHidden();
+					return;
+				}
+				cv.addView(view);
+				cview = view;
+				cbk = callback;
+				cv.show();
+			}
 
-				// 视频加载时进程loading
-				@Override
-				public View getVideoLoadingProgressView() {
-					myLinearLayoutBack l=new myLinearLayoutBack(ctx);
-					l.addView(new myLoadingView(ctx));
-					return l;
-				}
-			});
+			// 视频播放退出全屏会被调用的
+			@Override
+			public void onHideCustomView()
+			{
+				if (cview == null)// 不是全屏播放状态
+					return;
+				cv.dismiss();
+				cview = null;
+				cbk.onCustomViewHidden();
+			}
+
+			// 视频加载时进程loading
+			@Override
+			public View getVideoLoadingProgressView()
+			{
+				myLinearLayoutBack l=new myLinearLayoutBack(ctx);
+				l.addView(new myLoadingView(ctx));
+				return l;
+			}*/
+		});
 		web.setDownloadListener(this);
 		String ur=e.getStringExtra("url");
 		if(ur!=null)web.loadUrl(ur);

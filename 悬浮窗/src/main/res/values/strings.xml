@@ -16,7 +16,7 @@
 		示波器:.apps.Oscilloscope@Vsignal;
 		简单数据库:.apps.SimpleDatabase@Vdatabase;
 		准星:.apps.FrontSight@Vfrontsight;
-		ConnectTogether:com.yzrilyzr.connecttogether.Main@Vct/connecttogether;
+		myFTP:com.yzrilyzr.connection.myFTP_Control@Vftp;
 		画板:.apps.DrawingBoard@Vdrawingboard;
 		窗口管理器:.apps.Manager@Vmanager;
 		内置图标字段查看:.apps.InnerVecList@Vclass;
