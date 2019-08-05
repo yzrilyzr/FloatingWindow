@@ -6,12 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import com.yzrilyzr.myclass.util;
 
-public class myFTP
+public class myFTP_Server
 {
 	static boolean serverrun=false;
 	static Thread serverthread=null;
 	static ConcurrentHashMap<String,String> users=new ConcurrentHashMap<String,String>();//usr pwd
 	static ConcurrentHashMap<String,Integer> loginuser=new ConcurrentHashMap<String,Integer>();//ip port
+	protected static String upath=null;
+	protected static boolean enableU=false;
+	protected static int port=3721;
 	public static void startServer()
 	{
 		if(serverthread!=null)
@@ -27,60 +30,75 @@ public class myFTP
 			{
 				try
 				{
-					server=new DatagramSocket();
+					server=new DatagramSocket(port);
+					server.setSoTimeout(1000);
+					util.toast("myFTP服务器已启动");
 					while(serverrun)
 					{
-						DatagramPacket p=new DatagramPacket(new byte[1024],1024);
-						server.receive(p);
-						DataInputStream i=new DataInputStream(new ByteArrayInputStream(p.getData()));
-						ByteArrayOutputStream os=new ByteArrayOutputStream();
-						DataOutputStream o=new DataOutputStream(os);
-						byte c=i.readByte();
-						if(c==C.LOGIN)
+						try
 						{
-							String usr=i.readUTF();
-							String pwd=i.readUTF();
-							if(pwd.equals(users.get(usr)))
+							DatagramPacket p=new DatagramPacket(new byte[1024],1024);
+							server.receive(p);
+							DataInputStream i=new DataInputStream(new ByteArrayInputStream(p.getData()));
+							ByteArrayOutputStream os=new ByteArrayOutputStream();
+							DataOutputStream o=new DataOutputStream(os);
+							byte c=i.readByte();
+							if(c==C.LOGIN)
 							{
-								o.writeByte(C.LOGINSUC);
-								loginuser.put(p.getAddress().getHostAddress(),p.getPort());
+								print("用户登录");
+								String usr=i.readUTF();
+								String pwd=i.readUTF();
+								if(pwd.equals(users.get(usr)))
+								{
+									o.writeByte(C.LOGINSUC);
+									loginuser.put(p.getAddress().getHostAddress(),p.getPort());
+								}
+								else o.writeByte(C.LOGINFAIL);
 							}
-							else o.writeByte(C.LOGINFAIL);
-						}
-						else if(loginuser.get(p.getAddress().getHostAddress())==p.getPort())
-							if(c==C.LIST)
-							{
-								String path=i.readUTF();
-								if(path==null)path=util.sdcard;
-								File fs=new File(path);
-								if(!fs.exists())o.writeByte(C.FILENOTEXIST);
-								else{
-									File[] f=fs.listFiles();
-									if(f==null)o.writeByte(C.PERMISSIONDENIED);
-									else{
-										o.writeByte(C.LIST);
-										o.writeInt(f.length);
-										for(File x:f){
-											o.writeUTF(x.getName());
-											o.writeLong(x.length());
-											o.writeLong(x.lastModified());
-											o.writeBoolean(x.canRead());
-											o.writeBoolean(x.canWrite());
+							else if(loginuser.get(p.getAddress().getHostAddress())==p.getPort())
+								if(c==C.LIST)
+								{
+									String path=i.readUTF();
+									if(path==null)path=util.sdcard;
+									File fs=new File(path);
+									if(!fs.exists())o.writeByte(C.FILENOTEXIST);
+									else
+									{
+										File[] f=fs.listFiles();
+										if(f==null)o.writeByte(C.PERMISSIONDENIED);
+										else
+										{
+											o.writeByte(C.LIST);
+											o.writeInt(f.length);
+											for(File x:f)
+											{
+												o.writeUTF(x.getName());
+												o.writeLong(x.length());
+												o.writeLong(x.lastModified());
+												o.writeBoolean(x.canRead());
+												o.writeBoolean(x.canWrite());
+											}
 										}
 									}
 								}
-							}
-						p.setData(os.toByteArray());
-						server.send(p);
-						i.close();
-						o.close();
-						p=null;
+							p.setData(os.toByteArray());
+							server.send(p);
+							i.close();
+							o.close();
+							p=null;
+						}
+						catch(Throwable e)
+						{}
 					}
+					server.close();
 					serverthread=null;
+					util.toast("myFTP服务器已停止");
 				}
 				catch(Throwable e)
 				{
 					e.printStackTrace();
+					serverthread=null;
+					util.toast("myFTP服务器已停止");
 				}
 			}
 		});
