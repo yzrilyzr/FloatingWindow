@@ -56,6 +56,30 @@ public class myFTP_Control
 				save();
 			}
 		});
+		if(myFTP_Server.serverrun&&myFTP_Server.serverthread!=null)
+		{
+			new Thread(new Runnable(){
+
+				@Override
+				public void run()
+				{
+					try
+					{
+						w.setTitle("myFTP-服务器已启动@"+InetAddress.getLocalHost().getHostName());
+					}
+					catch(Throwable e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			b1.setText("停止服务器");
+		}
+		else
+		{
+			w.setTitle("myFTP-服务器已关闭");
+			b1.setText("启动服务器");
+		}
 		b1.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View p1)
@@ -65,9 +89,20 @@ public class myFTP_Control
 					lo.setVisibility(0);
 					myFTP_Server.startServer();
 					lo.setVisibility(8);
-					try{
-					w.setTitle("myFTP-服务器已启动@"+InetAddress.getLocalHost());
-					}catch(Throwable e){}
+					new Thread(new Runnable(){
+
+						@Override
+						public void run()
+						{
+							try
+							{
+								w.setTitle("myFTP-服务器已启动@"+InetAddress.getLocalHost().getHostAddress());
+							}
+							catch(Throwable e)
+							{}
+						}
+					}).start();
+					
 					b1.setText("停止服务器");
 				}
 				else
@@ -90,10 +125,13 @@ public class myFTP_Control
 			@Override
 			public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
 			{
-				try{
+				try
+				{
 					myFTP_Server.port=Integer.parseInt(editport.getText()+"");
 					save();
-				}catch(Throwable e){}
+				}
+				catch(Throwable e)
+				{}
 			}
 
 			@Override
@@ -125,7 +163,8 @@ public class myFTP_Control
 			}
 		});
 	}
-	private void save(){
+	private void save()
+	{
 		util.getSPWrite("myFtp")
 		.putBoolean("uenabled",myFTP_Server.enableU)
 		.putString("upath",myFTP_Server.upath)

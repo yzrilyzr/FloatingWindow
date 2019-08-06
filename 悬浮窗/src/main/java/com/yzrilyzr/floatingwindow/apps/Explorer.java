@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import com.yzrilyzr.connection.myFTP_Server;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
@@ -34,14 +35,19 @@ import com.yzrilyzr.icondesigner.VecView;
 import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import java.lang.reflect.Method;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.yzrilyzr.connection.myFTP_Client;
+import android.os.Handler;
 
 public class Explorer implements AdapterView.OnItemClickListener,
 AdapterView.OnItemLongClickListener,View.OnClickListener,
-Window.OnButtonDown,Window.OnSizeChanged
+Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 {
 	Context ctx;
 	int rescode=0;
@@ -69,6 +75,8 @@ Window.OnButtonDown,Window.OnSizeChanged
 	static ConcurrentHashMap<String,Long> ico2=new ConcurrentHashMap<String,Long>();
 	IcoTask icotask;
 	protected static ArrayList<Explorer> exinst=new ArrayList<Explorer>();
+	private myFTP_Client myftp;
+	mFile[] cachemfile;
 	public Explorer(final Context c,Intent e)
 	{
 		exinst.add(this);
@@ -843,7 +851,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		return storages;  
 	}  
 
-	public static List<StorageInfo> getAvaliableStorage(List<StorageInfo> infos)
+	public List<StorageInfo> getAvaliableStorage(List<StorageInfo> infos)
 	{  
 		List<StorageInfo> storages = new ArrayList<StorageInfo>();  
 		for(StorageInfo info : infos)
@@ -1744,12 +1752,69 @@ Window.OnButtonDown,Window.OnSizeChanged
 		TextView text1,text2;
 		VecView icon;
 	}
-	public static class mFile extends File{
+
+	@Override
+	public void onReceive(DataInputStream d)throws Throwable
+	{
+		byte c=d.readByte();
+		if(c==myFTP_Server.C.LOGINSUC){
+			util.toast("登录成功");
+			myftp.list("");
+		}
+		else if(c==myFTP_Server.C.LOGINFAIL){
+			util.toast("登录失败");
+			path=null;
+			new Handler(ctx.getMainLooper()).post(new Runnable(){
+				@Override
+				public void run()
+				{
+					list();
+				}
+			});
+		}
+		else if(c==myFTP_Server.C.LIST){
+			int fs=d.readInt();
+			mFile[] m=new mFile[fs];
+			for(int i=0;i<fs;i++){
+				String g=d.readUTF();
+				long h=d.readLong(),j=d.readLong();
+				boolean z=d.readBoolean(),x=d.readBoolean();
+				boolean n=d.readBoolean(),b=d.readBoolean();
+				m[i]=new mFile(g,h,j,z,x,n,b);
+				m[i].path="ftp://";
+			}
+			cachemfile=m;
+			new Handler(ctx.getMainLooper()).post(new Runnable(){
+				@Override
+				public void run()
+				{
+					list();
+				}
+			});
+		}
+	}
+	public class mFile extends File{
 		String path;
+		String name;
+		long leng,time;
+		boolean canr,canw,isf,isd;
+
+		public mFile(String name, long leng, long time, boolean canr, boolean canw,boolean isf,boolean isd)
+		{
+			super(name);
+			this.name = name;
+			this.leng = leng;
+			this.time = time;
+			this.canr = canr;
+			this.canw = canw;
+			this.isf=isf;
+			this.isd=isd;
+		}
 		public mFile(String f){
 			super(f);
 			path=f;
 		}
+		
 		public mFile(File f){
 			this(f.getAbsolutePath());
 		}
@@ -1757,7 +1822,6 @@ Window.OnButtonDown,Window.OnSizeChanged
 		@Override
 		public String getPath()
 		{
-			// TODO: Implement this method
 			return path;
 		}
 		@Override
@@ -1777,6 +1841,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		public boolean canRead()
 		{
 			// TODO: Implement this method
+			if(name!=null)return canr;
 			return super.canRead();
 		}
 
@@ -1790,6 +1855,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		public long length()
 		{
 			// TODO: Implement this method
+			if(leng!=0)return leng;
 			return super.length();
 		}
 		@Override
@@ -1809,7 +1875,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		@Override
 		public boolean canWrite()
 		{
-			// TODO: Implement this method
+			if(name!=null)return canw;
 			return super.canWrite();
 		}
 
@@ -1832,13 +1898,36 @@ Window.OnButtonDown,Window.OnSizeChanged
 		public long lastModified()
 		{
 			// TODO: Implement this method
+			if(time!=0)return time;
 			return super.lastModified();
 		}
 		@Override
 		public Explorer.mFile[] listFiles()
 		{
 			if(path.startsWith("ftp://")){
-				return null;
+				if(cachemfile!=null){
+					mFile[] h=cachemfile;
+					cachemfile=null;
+					return h;
+				}
+				//ftp://aaa@bbb@127.0.0.1:3723
+				if(myftp==null){
+					String c=path.substring(6);
+					String[] f=c.split("@");
+					String[] o=f[f.length-1].split(":");
+					myftp=new myFTP_Client(o[0],Integer.parseInt(o[1]));
+					myftp.start();
+					myftp.addCallBack(Explorer.this);
+					if(f.length==1)myftp.login("","");
+					else myftp.login(f[0],f[1]);
+				}
+				else{
+					String c=path.substring(6);
+					String[] f=c.split("@");
+					if(f.length==1)myftp.login("","");
+					else myftp.login(f[0],f[1]);
+				}
+				return cachemfile;
 			}
 			File[] sr=new File(path).listFiles();
 			mFile[] src=null;
@@ -1891,25 +1980,26 @@ Window.OnButtonDown,Window.OnSizeChanged
 		@Override
 		public boolean exists()
 		{
-			// TODO: Implement this method
+			if(name!=null)return true;
 			return super.exists();
 		}
 
 		@Override
 		public boolean isDirectory()
 		{
-			// TODO: Implement this method
+			if(name!=null)return isd;
 			return super.isDirectory();
 		}
 
 		@Override
 		public boolean isFile()
 		{
-			// TODO: Implement this method
+			if(name!=null)return isf;
 			return super.isFile();
 		}
 		@Override
 		public String getName(){
+			if(name!=null)return name;
 			int c=path.lastIndexOf("/");
 			return path.substring(c+1);
 		}

@@ -194,10 +194,10 @@ public class Settings implements Window.OnButtonDown,myViewPager.OnPageChangeLis
 					File dir=new File(util.mainDir+"设置备份");
 					if(!dir.exists())dir.mkdirs();
 					Explorer ex=new Explorer(ctx,new Intent().putExtra("path",dir.getAbsolutePath()));
-					Explorer.mFile m= new Explorer.mFile("/data/data/com.yzrilyzr.floatingwindow/shared_prefs");
+					Explorer.mFile m= ex.new mFile("/data/data/com.yzrilyzr.floatingwindow/shared_prefs");
 					Explorer.mFile[] k=m.listFiles();
 					for(Explorer.mFile d:k)ex.clip.add(d);
-					ex.paste(new Explorer.mFile(dir.getAbsolutePath()));
+					ex.paste(ex.new mFile(dir.getAbsolutePath()));
 				}
 			}
 		};

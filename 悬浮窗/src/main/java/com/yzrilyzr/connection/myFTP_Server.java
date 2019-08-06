@@ -15,6 +15,7 @@ public class myFTP_Server
 	protected static String upath=null;
 	protected static boolean enableU=false;
 	protected static int port=3721;
+	protected static DatagramSocket server;
 	public static void startServer()
 	{
 		if(serverthread!=null)
@@ -24,7 +25,6 @@ public class myFTP_Server
 		}
 		serverrun=true;
 		serverthread=new Thread(new Runnable(){
-			DatagramSocket server;
 			@Override
 			public void run()
 			{
@@ -48,7 +48,7 @@ public class myFTP_Server
 								print("用户登录");
 								String usr=i.readUTF();
 								String pwd=i.readUTF();
-								if(pwd.equals(users.get(usr)))
+								if(enableU||pwd.equals(users.get(usr)))
 								{
 									o.writeByte(C.LOGINSUC);
 									loginuser.put(p.getAddress().getHostAddress(),p.getPort());
@@ -59,7 +59,10 @@ public class myFTP_Server
 								if(c==C.LIST)
 								{
 									String path=i.readUTF();
-									if(path==null)path=util.sdcard;
+									if("".equals(path)||path==null){
+										if(enableU)path=upath;
+										else path=util.sdcard;
+									}
 									File fs=new File(path);
 									if(!fs.exists())o.writeByte(C.FILENOTEXIST);
 									else
@@ -72,11 +75,13 @@ public class myFTP_Server
 											o.writeInt(f.length);
 											for(File x:f)
 											{
-												o.writeUTF(x.getName());
+												o.writeUTF(x.getName()+"");
 												o.writeLong(x.length());
 												o.writeLong(x.lastModified());
 												o.writeBoolean(x.canRead());
 												o.writeBoolean(x.canWrite());
+												o.writeBoolean(x.isFile());
+												o.writeBoolean(x.isDirectory());
 											}
 										}
 									}

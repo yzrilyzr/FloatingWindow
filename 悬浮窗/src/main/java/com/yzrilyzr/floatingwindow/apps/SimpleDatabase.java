@@ -237,8 +237,8 @@ public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickLi
 				File dir=new File(util.mainDir+"简单数据库");
 				if(!dir.exists())dir.mkdirs();
 				Explorer ex=new Explorer(ctx,new Intent().putExtra("path",dir.getAbsolutePath()));
-				ex.clip.add(new Explorer.mFile("/data/data/com.yzrilyzr.floatingwindow/shared_prefs/com.yzrilyzr.floatingwindow_com.yzrilyzr.floatingwindow_spdtbs.xml"));
-				ex.paste(new Explorer.mFile(dir.getAbsolutePath()));
+				ex.clip.add(ex.new mFile("/data/data/com.yzrilyzr.floatingwindow/shared_prefs/com.yzrilyzr.floatingwindow_com.yzrilyzr.floatingwindow_spdtbs.xml"));
+				ex.paste(ex.new mFile(dir.getAbsolutePath()));
 			}
 			return;
 		}
