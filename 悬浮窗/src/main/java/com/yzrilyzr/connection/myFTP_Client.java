@@ -23,13 +23,13 @@ public class myFTP_Client
 		{
 			serveraddr=new InetSocketAddress(ip,port);
 			client=new DatagramSocket();
+			//client.setSoTimeout(5000);
 		}
 		catch(Throwable e)
 		{
 			e.printStackTrace();
 		}
 	}
-
 	public void list(String path)
 	{
 		ByteArrayOutputStream b=new ByteArrayOutputStream();
@@ -114,10 +114,11 @@ public class myFTP_Client
 	}
 	public void logout()
 	{}
-	public void close()
+	public void stop()
 	{
 		try
 		{
+			running=false;
 			client.close();
 		}
 		catch(Throwable e)

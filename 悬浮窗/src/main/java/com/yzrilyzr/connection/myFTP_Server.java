@@ -2,9 +2,12 @@ package com.yzrilyzr.connection;
 import java.io.*;
 import java.net.*;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import com.yzrilyzr.myclass.util;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class myFTP_Server
 {
@@ -14,7 +17,7 @@ public class myFTP_Server
 	static ConcurrentHashMap<String,Integer> loginuser=new ConcurrentHashMap<String,Integer>();//ip port
 	protected static String upath=null;
 	protected static boolean enableU=false;
-	protected static int port=3721;
+	protected static int port=3721,maxthread=10;
 	protected static DatagramSocket server;
 	public static void startServer()
 	{
@@ -24,6 +27,7 @@ public class myFTP_Server
 			return;
 		}
 		serverrun=true;
+		final ExecutorService exec=Executors.newCachedThreadPool();
 		serverthread=new Thread(new Runnable(){
 			@Override
 			public void run()
@@ -31,7 +35,7 @@ public class myFTP_Server
 				try
 				{
 					server=new DatagramSocket(port);
-					server.setSoTimeout(1000);
+					//server.setSoTimeout(1000);
 					util.toast("myFTP服务器已启动");
 					while(serverrun)
 					{
@@ -39,62 +43,12 @@ public class myFTP_Server
 						{
 							DatagramPacket p=new DatagramPacket(new byte[1024],1024);
 							server.receive(p);
-							DataInputStream i=new DataInputStream(new ByteArrayInputStream(p.getData()));
-							ByteArrayOutputStream os=new ByteArrayOutputStream();
-							DataOutputStream o=new DataOutputStream(os);
-							byte c=i.readByte();
-							if(c==C.LOGIN)
-							{
-								print("用户登录");
-								String usr=i.readUTF();
-								String pwd=i.readUTF();
-								if(enableU||pwd.equals(users.get(usr)))
-								{
-									o.writeByte(C.LOGINSUC);
-									loginuser.put(p.getAddress().getHostAddress(),p.getPort());
-								}
-								else o.writeByte(C.LOGINFAIL);
-							}
-							else if(loginuser.get(p.getAddress().getHostAddress())==p.getPort())
-								if(c==C.LIST)
-								{
-									String path=i.readUTF();
-									if("".equals(path)||path==null){
-										if(enableU)path=upath;
-										else path=util.sdcard;
-									}
-									File fs=new File(path);
-									if(!fs.exists())o.writeByte(C.FILENOTEXIST);
-									else
-									{
-										File[] f=fs.listFiles();
-										if(f==null)o.writeByte(C.PERMISSIONDENIED);
-										else
-										{
-											o.writeByte(C.LIST);
-											o.writeInt(f.length);
-											for(File x:f)
-											{
-												o.writeUTF(x.getName()+"");
-												o.writeLong(x.length());
-												o.writeLong(x.lastModified());
-												o.writeBoolean(x.canRead());
-												o.writeBoolean(x.canWrite());
-												o.writeBoolean(x.isFile());
-												o.writeBoolean(x.isDirectory());
-											}
-										}
-									}
-								}
-							p.setData(os.toByteArray());
-							server.send(p);
-							i.close();
-							o.close();
-							p=null;
+							exec.execute(new Process(p));
 						}
 						catch(Throwable e)
 						{}
 					}
+					exec.shutdown();
 					server.close();
 					serverthread=null;
 					util.toast("myFTP服务器已停止");
@@ -158,5 +112,79 @@ public class myFTP_Server
 	public static void print(Object o)
 	{
 		System.out.println("<FTPSERVER>"+o);
+	}
+	static class Process implements Runnable
+	{
+		private DatagramPacket p;
+
+		public Process(DatagramPacket p)
+		{
+			this.p = p;
+		}
+		@Override
+		public void run()
+		{
+			try{
+			DataInputStream i=new DataInputStream(new ByteArrayInputStream(p.getData()));
+			ByteArrayOutputStream os=new ByteArrayOutputStream();
+			DataOutputStream o=new DataOutputStream(os);
+			byte c=i.readByte();
+			if(c==C.LOGIN)
+			{
+				print("用户登录");
+				String usr=i.readUTF();
+				String pwd=i.readUTF();
+				if(enableU||pwd.equals(users.get(usr)))
+				{
+					o.writeByte(C.LOGINSUC);
+					loginuser.put(p.getAddress().getHostAddress(),p.getPort());
+				}
+				else o.writeByte(C.LOGINFAIL);
+			}
+			else if(loginuser.get(p.getAddress().getHostAddress())==p.getPort())
+				if(c==C.LIST)
+				{
+					String rpath=i.readUTF(),path="";
+					if("".equals(path)||path==null){
+						if(enableU)path=upath;
+						else path=util.sdcard;
+					}
+					Matcher m=Pattern.compile("ftp://.*?:[0-9].*?/").matcher(rpath);
+					String aa="";
+					while(m.find())aa=m.group();
+					rpath=rpath.substring(aa.length());
+					path=path+"/"+rpath;
+					File fs=new File(path);
+					if(!fs.exists())o.writeByte(C.FILENOTEXIST);
+					else
+					{
+						File[] f=fs.listFiles();
+						if(f==null)o.writeByte(C.PERMISSIONDENIED);
+						else
+						{
+							o.writeByte(C.LIST);
+							o.writeInt(f.length);
+							for(File x:f)
+							{
+								o.writeUTF(x.getName()+"");
+								o.writeLong(x.length());
+								o.writeLong(x.lastModified());
+								o.writeBoolean(x.canRead());
+								o.writeBoolean(x.canWrite());
+								o.writeBoolean(x.isFile());
+								o.writeBoolean(x.isDirectory());
+							}
+						}
+					}
+				}
+			p.setData(os.toByteArray());
+			server.send(p);
+			i.close();
+			o.close();
+			p=null;
+			}catch(Throwable e){
+				e.printStackTrace();
+			}
+		}
 	}
 }

@@ -22,28 +22,31 @@ import java.net.InetAddress;
 public class myFTP_Control
 {
 	Window w;
-	EditText editport,editu;
+	EditText editport,editu,thr;
 	Button b1,b2;
 	Switch sw;
 	myLoadingView lo;
 	public myFTP_Control(Context c,Intent e)
 	{
 		SharedPreferences sp=util.getSPRead("myFtp");
-		w=new Window(c,util.px(230),util.px(200))
+		w=new Window(c,util.px(230),util.px(250))
 		.setTitle("myFTP-服务器已关闭")
 		.setIcon("ftp")
 		.show();
 		myFTP_Server.port=sp.getInt("port",3721);
 		myFTP_Server.upath=sp.getString("upath",util.sdcard);
 		myFTP_Server.enableU=sp.getBoolean("uenabled",false);
+		myFTP_Server.maxthread=sp.getInt("maxthread",10);
 		ViewGroup vg=(ViewGroup) w.addView(R.layout.myftp_control);
 		editport=(EditText) vg.findViewById(R.id.myftpcontrolEditText1);
 		editu=(EditText) vg.findViewById(R.id.myftpcontrolEditText2);
+		thr=(EditText) vg.findViewById(R.id.myftpcontrolEditText3);
 		sw=(Switch)vg.findViewById(R.id.myftpcontrolSwitch1);
 		b1=(Button)vg.findViewById(R.id.myftpcontrolButton1);
 		b2=(Button)vg.findViewById(R.id.myftpcontrolButton2);
 		lo=(myLoadingView)vg.findViewById(R.id.myftpcontrolProgressBar1);
 		editport.setText(myFTP_Server.port+"");
+		thr.setText(myFTP_Server.maxthread+"");
 		editu.setText(myFTP_Server.upath);
 		editu.setEnabled(myFTP_Server.enableU);
 		sw.setChecked(myFTP_Server.enableU);
@@ -109,6 +112,9 @@ public class myFTP_Control
 				{
 					//lo.setVisibility(0);
 					myFTP_Server.serverrun=false;
+					try{
+						myFTP_Server.server.close();
+					}catch(Throwable e){}
 					w.setTitle("myFTP-服务器已关闭");
 					b1.setText("启动服务器");
 				}
@@ -162,6 +168,33 @@ public class myFTP_Control
 				// TODO: Implement this method
 			}
 		});
+		thr.addTextChangedListener(new TextWatcher(){
+
+			@Override
+			public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
+			{
+				// TODO: Implement this method
+			}
+
+			@Override
+			public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
+			{
+				// TODO: Implement this method
+				try
+				{
+					myFTP_Server.maxthread=Integer.parseInt(thr.getText()+"");
+					save();
+				}
+				catch(Throwable e)
+				{}
+			}
+
+			@Override
+			public void afterTextChanged(Editable p1)
+			{
+				// TODO: Implement this method
+			}
+		});
 	}
 	private void save()
 	{
@@ -169,6 +202,7 @@ public class myFTP_Control
 		.putBoolean("uenabled",myFTP_Server.enableU)
 		.putString("upath",myFTP_Server.upath)
 		.putInt("port",myFTP_Server.port)
+		.putInt("maxthread",myFTP_Server.maxthread)
 		.commit();
 	}
 }

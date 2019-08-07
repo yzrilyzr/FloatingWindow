@@ -83,5 +83,31 @@
 		android:hint="匿名文件主目录"
 		android:id="@+id/myftpcontrolEditText2"/>
 
+	<com.yzrilyzr.ui.myLinearLayout
+		android:layout_height="3px"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="left|center">
+
+		<com.yzrilyzr.ui.myTextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="最大处理线程数"
+			android:layout_margin="5dp"/>
+
+		<com.yzrilyzr.ui.myEditText
+			android:layout_height="wrap_content"
+			android:inputType="number"
+			android:layout_width="match_parent"
+			android:layout_margin="5dp"
+			android:id="@+id/myftpcontrolEditText3"/>
+
+	</LinearLayout>
+
 </LinearLayout>
 
