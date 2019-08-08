@@ -27,7 +27,7 @@ public class myFTP_Server
 			return;
 		}
 		serverrun=true;
-		final ExecutorService exec=Executors.newCachedThreadPool();
+		final ExecutorService exec=Executors.newFixedThreadPool(maxthread);
 		serverthread=new Thread(new Runnable(){
 			@Override
 			public void run()

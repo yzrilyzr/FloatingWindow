@@ -1643,6 +1643,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 			music=VECfile.createBitmap(ctx,"music",d,d),
 			video=VECfile.createBitmap(ctx,"video",d,d),
 			mFile=VECfile.createBitmap(ctx,"mfile",d,d),
+			mile=VECfile.createBitmap(ctx,"file",d,d),
 			unknown=VECfile.createBitmap(ctx,"unknownfile",d,d),
 			folder=VECfile.createBitmap(ctx,"folder",d,d),
 			packagee=VECfile.createBitmap(ctx,"package",d,d),
@@ -1660,7 +1661,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 				else if(m.contains("video"))
 				{vec=video;类型="视频";}
 				else if(m.contains("text"))
-				{vec=mFile;类型="文本";}
+				{vec=mile;类型="文本";}
 				else if(m.contains("android"))
 				{vec=android;类型="安装包";}
 				else if(m.contains("zip")||m.contains("tar"))
@@ -1780,7 +1781,13 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		byte c=d.readByte();
 		if(c==myFTP_Server.C.LOGINSUC){
 			util.toast("登录成功");
-			myftp.list(path);
+			new Handler(ctx.getMainLooper()).post(new Runnable(){
+				@Override
+				public void run()
+				{
+					list();
+				}
+			});
 		}
 		else if(c==myFTP_Server.C.LOGINFAIL){
 			util.toast("登录失败");
@@ -1804,13 +1811,6 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 				m[i]=new mFile(g,path,h,j,z,x,n,b);
 			}
 			cachemfile=m;
-			new Handler(ctx.getMainLooper()).post(new Runnable(){
-				@Override
-				public void run()
-				{
-					list();
-				}
-			});
 		}
 	}
 	public class mFile extends File{
@@ -1829,12 +1829,24 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 			this.canw = canw;
 			this.isf=isf;
 			this.isd=isd;
+			path=path.replace("//","/").replace("ftp:/","ftp://");
 			this.parent=path;
 			this.path=parent+"/"+name;
 		}
 		public mFile(String f){
 			super(f);
 			path=f;
+			if(isFTP()){
+				path=path.replace("//","/").replace("ftp:/","ftp://");
+				Matcher m=Pattern.compile("ftp://.*?:[0-9].*?/").matcher(path);
+				String aa="";
+				while(m.find())aa=m.group();
+				String p="/"+path.substring(aa.length());
+				int c=p.lastIndexOf("/");
+				name=p.substring(c+1);
+				parent=aa+p.substring(0,c);
+				//System.out.println("n:"+name+","+parent);
+			}
 		}
 		
 		public mFile(File f){
@@ -1846,7 +1858,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public String getPath()
 		{
-			return path;
+			return path.replace("//","/").replace("ftp:/","ftp://");
 		}
 		@Override
 		public boolean setWritable(boolean writable, boolean ownerOnly)
@@ -1914,7 +1926,11 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public String getParent()
 		{
-			if(isFTP())return parent;
+			//System.out.println(path);
+			//System.out.println(parent);
+			if(isFTP()){
+				return parent;
+			}
 			return super.getParent();
 		}
 
@@ -1929,15 +1945,21 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		public Explorer.mFile[] listFiles()
 		{
 			if(path.contains("ftp://")){
-				if(cachemfile!=null){
-					mFile[] h=cachemfile;
-					cachemfile=null;
-					return h;
+				cachemfile=null;
+				myftp.list(path);
+				long gg=System.currentTimeMillis();
+				searching.setVisibility(0);
+				while(cachemfile==null&&(System.currentTimeMillis()-gg)<2000){
+					try
+					{
+						Thread.sleep(1);
+					}
+					catch (InterruptedException e)
+					{}
 				}
-				else{
-					myftp.list(path);
-					return null;
-				}
+				searching.setVisibility(8);
+				
+				return cachemfile;
 			}
 			File[] sr=new File(path).listFiles();
 			mFile[] src=null;
@@ -1976,14 +1998,14 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public File getParentFile()
 		{
-			if(isFTP())return new mFile(parent);
+			if(isFTP())return new mFile(getParent());
 			return super.getParentFile();
 		}
 
 		@Override
 		public String getAbsolutePath()
 		{
-			if(isFTP())return path;
+			if(isFTP())return getPath();
 			return super.getAbsolutePath();
 		}
 
