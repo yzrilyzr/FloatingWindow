@@ -1,8 +1,12 @@
 package com.yzrilyzr.connection;
-import java.io.*;
 import java.net.*;
 
 import com.yzrilyzr.myclass.util;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,7 +22,7 @@ public class myFTP_Server
 	protected static String upath=null;
 	protected static boolean enableU=false;
 	protected static int port=3721,maxthread=10;
-	protected static DatagramSocket server;
+	protected static ServerSocket server;
 	public static void startServer()
 	{
 		if(serverthread!=null)
@@ -34,16 +38,17 @@ public class myFTP_Server
 			{
 				try
 				{
-					server=new DatagramSocket(port);
+					server=new ServerSocket(port);
+					//server=new DatagramSocket(port);
 					//server.setSoTimeout(1000);
 					util.toast("myFTP服务器已启动");
 					while(serverrun)
 					{
 						try
 						{
-							DatagramPacket p=new DatagramPacket(new byte[1024],1024);
-							server.receive(p);
-							exec.execute(new Process(p));
+							//DatagramPacket p=new DatagramPacket(new byte[1024],1024);
+							Socket sc=server.accept();
+							exec.execute(new Process(sc));
 						}
 						catch(Throwable e)
 						{}
@@ -115,9 +120,9 @@ public class myFTP_Server
 	}
 	static class Process implements Runnable
 	{
-		private DatagramPacket p;
+		private Socket p;
 
-		public Process(DatagramPacket p)
+		public Process(Socket p)
 		{
 			this.p = p;
 		}
@@ -125,9 +130,8 @@ public class myFTP_Server
 		public void run()
 		{
 			try{
-			DataInputStream i=new DataInputStream(new ByteArrayInputStream(p.getData()));
-			ByteArrayOutputStream os=new ByteArrayOutputStream();
-			DataOutputStream o=new DataOutputStream(os);
+			DataInputStream i=new DataInputStream(p.getInputStream());
+			DataOutputStream o=new DataOutputStream(p.getOutputStream());
 			byte c=i.readByte();
 			if(c==C.LOGIN)
 			{
@@ -137,11 +141,11 @@ public class myFTP_Server
 				if(enableU||pwd.equals(users.get(usr)))
 				{
 					o.writeByte(C.LOGINSUC);
-					loginuser.put(p.getAddress().getHostAddress(),p.getPort());
+					loginuser.put(p.getInetAddress().getHostAddress(),p.getPort());
 				}
 				else o.writeByte(C.LOGINFAIL);
 			}
-			else if(loginuser.get(p.getAddress().getHostAddress())==p.getPort())
+			//else if(loginuser.get(p.getInetAddress().getHostAddress())==p.getPort())
 				if(c==C.LIST)
 				{
 					String rpath=i.readUTF(),path="";
@@ -177,11 +181,10 @@ public class myFTP_Server
 						}
 					}
 				}
-			p.setData(os.toByteArray());
-			server.send(p);
+			o.flush();
 			i.close();
 			o.close();
-			p=null;
+			p.close();
 			}catch(Throwable e){
 				e.printStackTrace();
 			}

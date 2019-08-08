@@ -78,7 +78,6 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 	IcoTask icotask;
 	protected static ArrayList<Explorer> exinst=new ArrayList<Explorer>();
 	private myFTP_Client myftp;
-	mFile[] cachemfile;
 	public Explorer(final Context c,Intent e)
 	{
 		exinst.add(this);
@@ -914,24 +913,27 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 			String s=(String)o;
 			if(s.contains("ftp://")){
 				try{
-			String[] f=s.split("\n");
-				Matcher m=Pattern.compile("ftp://.*?:[0-9].*?/").matcher(s);
-				String aa="";
-				while(m.find())aa=m.group();
-				String[] addr=aa.substring(6,aa.length()-1).split(":");
-				if(myftp!=null){
-					myftp.removeCallBack(this);
-					myftp.stop();
-					myftp=null;
-				}
-				path=f[0];
-				myftp=new myFTP_Client(addr[0],Integer.parseInt(addr[1]));
-				myftp.start();
-				myftp.addCallBack(Explorer.this);
-				if(f.length==1)myftp.login("","");
-				else myftp.login(f[1],f[2]);
+					String[] f=s.split("\n");
+					Matcher m=Pattern.compile("ftp://.*?:[0-9]*").matcher(s);
+					String aa="";
+					while(m.find())aa=m.group();
+					System.out.println(aa);
+					String[] addr=aa.substring(6,aa.length()).split(":");
+					if(myftp!=null){
+						//myftp.removeCallBack(this);
+						myftp.stop();
+						myftp=null;
+					}
+					path=f[0];
+					myftp=new myFTP_Client(addr[0],Integer.parseInt(addr[1]));
+					//myftp.start();
+					//myftp.addCallBack(Explorer.this);
+					if(f.length==1)myftp.login("","");
+					else myftp.login(f[1],f[2]);
+					myftp.list(path);
 				}catch(Throwable e){
 					util.toast("路径不合法");
+					e.printStackTrace();
 				}
 			}
 			else if(s.contains("https://")||s.contains("http://"))
@@ -1778,77 +1780,14 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 	@Override
 	public void onReceive(DataInputStream d)throws Throwable
 	{
-		byte c=d.readByte();
-		if(c==myFTP_Server.C.LOGINSUC){
-			util.toast("登录成功");
-			new Handler(ctx.getMainLooper()).post(new Runnable(){
-				@Override
-				public void run()
-				{
-					list();
-				}
-			});
-		}
-		else if(c==myFTP_Server.C.LOGINFAIL){
-			util.toast("登录失败");
-			path=null;
-			new Handler(ctx.getMainLooper()).post(new Runnable(){
-				@Override
-				public void run()
-				{
-					list();
-				}
-			});
-		}
-		else if(c==myFTP_Server.C.LIST){
-			int fs=d.readInt();
-			mFile[] m=new mFile[fs];
-			for(int i=0;i<fs;i++){
-				String g=d.readUTF();
-				long h=d.readLong(),j=d.readLong();
-				boolean z=d.readBoolean(),x=d.readBoolean();
-				boolean n=d.readBoolean(),b=d.readBoolean();
-				m[i]=new mFile(g,path,h,j,z,x,n,b);
-			}
-			cachemfile=m;
-		}
+		
 	}
 	public class mFile extends File{
-		String path,parent;
-		String name;
-		long leng,time;
-		boolean canr,canw,isf,isd;
-
-		public mFile(String name,String path, long leng, long time, boolean canr, boolean canw,boolean isf,boolean isd)
-		{
-			super(name);
-			this.name = name;
-			this.leng = leng;
-			this.time = time;
-			this.canr = canr;
-			this.canw = canw;
-			this.isf=isf;
-			this.isd=isd;
-			path=path.replace("//","/").replace("ftp:/","ftp://");
-			this.parent=path;
-			this.path=parent+"/"+name;
-		}
+		String path;
 		public mFile(String f){
 			super(f);
 			path=f;
-			if(isFTP()){
-				path=path.replace("//","/").replace("ftp:/","ftp://");
-				Matcher m=Pattern.compile("ftp://.*?:[0-9].*?/").matcher(path);
-				String aa="";
-				while(m.find())aa=m.group();
-				String p="/"+path.substring(aa.length());
-				int c=p.lastIndexOf("/");
-				name=p.substring(c+1);
-				parent=aa+p.substring(0,c);
-				//System.out.println("n:"+name+","+parent);
-			}
 		}
-		
 		public mFile(File f){
 			this(f.getAbsolutePath());
 		}
@@ -1877,7 +1816,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		public boolean canRead()
 		{
 			// TODO: Implement this method
-			if(isFTP())return canr;
+			//if(isFTP())return canr;
 			return super.canRead();
 		}
 
@@ -1891,7 +1830,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		public long length()
 		{
 			// TODO: Implement this method
-			if(isFTP())return leng;
+			//if(isFTP())return leng;
 			return super.length();
 		}
 		@Override
@@ -1911,7 +1850,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public boolean canWrite()
 		{
-			if(isFTP())return canw;
+			//if(isFTP())return canw;
 			return super.canWrite();
 		}
 
@@ -1929,7 +1868,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 			//System.out.println(path);
 			//System.out.println(parent);
 			if(isFTP()){
-				return parent;
+				//return parent;
 			}
 			return super.getParent();
 		}
@@ -1938,14 +1877,14 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		public long lastModified()
 		{
 			// TODO: Implement this method
-			if(isFTP())return time;
+			//if(isFTP())return time;
 			return super.lastModified();
 		}
 		@Override
 		public Explorer.mFile[] listFiles()
 		{
 			if(path.contains("ftp://")){
-				cachemfile=null;
+				/*cachemfile=null;
 				myftp.list(path);
 				long gg=System.currentTimeMillis();
 				searching.setVisibility(0);
@@ -1959,7 +1898,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 				}
 				searching.setVisibility(8);
 				
-				return cachemfile;
+				return cachemfile;*/
 			}
 			File[] sr=new File(path).listFiles();
 			mFile[] src=null;
@@ -2019,19 +1958,19 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public boolean isDirectory()
 		{
-			if(isFTP())return isd;
+			//if(isFTP())return isd;
 			return super.isDirectory();
 		}
 
 		@Override
 		public boolean isFile()
 		{
-			if(isFTP())return isf;
+			//if(isFTP())return isf;
 			return super.isFile();
 		}
 		@Override
 		public String getName(){
-			if(isFTP())return name;
+			//if(isFTP())return name;
 			int c=path.lastIndexOf("/");
 			return path.substring(c+1);
 		}
