@@ -9,7 +9,7 @@ public final class uidata
 	public static float TEXTSIZE=12f;
 	public static boolean UI_USETYPEFACE=true;
 	public static Typeface UI_TYPEFACE=null;
-	public static float UI_DENSITY=Resources.getSystem().getDisplayMetrics().density;
+	public static float UI_DENSITY=(float)Math.min(util.getScreenWidth(),util.getScreenHeight())/360f;
 	public static float UI_RADIUS=3.0f;
 	
 	public static int TEXTMAIN=-1447447;
@@ -67,7 +67,7 @@ public final class uidata
 	{
 		SharedPreferences sp=util.getSPRead();
 		UI_TYPEFACE=Typeface.MONOSPACE;//.createFromAsset(ctx.getAssets(),"font.ttf");
-		UI_DENSITY=sp.getFloat("density",(float)util.getScreenWidth()/360f);
+		UI_DENSITY=sp.getFloat("density",(float)Math.min(util.getScreenWidth(),util.getScreenHeight())/360f);
 		UI_USETYPEFACE=sp.getBoolean("typeface",UI_USETYPEFACE);
 		MAIN=sp.getInt("main",MAIN);
 		BACK=sp.getInt("back",BACK);

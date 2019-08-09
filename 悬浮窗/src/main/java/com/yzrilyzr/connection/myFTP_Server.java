@@ -150,6 +150,7 @@ public class myFTP_Server
 					//rpath=rpath.substring(aa.length());
 					path=path+"/"+rpath;
 					File fs=new File(path);
+					print("list:"+path);
 					if(!fs.exists())o.writeByte(C.FILENOTEXIST);
 					else
 					{
@@ -170,6 +171,34 @@ public class myFTP_Server
 								o.writeBoolean(x.isDirectory());
 							}
 						}
+					}
+				}
+				else if(c==C.GETFILE)
+				{
+					String rpath=i.readUTF(),path="";
+					Matcher m=Pattern.compile("ftp://.*?:[0-9]*").matcher(rpath);
+					String aa="";
+					while(m.find())aa=m.group();
+					rpath=rpath.substring(aa.length());
+					if("".equals(path)||path==null)
+					{
+						if(enableU)path=upath;
+						else path=util.sdcard;
+					}
+					//rpath=rpath.substring(aa.length());
+					path=path+"/"+rpath;
+					File x=new File(path);
+					if(!x.exists())o.writeByte(C.FILENOTEXIST);
+					else
+					{
+						o.writeByte(C.GETFILE);
+						o.writeUTF(x.getName()+"");
+						o.writeLong(x.length());
+						o.writeLong(x.lastModified());
+						o.writeBoolean(x.canRead());
+						o.writeBoolean(x.canWrite());
+						o.writeBoolean(x.isFile());
+						o.writeBoolean(x.isDirectory());
 					}
 				}
 				o.flush();

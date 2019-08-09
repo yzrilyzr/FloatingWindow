@@ -18,9 +18,8 @@ public class myFTP_Client
 	InetSocketAddress serveraddr;
 	//boolean running=false;
 	Receive rec=new Receive(){
-
 		@Override
-		public void onReceive(DataInputStream d) throws Throwable
+		public void onReceive(byte c)
 		{
 			// TODO: Implement this method
 		}
@@ -44,9 +43,95 @@ public class myFTP_Client
 			util.toast("ftp连接失败");
 		}
 	}
+
+	public FtpFile getFile(final String path)
+	{
+		final FtpFile[] cachemfile=new FtpFile[1];
+		final boolean[] ca=new boolean[]{true};
+		new Thread(new Runnable(){
+			@Override
+			public void run()
+			{
+				try
+				{
+					Socket client=new Socket();
+					client.connect(serveraddr);
+					DataOutputStream o=new DataOutputStream(client.getOutputStream());
+					o.writeByte(C.GETFILE);
+					o.writeUTF(path);
+					o.flush();
+					DataInputStream d=new DataInputStream(client.getInputStream());
+					byte c=d.readByte();
+					if(c==C.GETFILE)
+					{
+						String g=d.readUTF();
+						long h=d.readLong(),j=d.readLong();
+						boolean z=d.readBoolean(),x=d.readBoolean();
+						boolean n=d.readBoolean(),b=d.readBoolean();
+						cachemfile[0]=new FtpFile(path,"",g,h,j,z,x,n,b);
+						cachemfile[0].path();
+					}
+					else if(c==C.PERMISSIONDENIED)util.toast("没有权限访问");
+					else if(c==C.FILENOTEXIST)util.toast("文件不存在");
+					ca[0]=false;
+					client.close();
+					rec(c);
+				}
+				catch(Throwable e)
+				{
+					e.printStackTrace();
+					util.toast("ftp连接失败");
+				}
+			}
+		}).start();
+		long t=System.currentTimeMillis();
+		while(ca[0]&&System.currentTimeMillis()-t<3000)
+		{
+			try
+			{
+				Thread.sleep(1);
+			}
+			catch (InterruptedException e)
+			{
+				return null;
+			}
+		}
+		return cachemfile[0];
+	}
+
+	public void setReceive(Receive rec)
+	{
+		this.rec = rec;
+	}
+
+	public boolean delete(final String path)
+	{
+		return false;
+	}
+	public boolean exists(final String path)
+	{
+		return false;
+	}
+	public boolean mkdirs(final String path)
+	{
+		return false;
+	}
+	public boolean createNewFile(final String path)
+	{
+		return false;
+	}
+	public boolean renameTo(final FtpFile path,final String n)
+	{
+		return false;
+	}
+	public FtpInputStream openFile(final String path)
+	{
+		return null;
+	}
 	public FtpFile[] list(final String path)
 	{
-		final FtpFile[][] cachemfile=new FtpFile[2][];
+		final FtpFile[][] cachemfile=new FtpFile[1][];
+		final boolean[] ca=new boolean[]{true};
 		new Thread(new Runnable(){
 			@Override
 			public void run()
@@ -78,8 +163,9 @@ public class myFTP_Client
 					}
 					else if(c==C.PERMISSIONDENIED)util.toast("没有权限访问");
 					else if(c==C.FILENOTEXIST)util.toast("文件不存在");
-					cachemfile[1]=new FtpFile[0];
+					ca[0]=false;
 					client.close();
+					rec(c);
 				}
 				catch(Throwable e)
 				{
@@ -89,7 +175,7 @@ public class myFTP_Client
 			}
 		}).start();
 		long t=System.currentTimeMillis();
-		while(cachemfile[1]==null&&System.currentTimeMillis()-t<3000)
+		while(ca[0]&&System.currentTimeMillis()-t<3000)
 		{
 			try
 			{
@@ -102,7 +188,16 @@ public class myFTP_Client
 		}
 		return cachemfile[0];
 	}
-
+	private void rec(final byte c)
+	{
+		new Handler(util.ctx.getMainLooper()).post(new Runnable(){
+			@Override
+			public void run()
+			{
+				if(rec!=null)rec.onReceive(c);
+			}
+		});
+	}
 	public void login(final String usr,final String pwd)
 	{
 		new Thread(new Runnable(){
@@ -120,15 +215,8 @@ public class myFTP_Client
 					o.flush();
 					DataInputStream d=new DataInputStream(client.getInputStream());
 					byte c=d.readByte();
-					if(c==C.LOGINFAIL)
-					{
-						util.toast("登录失败");
-					}
-					else if(c==C.LOGINSUC)
-					{
-						util.toast("登录成功");
-					}
 					client.close();
+					rec(c);
 				}
 				catch(Throwable e)
 				{
@@ -154,6 +242,6 @@ public class myFTP_Client
 	}
 	public interface Receive
 	{
-		public abstract void onReceive(DataInputStream d)throws Throwable;
+		public abstract void onReceive(byte c)
 	}
 }

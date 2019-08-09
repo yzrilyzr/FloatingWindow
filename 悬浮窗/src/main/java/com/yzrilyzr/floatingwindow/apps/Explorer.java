@@ -26,7 +26,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import com.yzrilyzr.connection.myFTP_Server;
+import com.yzrilyzr.connection.C;
+import com.yzrilyzr.connection.myFTP_Client;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
@@ -35,17 +36,13 @@ import com.yzrilyzr.icondesigner.VecView;
 import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import java.lang.reflect.Method;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import com.yzrilyzr.connection.myFTP_Client;
-import android.os.Handler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.yzrilyzr.connection.FtpFile;
 
 public class Explorer implements AdapterView.OnItemClickListener,
 AdapterView.OnItemLongClickListener,View.OnClickListener,
@@ -926,11 +923,9 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 					}
 					path=f[0];
 					myftp=new myFTP_Client(addr[0],Integer.parseInt(addr[1]));
-					//myftp.start();
-					//myftp.addCallBack(Explorer.this);
+					myftp.setReceive(Explorer.this);
 					if(f.length==1)myftp.login("","");
-					else myftp.login(f[1],f[2]);
-					myftp.list(path);
+					else myftp.login(f[f.length-2],f[f.length-1]);
 				}catch(Throwable e){
 					util.toast("路径不合法");
 					e.printStackTrace();
@@ -942,7 +937,20 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		}
 		setSearchMode(false);
 	}
-
+	@Override
+	public void onReceive(byte c)
+	{
+		if(c==C.LOGINFAIL)
+		{
+			util.toast("登录失败");
+		}
+		else if(c==C.LOGINSUC)
+		{
+			util.toast("登录成功");
+			list();
+		}
+	}
+	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> p1, View p2, int p3, long p4)
 	{
@@ -1777,80 +1785,71 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		VecView icon;
 	}
 
-	@Override
-	public void onReceive(DataInputStream d)throws Throwable
-	{
-		
-	}
 	public class mFile extends File{
 		String path;
+		FtpFile ftp=null;
 		public mFile(String f){
 			super(f);
 			path=f;
+			if(isFTP()){
+				if(myftp!=null)ftp=myftp.getFile(path);
+				if(ftp==null)ftp=new FtpFile(f);
+			}
+		}
+		public mFile(FtpFile f){
+			super(f.getPath());
+			path=f.getPath();
+			ftp=f;
 		}
 		public mFile(File f){
 			this(f.getAbsolutePath());
 		}
 		public boolean isFTP(){
-			return path.contains("ftp://");
+			return ftp!=null||path.contains("ftp://");
 		}
 		@Override
 		public String getPath()
 		{
-			return path.replace("//","/").replace("ftp:/","ftp://");
+			if(isFTP())return ftp.getPath();
+			return path;
 		}
-		@Override
-		public boolean setWritable(boolean writable, boolean ownerOnly)
-		{
-			// TODO: Implement this method
-			return super.setWritable(writable, ownerOnly);
-		}
-		@Override
-		public boolean setReadable(boolean readable, boolean ownerOnly)
-		{
-			// TODO: Implement this method
-			return super.setReadable(readable, ownerOnly);
-		}
-
 		@Override
 		public boolean canRead()
 		{
-			// TODO: Implement this method
-			//if(isFTP())return canr;
+			if(isFTP())return ftp.canRead();
 			return super.canRead();
 		}
 
 		@Override
 		public boolean renameTo(File newPath)
 		{
-			// TODO: Implement this method
+			if(isFTP())return myftp.renameTo(ftp,newPath.getName());
 			return super.renameTo(newPath);
 		}
 		@Override
 		public long length()
 		{
-			// TODO: Implement this method
-			//if(isFTP())return leng;
+			if(isFTP())return ftp.length();
 			return super.length();
 		}
 		@Override
 		public boolean mkdirs()
 		{
-			// TODO: Implement this method
+			if(isFTP())return myftp.mkdirs(ftp.getPath());
 			return super.mkdirs();
 		}
 
 		@Override
 		public boolean delete()
 		{
-			// TODO: Implement this method
+			if(isFTP())return myftp.delete(ftp.getPath());
 			return super.delete();
 		}
 
 		@Override
 		public boolean canWrite()
 		{
-			//if(isFTP())return canw;
+			if(isFTP())return ftp.canWrite();
 			return super.canWrite();
 		}
 
@@ -1858,47 +1857,35 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public boolean createNewFile() throws IOException
 		{
-			// TODO: Implement this method
+			if(isFTP())return myftp.createNewFile(ftp.getPath());
 			return super.createNewFile();
 		}
 
 		@Override
 		public String getParent()
 		{
-			//System.out.println(path);
-			//System.out.println(parent);
-			if(isFTP()){
-				//return parent;
-			}
+			if(isFTP())return ftp.getParent();
 			return super.getParent();
 		}
 
 		@Override
 		public long lastModified()
 		{
-			// TODO: Implement this method
-			//if(isFTP())return time;
+			if(isFTP())return ftp.lastModified();
 			return super.lastModified();
 		}
 		@Override
-		public Explorer.mFile[] listFiles()
+		public mFile[] listFiles()
 		{
-			if(path.contains("ftp://")){
-				/*cachemfile=null;
-				myftp.list(path);
-				long gg=System.currentTimeMillis();
-				searching.setVisibility(0);
-				while(cachemfile==null&&(System.currentTimeMillis()-gg)<2000){
-					try
-					{
-						Thread.sleep(1);
-					}
-					catch (InterruptedException e)
-					{}
+			if(isFTP()){
+				FtpFile[] fg=myftp.list(ftp.getPath());
+				if(fg==null){
+					util.toast("访问出错");
+					return null;
 				}
-				searching.setVisibility(8);
-				
-				return cachemfile;*/
+				mFile[] m=new mFile[fg.length];
+				for(int i=0;i<fg.length;i++)m[i]=new mFile(fg[i]);
+				return m;
 			}
 			File[] sr=new File(path).listFiles();
 			mFile[] src=null;
@@ -1937,40 +1924,40 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public File getParentFile()
 		{
-			if(isFTP())return new mFile(getParent());
+			if(isFTP())return ftp.getParentFile();
 			return super.getParentFile();
 		}
 
 		@Override
 		public String getAbsolutePath()
 		{
-			if(isFTP())return getPath();
+			if(isFTP())return ftp.getAbsolutePath();
 			return super.getAbsolutePath();
 		}
 
 		@Override
 		public boolean exists()
 		{
-			if(isFTP())return true;
+			if(isFTP())return myftp.exists(ftp.getPath());
 			return super.exists();
 		}
 
 		@Override
 		public boolean isDirectory()
 		{
-			//if(isFTP())return isd;
+			if(isFTP())return ftp.isDirectory();
 			return super.isDirectory();
 		}
 
 		@Override
 		public boolean isFile()
 		{
-			//if(isFTP())return isf;
+			if(isFTP())return ftp.isFile();
 			return super.isFile();
 		}
 		@Override
 		public String getName(){
-			//if(isFTP())return name;
+			if(isFTP())return ftp.getName();
 			int c=path.lastIndexOf("/");
 			return path.substring(c+1);
 		}
