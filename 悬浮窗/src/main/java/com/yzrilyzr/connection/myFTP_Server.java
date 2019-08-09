@@ -18,7 +18,7 @@ public class myFTP_Server
 	static boolean serverrun=false;
 	static Thread serverthread=null;
 	static ConcurrentHashMap<String,String> users=new ConcurrentHashMap<String,String>();//usr pwd
-	static ConcurrentHashMap<String,Integer> loginuser=new ConcurrentHashMap<String,Integer>();//ip port
+	//static ConcurrentHashMap<String,Integer> loginuser=new ConcurrentHashMap<String,Integer>();//ip port
 	protected static String upath=null;
 	protected static boolean enableU=false;
 	protected static int port=3721,maxthread=10;
@@ -102,18 +102,6 @@ public class myFTP_Server
 				System.out.println(strIP);
 			}},"getIP_Server").start();
 	}
-	public static class C
-	{
-		public static final byte 
-		LOGIN=1,
-		LOGINSUC=2,
-		LOGINFAIL=3,
-		LOGOUT=4,
-		HBT=5,
-		LIST=6,
-		FILENOTEXIST=7,
-		PERMISSIONDENIED=8;
-	}
 	public static void print(Object o)
 	{
 		System.out.println("<FTPSERVER>"+o);
@@ -129,34 +117,37 @@ public class myFTP_Server
 		@Override
 		public void run()
 		{
-			try{
-			DataInputStream i=new DataInputStream(p.getInputStream());
-			DataOutputStream o=new DataOutputStream(p.getOutputStream());
-			byte c=i.readByte();
-			if(c==C.LOGIN)
+			try
 			{
-				print("用户登录");
-				String usr=i.readUTF();
-				String pwd=i.readUTF();
-				if(enableU||pwd.equals(users.get(usr)))
+				DataInputStream i=new DataInputStream(p.getInputStream());
+				DataOutputStream o=new DataOutputStream(p.getOutputStream());
+				byte c=i.readByte();
+				if(c==C.LOGIN)
 				{
-					o.writeByte(C.LOGINSUC);
-					loginuser.put(p.getInetAddress().getHostAddress(),p.getPort());
+					print("用户登录");
+					String usr=i.readUTF();
+					String pwd=i.readUTF();
+					if(enableU||pwd.equals(users.get(usr)))
+					{
+						o.writeByte(C.LOGINSUC);
+						//loginuser.put(p.getInetAddress().getHostAddress(),p.getPort());
+					}
+					else o.writeByte(C.LOGINFAIL);
 				}
-				else o.writeByte(C.LOGINFAIL);
-			}
-			//else if(loginuser.get(p.getInetAddress().getHostAddress())==p.getPort())
+				//else if(loginuser.get(p.getInetAddress().getHostAddress())==p.getPort())
 				if(c==C.LIST)
 				{
 					String rpath=i.readUTF(),path="";
-					if("".equals(path)||path==null){
-						if(enableU)path=upath;
-						else path=util.sdcard;
-					}
-					Matcher m=Pattern.compile("ftp://.*?:[0-9].*?/").matcher(rpath);
+					Matcher m=Pattern.compile("ftp://.*?:[0-9]*").matcher(rpath);
 					String aa="";
 					while(m.find())aa=m.group();
 					rpath=rpath.substring(aa.length());
+					if("".equals(path)||path==null)
+					{
+						if(enableU)path=upath;
+						else path=util.sdcard;
+					}
+					//rpath=rpath.substring(aa.length());
 					path=path+"/"+rpath;
 					File fs=new File(path);
 					if(!fs.exists())o.writeByte(C.FILENOTEXIST);
@@ -181,11 +172,13 @@ public class myFTP_Server
 						}
 					}
 				}
-			o.flush();
-			i.close();
-			o.close();
-			p.close();
-			}catch(Throwable e){
+				o.flush();
+				i.close();
+				o.close();
+				p.close();
+			}
+			catch(Throwable e)
+			{
 				e.printStackTrace();
 			}
 		}

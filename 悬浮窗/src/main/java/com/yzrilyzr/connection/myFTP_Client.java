@@ -28,25 +28,25 @@ public class myFTP_Client
 
 	public myFTP_Client(final String ip,final int port)
 	{
-		
-				try
-				{
-					serveraddr=new InetSocketAddress(ip,port);
-					//client=new Socket();
-					//client.setSoTimeout(5000);
-					//client.connect(serveraddr);
-					//client.close();
-					//client.setSoTimeout(5000);
-				}
-				catch(Throwable e)
-				{
-					e.printStackTrace();
-					util.toast("ftp连接失败");
-				}
+
+		try
+		{
+			serveraddr=new InetSocketAddress(ip,port);
+			//client=new Socket();
+			//client.setSoTimeout(5000);
+			//client.connect(serveraddr);
+			//client.close();
+			//client.setSoTimeout(5000);
+		}
+		catch(Throwable e)
+		{
+			e.printStackTrace();
+			util.toast("ftp连接失败");
+		}
 	}
 	public FtpFile[] list(final String path)
 	{
-		final FtpFile[][] cachemfile=new FtpFile[1][];
+		final FtpFile[][] cachemfile=new FtpFile[2][];
 		new Thread(new Runnable(){
 			@Override
 			public void run()
@@ -56,11 +56,12 @@ public class myFTP_Client
 					Socket client=new Socket();
 					client.connect(serveraddr);
 					DataOutputStream o=new DataOutputStream(client.getOutputStream());
-					o.writeByte(myFTP_Server.C.LIST);
+					o.writeByte(C.LIST);
 					o.writeUTF(path);
 					o.flush();
 					DataInputStream d=new DataInputStream(client.getInputStream());
-					if(d.readByte()==myFTP_Server.C.LIST)
+					byte c=d.readByte();
+					if(c==C.LIST)
 					{
 						int fs=d.readInt();
 						FtpFile[] m=new FtpFile[fs];
@@ -71,10 +72,13 @@ public class myFTP_Client
 							boolean z=d.readBoolean(),x=d.readBoolean();
 							boolean n=d.readBoolean(),b=d.readBoolean();
 							m[i]=new FtpFile(path+"/"+g,path,g,h,j,z,x,n,b);
-							System.out.println(m[i].path);
+							//System.out.println(m[i].path);
 						}
 						cachemfile[0]=m;
 					}
+					else if(c==C.PERMISSIONDENIED)util.toast("没有权限访问");
+					else if(c==C.FILENOTEXIST)util.toast("文件不存在");
+					cachemfile[1]=new FtpFile[0];
 					client.close();
 				}
 				catch(Throwable e)
@@ -85,7 +89,7 @@ public class myFTP_Client
 			}
 		}).start();
 		long t=System.currentTimeMillis();
-		while(cachemfile[0]==null&&System.currentTimeMillis()-t<3000)
+		while(cachemfile[1]==null&&System.currentTimeMillis()-t<3000)
 		{
 			try
 			{
@@ -99,59 +103,6 @@ public class myFTP_Client
 		return cachemfile[0];
 	}
 
-	public void onReceive(DataInputStream d)throws Throwable
-	{
-		byte c=d.readByte();
-		if(c==myFTP_Server.C.LOGINSUC)
-		{
-			util.toast("登录成功");
-			/*new Handler(ctx.getMainLooper()).post(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 list();
-			 }
-			 });*/
-		}
-		else if(c==myFTP_Server.C.LOGINFAIL)
-		{
-			util.toast("登录失败");
-			/*path=null;
-			 new Handler(ctx.getMainLooper()).post(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 list();
-			 }
-			 });*/
-		}
-
-	}/*
-	 public void start()
-	 {
-	 running=true;
-	 new Thread(new Runnable(){
-	 @Override
-	 public void run()
-	 {
-	 while(running)
-	 {
-	 try
-	 {
-	 byte[] b=new byte[4096];
-	 DatagramPacket p=new DatagramPacket(b,b.length);
-	 client.receive(p);
-	 onReceive(new DataInputStream(new ByteArrayInputStream(p.getData())));
-	 for(Receive r:res)r.onReceive(new DataInputStream(new ByteArrayInputStream(p.getData())));
-	 }
-	 catch(Throwable e)
-	 {
-	 e.printStackTrace();
-	 }
-	 }
-	 }
-	 }).start();
-	 }*/
 	public void login(final String usr,final String pwd)
 	{
 		new Thread(new Runnable(){
@@ -163,17 +114,17 @@ public class myFTP_Client
 					Socket client=new Socket();
 					client.connect(serveraddr);
 					DataOutputStream o=new DataOutputStream(client.getOutputStream());
-					o.writeByte(myFTP_Server.C.LOGIN);
+					o.writeByte(C.LOGIN);
 					o.writeUTF(usr);
 					o.writeUTF(pwd);
 					o.flush();
 					DataInputStream d=new DataInputStream(client.getInputStream());
 					byte c=d.readByte();
-					if(c==myFTP_Server.C.LOGINFAIL)
+					if(c==C.LOGINFAIL)
 					{
 						util.toast("登录失败");
 					}
-					else if(c==myFTP_Server.C.LOGINSUC)
+					else if(c==C.LOGINSUC)
 					{
 						util.toast("登录成功");
 					}
@@ -187,29 +138,6 @@ public class myFTP_Client
 			}
 		}).start();
 	}
-	/*
-	 private void send(final ByteArrayOutputStream b)
-	 {
-	 new Thread(new Runnable(){
-	 @Override
-	 public void run()
-	 {
-	 try
-	 {
-	 byte[] by=b.toByteArray();
-	 DatagramPacket k=new DatagramPacket(by,by.length);
-	 k.setAddress(serveraddr.getAddress());
-	 k.setPort(serveraddr.getPort());
-	 client.send(k);
-	 }
-	 catch(Throwable e)
-	 {
-
-	 }
-	 }
-	 }).start();
-
-	 }*/
 	public void logout()
 	{}
 	public void stop()
