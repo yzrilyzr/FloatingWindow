@@ -31,13 +31,13 @@ public class myFTP_Server
 			return;
 		}
 		serverrun=true;
-		final ExecutorService exec=Executors.newFixedThreadPool(maxthread);
 		serverthread=new Thread(new Runnable(){
 			@Override
 			public void run()
 			{
 				try
 				{
+					ExecutorService exec=Executors.newFixedThreadPool(maxthread);
 					server=new ServerSocket(port);
 					//server=new DatagramSocket(port);
 					//server.setSoTimeout(1000);

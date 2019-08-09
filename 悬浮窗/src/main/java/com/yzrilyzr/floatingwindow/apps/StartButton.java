@@ -105,9 +105,12 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 				.putExtra("mode",1).putExtra("which",code)
 				,cls.PLUGINPICKER);
 			else
-				PluginService.loadPlugin(ctx,new Intent()
+				API.startServiceForResult(ctx,new Intent(),null,null,cv.getPkg(code),cv.getClass(code));
+				//.putExtra("pkg",cv.getPkg(code))
+				//.putExtra("class",cv.getClass(code)),cv.getClass(code));
+				/*PluginService.loadPlugin(ctx,new Intent()
 				.putExtra("pkg",cv.getPkg(code))
-				.putExtra("class",cv.getClass(code)));
+				.putExtra("class",cv.getClass(code)));*/
 		}
 		if(code==5)
 		{

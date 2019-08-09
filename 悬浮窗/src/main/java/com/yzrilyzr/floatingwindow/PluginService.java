@@ -109,7 +109,7 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 		}
 		throw new Exception("未知文件:"+pkg);
 	}
-    public static final void loadPlugin(final Context ctx,final Intent intent)
+    private final void loadPlugin(final Context ctx,final Intent intent)
     {
         String pkg="",clazz="";
         PackageManager PackageManager=ctx.getPackageManager();

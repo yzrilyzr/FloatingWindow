@@ -167,9 +167,10 @@ public class Home extends myActivity implements AdapterView.OnItemClickListener
 			String p=(String)l.get(p3).get("pkg");
 			String c=(String)l.get(p3).get("class");
 			if(c.startsWith("."))c=p+c;
-			PluginService.loadPlugin(ctx,new Intent()
+			API.startServiceForResult(ctx,new Intent(),null,null,p,c);
+			/*PluginService.loadPlugin(ctx,new Intent()
 									 .putExtra("pkg",p)
-									 .putExtra("class",c));
+									 .putExtra("class",c));*/
 		}
 		else if(p1==mlv2)
 		{
