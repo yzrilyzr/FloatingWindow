@@ -11,6 +11,7 @@ public class FtpFile extends File
 	public FtpFile(String path)
 	{
 		super(path);
+		this.path=path;
 		path();
 		//System.out.println("n:"+name+","+parent);
 	}
