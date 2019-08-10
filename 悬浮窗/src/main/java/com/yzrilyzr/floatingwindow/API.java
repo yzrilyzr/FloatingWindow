@@ -62,14 +62,18 @@ public class API
         ctx.startService(intent);
     }
 	//main
-    public static void startService(Context ctx,Intent intent,String targetClass)
+    public static void startService(Context ctx,Intent intent,String targetPkg,String targetClass)
     {
 		if(intent==null)intent=new Intent();
         intent.setAction("com.yzrilyzr.Service");
         intent.setPackage("com.yzrilyzr.floatingwindow");
-        intent.putExtra("pkg",ctx.getPackageName());
+        intent.putExtra("pkg",targetPkg);
         intent.putExtra("class",targetClass);
         ctx.startService(intent);
+    }
+	public static void startService(Context ctx,Intent intent,String targetClass)
+    {
+		startService(ctx,intent,ctx.getPackageName(),targetClass);
     }
 	public static void callBack(Context ctx,Intent extra,int code){
 		ctx.sendBroadcast(extra.setAction("com.yzrilyzr.callback")

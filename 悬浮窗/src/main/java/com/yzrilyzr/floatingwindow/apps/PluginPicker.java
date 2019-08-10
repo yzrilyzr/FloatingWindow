@@ -108,7 +108,7 @@ public class PluginPicker implements AdapterView.OnItemClickListener,Window.OnSi
 		if(c.startsWith("."))c=p+c;
 		w.dismiss();
 		if(mode==0)
-			API.startServiceForResult(ctx,new Intent(),null,null,p,c);
+			API.startService(ctx,new Intent(),p,c);
 			/*PluginService.loadPlugin(ctx,new Intent()
 			.putExtra("pkg",p)
 			.putExtra("class",c));*/
