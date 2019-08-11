@@ -103,11 +103,14 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 			public void onWrite(byte[] b, int o, int l)
 			{
 				String s= new String(b,o,l);
-				if(!"\n".equals(s))
+				if(s.endsWith("\n"))
 				{
-					n.addText(s);
+					out.sb.append(s.substring(0,s.length()-1));
+					n.addText(out.sb.toString());
 					n.gotoend();
+					out.sb.delete(0,out.sb.length());
 				}
+				else out.sb.append(s);
 			}
 		});
 		err.o.add(ob=new OS.OnWrite(){
@@ -115,11 +118,14 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 			public void onWrite(byte[] b, int o, int l)
 			{
 				String s= new String(b,o,l);
-				if(!"\n".equals(s))
+				if(s.endsWith("\n"))
 				{
-					m.addText(s);
+					err.sb.append(s.substring(0,s.length()-1));
+					m.addText(err.sb.toString());
 					m.gotoend();
+					err.sb.delete(0,err.sb.length());
 				}
+				else err.sb.append(s);
 			}
 		});
 		String js=e.getStringExtra("jstext");
@@ -247,6 +253,7 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 	{
 		protected final ByteArrayOutputStream os=new ByteArrayOutputStream();
 		protected CopyOnWriteArrayList<OnWrite> o=new CopyOnWriteArrayList<OnWrite>();
+		protected StringBuffer sb=new StringBuffer();
 		public void write(int p1) throws IOException
 		{
 			os.write(p1);

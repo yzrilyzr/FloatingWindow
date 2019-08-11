@@ -80,6 +80,8 @@ public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickLi
 			{
 				myTextView t=new myTextView(util.ctx);
 				t.setEllipsize(TextUtils.TruncateAt.END);
+				int y=util.px(3);
+				t.setPadding(y,y,y,y);
 				t.setText(ml.get(p1)+(isViewGroup()?"":":"+data.get(isvg).get(ml.get(p1))));
 				return t;
 			}
