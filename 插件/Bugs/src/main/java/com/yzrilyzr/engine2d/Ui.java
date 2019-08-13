@@ -9,14 +9,14 @@ public class Ui extends Shape
 	Bitmap b;
 	boolean visible=true;
 	public Ui(String v,float x,float y,int w,int h){
-		this.x=x;
-		this.y=y;
-		this.w=w;
-		this.h=h;
+		this.x=p(x);
+		this.y=p(y);
+		this.w=p(w);
+		this.h=p(h);
 		r=0;
 		try
 		{
-			b=VECfile.createBitmap(MainActivity.ctx,v,w,h);
+			b=VECfile.createBitmap(MainActivity.ctx,v,p(w),p(h));
 		}
 		catch (Exception e)
 		{}

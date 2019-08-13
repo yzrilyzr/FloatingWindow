@@ -24,12 +24,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
+	//global
 	static SurfaceView sv;
 	static SurfaceHolder hd;
 	static boolean run=false,pause=false,lock=false,which=false;
 	static Runnable rb=null;
 	final static CopyOnWriteArrayList<Shape> sh=new CopyOnWriteArrayList<Shape>();
-    final static CopyOnWriteArrayList<Shape> bugs=new CopyOnWriteArrayList<Shape>();
     final static CopyOnWriteArrayList<Ui> ui=new CopyOnWriteArrayList<Ui>();
 	static Context ctx;
 	static int cachecount=2;
@@ -37,11 +37,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	static Canvas[] cvsc=new Canvas[cachecount];
 	Shape tui;
 	static String mainDir=Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/Bugs/";
+	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
+	private int curui=0;
+
+	//uiganemain=4
 	Map map=null;
+	final static CopyOnWriteArrayList<Shape> bugs=new CopyOnWriteArrayList<Shape>();
+	private Ui gamerightmenu;
+	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
+	private boolean moved=false;
+	private float ddx,ddy;
 
-	private Ui exitdialog,buttoncancel,buttonok;
 
-	private Ui shadowcover;
 	@Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -61,7 +68,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		for(int i=ui.size()-1;i>=0;i--)
 		{
-			Ui s=(Ui)ui.get(i);
+			Ui s=ui.get(i);
 			if(Shape.down(event))
 				if(s.contains(event.getX(),event.getY())&&(s).visible)
 				{
@@ -73,8 +80,59 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			{
 				tui.onTouch(event);
 				tui=null;
-				break;
+				return false;
 			}
+		}
+		if(curui==4)
+		{
+			int a=event.getAction();
+			try
+			{
+				if(event.getPointerCount()==1)
+				{
+					if(a==MotionEvent.ACTION_DOWN)moved=false;
+					else if(a==MotionEvent.ACTION_UP){
+						moved=false;
+						map.loadTiles(scale);
+					}
+				}
+				else if(event.getPointerCount()==2)
+				{
+					float x1=event.getX(1),y1=event.getY(1);
+					float x=event.getX(0),y=event.getY(0);
+					if(!moved)
+					{
+						if(x1>Shape.p(1100)||x>Shape.p(1100))return false;
+						
+						ddx=(x+x1)/2;
+						ddy=(y+y1)/2;
+						lpointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
+						lscale=scale;
+						moved=true;
+					}
+					else
+					{
+						float pointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
+						float llsc=scale;
+						scale=lscale*pointLen/lpointLen;
+						float cx=(x+x1)/2f,cy=(y+y1)/2f;
+						deltax=(deltax-cx/llsc)+cx/scale;
+						deltay=(deltay-cy/llsc)+cy/scale;
+						deltax-=(ddx-(x+x1)/2)/scale;
+						deltay-=(ddy-(y+y1)/2)/scale;
+						ddx=(x+x1)/2;
+						ddy=(y+y1)/2;
+						if(scale<1)
+						{
+							scale=1;
+							deltax=0;
+							deltay=0;
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{}
 		}
 		return true;
 	}
@@ -109,18 +167,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						cvsc[i]=new Canvas(bmpc[i]);
 					}
 
-					try
-					{
-						map=Map.loadMap(getAssets().open("maps/map1"));
-						map.loadTiles();
-						ArrayList<Point> r=map.findWayPoint();
-						for(Point c:r)map.map[c.x][c.y]=5;
-					}
-					catch (Exception e)
-					{
-						toast(e);
-					}
-
+					uiGameMain();
+					Matrix m=new Matrix();
 					while(run)
 					{
 						try
@@ -132,21 +180,39 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									which=!which;
 									Canvas c=cvsc[which?0:1];
 									c.drawColor(0xff333333);
-									if(map!=null)
+									//uigamemain
+									if(curui==4)
 									{
-										p.setColor(0xff000000);
-										c.drawBitmap(map.background,0,0,p);
-										float s=(float)Shape.p(900)/(float)map.size;
-										for(int i=0;i<map.map.length;i++)
-											for(int u=0;u<map.map[0].length;u++)
-											{
-												int id=map.map[i][u];
-												if(id!=0)
+										if(map!=null)
+										{
+											p.setColor(0xff000000);
+											m.reset();
+											m.postTranslate(deltax,deltay);
+											m.postScale(scale,scale);
+
+											c.drawBitmap(map.background,m,p);
+											float scale=MainActivity.this.scale;
+											if(scale<1)scale=1;
+											float s=(float)Shape.p(900)*scale/(float)map.size;
+											for(int i=0;i<map.map.length;i++)
+												for(int u=0;u<map.map[0].length;u++)
 												{
-													Bitmap b=map.tiles[id];
-													c.drawBitmap(b,s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s,p);
+													int id=map.map[i][u];
+													if(id!=0)
+													{
+														Bitmap b=map.tiles[id];
+														if(moved)
+														{
+															m.reset();
+															m.postScale(scale/lscale,scale/lscale);
+															m.postTranslate(deltax*scale,deltay*scale);
+															m.postTranslate(+s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s);
+															c.drawBitmap(b,m,p);
+														}
+														else c.drawBitmap(b,deltax*scale+(s*i-(b.getWidth()-s)/2),deltay*scale+(s*u-b.getHeight()+s),p);
+													}
 												}
-											}
+										}
 									}
 									for(Shape s:sh)s.onDraw(c);
 									for(Shape s:ui)s.onDraw(c);
@@ -292,7 +358,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	public void surfaceDestroyed(SurfaceHolder p1)
 	{
 	}
-	public static void toast(final Throwable e){
+	public static void toast(final Throwable e)
+	{
 		new Handler(ctx.getMainLooper()).post(new Runnable(){
 			@Override
 			public void run()
@@ -307,7 +374,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}
 		});
 	}
-	public static void toast(final String s){
+	public static void toast(final String s)
+	{
 		new Handler(ctx.getMainLooper()).post(new Runnable(){
 			@Override
 			public void run()
@@ -347,9 +415,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			if(exitdialog==null)
 			{
 				int cx=800,cy=450;
-				shadowcover=new Ui("shadowcover",0,0,Shape.p(1600),Shape.p(900));
-				exitdialog=new Ui("exitdialog",Shape.p(cx-250),Shape.p(cy-150),Shape.p(500),Shape.p(300));
-				buttoncancel=new Ui("buttoncancel",Shape.p(cx-190),Shape.p(cy+20),Shape.p(150),Shape.p(90)){
+				shadowcover=new Ui("shadowcover",0,0,1600,900);
+				exitdialog=new Ui("exitdialog",cx-250,cy-150,500,300);
+				buttoncancel=new Ui("buttoncancel",cx-190,cy+20,150,90){
 					@Override
 					public void onTouch(MotionEvent e)
 					{
@@ -359,7 +427,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						buttoncancel.visible=shadowcover.visible;
 					}
 				};
-				buttonok=new Ui("buttonok",Shape.p(cx+40),Shape.p(cy+20),Shape.p(150),Shape.p(90)){
+				buttonok=new Ui("buttonok",cx+40,cy+20,150,90){
 					@Override
 					public void onTouch(MotionEvent e)
 					{
@@ -377,5 +445,45 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}
 		}
 		return true;
+	}
+	void uiGameMain()
+	{
+		curui=4;
+		try
+		{
+			if(gamerightmenu==null)
+			{
+				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900);
+			}
+			gamerightmenu.visible=true;
+			scale=1;
+			lscale=1;
+			deltax=0;
+			deltay=0;
+			map=Map.loadMap(getAssets().open("maps/map1"));
+			map.loadTiles(1);
+			final ArrayList<Point> r=map.findWayPoint();
+			new Thread(new Runnable(){
+				@Override
+				public void run()
+				{
+					for(Point c:r)
+					{
+						map.map[c.x][c.y]=5;
+						try
+						{
+							Thread.sleep(50);
+						}
+						catch (InterruptedException e)
+						{}
+					}
+				}
+			}).start();
+
+		}
+		catch (Exception e)
+		{
+			toast(e);
+		}
 	}
 }
