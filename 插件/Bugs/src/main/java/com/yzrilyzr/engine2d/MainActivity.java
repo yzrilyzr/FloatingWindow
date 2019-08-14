@@ -40,6 +40,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
 	private int curui=0;
 
+	//uiload=0
+
+	//uimainmenu=1
+	private Ui mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout;
+
+	//uiselectlevel=2
+
+	//uimyjb=3
+
 	//uiganemain=4
 	Map map=null;
 	final static CopyOnWriteArrayList<Shape> bugs=new CopyOnWriteArrayList<Shape>();
@@ -48,6 +57,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private boolean moved=false;
 	private float ddx,ddy;
 
+	//uicustom=5
+
+	//uiselectmap=6
+
+	//uimapedit=7;
+
+	//uibugsicon=8
+
+	//uitutorial=9
+
+	//uisettings
+
+	//uiabout
+	private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -91,7 +114,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				if(event.getPointerCount()==1)
 				{
 					if(a==MotionEvent.ACTION_DOWN)moved=false;
-					else if(a==MotionEvent.ACTION_UP){
+					else if(a==MotionEvent.ACTION_UP)
+					{
 						moved=false;
 						map.loadTiles(scale);
 					}
@@ -103,7 +127,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					if(!moved)
 					{
 						if(x1>Shape.p(1100)||x>Shape.p(1100))return false;
-						
+
 						ddx=(x+x1)/2;
 						ddy=(y+y1)/2;
 						lpointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
@@ -122,10 +146,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						deltay-=(ddy-(y+y1)/2)/scale;
 						ddx=(x+x1)/2;
 						ddy=(y+y1)/2;
+						deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
+						deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
+						if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
 						if(scale<1)
 						{
 							scale=1;
-							deltax=0;
+							deltax=Shape.p(100);
 							deltay=0;
 						}
 					}
@@ -136,6 +163,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		return true;
 	}
+	public static float limit(float x,float min,float max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+	public static long limit(long x,long min,long max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+	public static int limit(int x,int min,int max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+
 	@Override
 	public void surfaceCreated(SurfaceHolder p1)
 	{
@@ -167,7 +207,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						cvsc[i]=new Canvas(bmpc[i]);
 					}
 
-					uiGameMain();
+					//uiGameMain();
+					mainmenu();
 					Matrix m=new Matrix();
 					while(run)
 					{
@@ -180,19 +221,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									which=!which;
 									Canvas c=cvsc[which?0:1];
 									c.drawColor(0xff333333);
+									//uimainmeuu
+									if(curui==1){
+										
+									}
 									//uigamemain
-									if(curui==4)
+									else if(curui==4)
 									{
 										if(map!=null)
 										{
-											p.setColor(0xff000000);
+											p.setColor(0xffff0000);
+											p.setStrokeWidth(10);
 											m.reset();
 											m.postTranslate(deltax,deltay);
 											m.postScale(scale,scale);
 
 											c.drawBitmap(map.background,m,p);
-											float scale=MainActivity.this.scale;
-											if(scale<1)scale=1;
 											float s=(float)Shape.p(900)*scale/(float)map.size;
 											for(int i=0;i<map.map.length;i++)
 												for(int u=0;u<map.map[0].length;u++)
@@ -205,17 +249,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 														{
 															m.reset();
 															m.postScale(scale/lscale,scale/lscale);
-															m.postTranslate(deltax*scale,deltay*scale);
+															//m.postTranslate(deltax*scale,deltay*scale);
 															m.postTranslate(+s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s);
 															c.drawBitmap(b,m,p);
 														}
 														else c.drawBitmap(b,deltax*scale+(s*i-(b.getWidth()-s)/2),deltay*scale+(s*u-b.getHeight()+s),p);
 													}
 												}
+											c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
+											p.setColor(0xff00ff00);
+											c.drawPoint(-deltax,-deltay,p);
+
 										}
 									}
 									for(Shape s:sh)s.onDraw(c);
 									for(Shape s:ui)s.onDraw(c);
+									for(int i=0;i<Shape.p(1600);i+=Shape.p(50))c.drawLine(i,0,i,Shape.p(900),p);
+									for(int u=0;u<Shape.p(900);u+=Shape.p(50))c.drawLine(0,u,Shape.p(1600),u,p);
 									if(dt!=0)
 									{
 										lt++;
@@ -226,7 +276,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											lt=0;
 											avgfps=0;
 										}
-										c.drawText(String.format("FPS:%d  Shape:%d",fps,sh.size()+ui.size()),0,Shape.p(50),p);
+										p.setColor(0xffff0000);
+										c.drawText(String.format("FPS:%d  Shape:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),deltax,deltay,scale),0,Shape.p(50),p);
 									}
 									dt=System.nanoTime()-ns;
 									if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
@@ -446,8 +497,65 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		return true;
 	}
+	void hideAllUi()
+	{
+		for(Ui ui:ui)ui.visible=false;
+	}
+	void load()
+	{
+		hideAllUi();
+		curui=0;
+		new Thread(new Runnable(){
+			@Override
+			public void run()
+			{
+				try
+				{
+					Thread.sleep(1000);
+
+				}
+				catch (Exception e)
+				{
+					//toast(e);
+				}
+			}
+		}).start();
+	}
+	void mainmenu()
+	{
+		hideAllUi();
+		curui=1;
+		if(mainmenubuttback==null)
+		{
+			mainmenubuttback=new Ui("mainmenubuttback",825,350,400,500);
+			mainmenutitle=new Ui("mainmenutitle",400,50,800,300);
+			mainmenuabout=new Ui(null,1025,700,175,100){
+				@Override
+				public void onTouch(MotionEvent e){
+					uiabout();
+				}
+			};
+		}
+		mainmenubuttback.visible=true;
+		new Thread(new Runnable(){
+			@Override
+			public void run()
+			{
+				try
+				{
+					Thread.sleep(1000);
+
+				}
+				catch (Exception e)
+				{
+					//toast(e);
+				}
+			}
+		}).start();
+	}
 	void uiGameMain()
 	{
+		hideAllUi();
 		curui=4;
 		try
 		{
@@ -462,20 +570,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			deltay=0;
 			map=Map.loadMap(getAssets().open("maps/map1"));
 			map.loadTiles(1);
-			final ArrayList<Point> r=map.findWayPoint();
 			new Thread(new Runnable(){
 				@Override
 				public void run()
 				{
-					for(Point c:r)
+					try
 					{
-						map.map[c.x][c.y]=5;
-						try
+						map.findWayPoint();
+						Thread.sleep(1000);
+						ArrayList<Map.AstarPoint> p=map.wpwaypoint.get(0);
+						for(Map.AstarPoint c:p)
 						{
+							map.map[c.x][c.y]=5;
+
 							Thread.sleep(50);
+
 						}
-						catch (InterruptedException e)
-						{}
+					}
+					catch (Exception e)
+					{
+						//toast(e);
 					}
 				}
 			}).start();
@@ -483,7 +597,33 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		catch (Exception e)
 		{
-			toast(e);
+			//toast(e);
 		}
+	}
+	void uisettings()
+	{}
+	void uiabout()
+	{
+		if(uiabout==null)
+		{
+			int cx=800,cy=450;
+			uiabout=new Ui("uiabout",cx-400,cy-350,800,700);
+			uiaboutok=new Ui("uiaboutok",cx-75,cy+220,150,90){
+				@Override
+				public void onTouch(MotionEvent e)
+				{
+					uiabout.visible=false;
+					uiaboutbesto.visible=uiabout.visible;
+					uiaboutyzr.visible=uiabout.visible;
+					uiaboutok.visible=uiabout.visible;
+				}
+			};
+			uiaboutyzr=new Ui("yzrilyzr",cx+20,cy+100,200,92);
+			uiaboutbesto=new Ui("bestodesign",cx+220,cy+100,100,100);
+		}
+		uiabout.visible=true;
+		uiaboutbesto.visible=uiabout.visible;
+		uiaboutyzr.visible=uiabout.visible;
+		uiaboutok.visible=uiabout.visible;
 	}
 }

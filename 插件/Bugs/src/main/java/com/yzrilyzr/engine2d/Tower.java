@@ -1,5 +1,5 @@
 package com.yzrilyzr.engine2d;
 
-public class Bug extends Shape
+public class Tower extends Shape
 {
 }

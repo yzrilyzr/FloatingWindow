@@ -14,6 +14,7 @@ public class Ui extends Shape
 		this.w=p(w);
 		this.h=p(h);
 		r=0;
+		if(v!=null)
 		try
 		{
 			b=VECfile.createBitmap(MainActivity.ctx,v,p(w),p(h));
@@ -25,7 +26,7 @@ public class Ui extends Shape
 	@Override
 	public void onDraw(Canvas c)
 	{
-		if(visible)c.drawBitmap(b,x,y,p);
+		if(visible&&b!=null)c.drawBitmap(b,x,y,p);
 	}
 
 	@Override

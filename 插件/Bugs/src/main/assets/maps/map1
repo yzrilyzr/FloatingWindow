@@ -1,7 +1,9 @@
 #MAP V1.0
 name:地图1
+money:300
+life:25
 size:20
-background:@Vmaps/map1
+background:@maps/map1.vec
 map:
 11111111111111111111
 10000000000100001001
@@ -24,3 +26,10 @@ map:
 10000000000000000001
 11111111111111111111
 mapend
+wave:
+0 10 0 5 10
+0 3 0 6 10
+waveend
+wpmap:
+1 2 15 7
+wpmapend
