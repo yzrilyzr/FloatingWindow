@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Random;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -43,8 +46,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiload=0
 
 	//uimainmenu=1
-	private Ui mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout;
-
+	private Ui mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout,mainmenuyzr;
+	public ArrayList<Bug> mainmenubug=new ArrayList<Bug>();
 	//uiselectlevel=2
 
 	//uimyjb=3
@@ -186,7 +189,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				@Override
 				public void run()
 				{
-					Shape.scale=sv.getWidth()/1600f;
+					Shape.scale=sv.getHeight()/900f;
 					try
 					{
 						Thread.sleep(300);
@@ -222,8 +225,33 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									Canvas c=cvsc[which?0:1];
 									c.drawColor(0xff333333);
 									//uimainmeuu
-									if(curui==1){
-										
+									if(curui==1)
+									{
+										Random r=new Random();
+										while(mainmenubug.size()<20)mainmenubug.add(new Bug(0,
+											r.nextBoolean()?0:Shape.p(1600),
+											r.nextBoolean()?0:Shape.p(900),
+											20));
+										float ro=Shape.p(50);
+										for(Bug pp:mainmenubug)
+										{
+											pp.vx+=pp.ax;
+											pp.vy+=pp.ay;
+											pp.x+=pp.vx;
+											pp.y+=pp.vy;
+											if(pp.x<-ro)pp.x=Shape.p(1600)+ro;
+											if(pp.y<-ro)pp.y=Shape.p(900)+ro;
+											if(pp.x>Shape.p(1600)+ro)pp.x=-ro;
+											if(pp.y>Shape.p(900)+ro)pp.y=-ro;
+											if(pp.vx>pp.vel)pp.vx=pp.vel;
+											if(pp.vx<-pp.vel)pp.vx=-pp.vel;
+											if(pp.vy>pp.vel)pp.vy=pp.vel;
+											if(pp.vy<-pp.vel)pp.vy=-pp.vel;
+											pp.ax=r.nextBoolean()?0.2f:-0.2f;
+											pp.ay=r.nextBoolean()?0.2f:-0.2f;
+											pp.onDraw(c);
+										}
+
 									}
 									//uigamemain
 									else if(curui==4)
@@ -264,8 +292,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									}
 									for(Shape s:sh)s.onDraw(c);
 									for(Shape s:ui)s.onDraw(c);
-									for(int i=0;i<Shape.p(1600);i+=Shape.p(50))c.drawLine(i,0,i,Shape.p(900),p);
-									for(int u=0;u<Shape.p(900);u+=Shape.p(50))c.drawLine(0,u,Shape.p(1600),u,p);
+									for(int i=0;i<1600;i+=50)
+									{
+										p.setColor(i%250==0?0xff00ff00:0xffff0000);
+										c.drawLine(Shape.p(i),0,Shape.p(i),Shape.p(900),p);
+									}
+									for(int u=0;u<900;u+=50)
+									{
+										p.setColor(u%250==0?0xff00ff00:0xffff0000);
+										c.drawLine(0,Shape.p(u),Shape.p(1600),Shape.p(u),p);
+									}
 									if(dt!=0)
 									{
 										lt++;
@@ -280,7 +316,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										c.drawText(String.format("FPS:%d  Shape:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),deltax,deltay,scale),0,Shape.p(50),p);
 									}
 									dt=System.nanoTime()-ns;
-									if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
+									//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
 									dt=System.nanoTime()-ns;
 									ns=System.nanoTime();
 								}
@@ -308,6 +344,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					catch (Exception e)
 					{}
+					Matrix m=new Matrix();
+					m.postRotate(270);
+					m.postTranslate(Shape.p(1600),Shape.p(900));
+					
 					Paint p=new Paint();
 					while(run)
 					{
@@ -318,9 +358,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							int w=which?1:0;
 							if(bmpc[w]!=null)cs.drawBitmap(bmpc[w],0,0,p);
 							lock=false;
-							Matrix m=new Matrix();
-							m.postRotate(270);
-							//m.postTranslate(0,0);
 							cs.drawBitmap(banner,m,p);
 							if(cs!=null)hd.unlockCanvasAndPost(cs);
 							Thread.sleep(0,1000);
@@ -527,31 +564,64 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		curui=1;
 		if(mainmenubuttback==null)
 		{
-			mainmenubuttback=new Ui("mainmenubuttback",825,350,400,500);
-			mainmenutitle=new Ui("mainmenutitle",400,50,800,300);
+			mainmenubuttback=new Ui("mainmenubuttback",825,350,400,500)
+			.tScFrom(825,400,400,500,250)
+			.alphaFrom(0,500);
+			mainmenutitle=new Ui("mainmenutitle",450,0,700,300)
+			.tScFrom(400,0,800,300,250)
+			.alphaFrom(0,500);
 			mainmenuabout=new Ui(null,1025,700,175,100){
 				@Override
-				public void onTouch(MotionEvent e){
+				public void onTouch(MotionEvent e)
+				{
 					uiabout();
+				}
+			};
+			mainmenuyzr=new Ui("mainmenuyzr",100,250,600,650){
+				@Override
+				public void onTouch(MotionEvent e)
+				{
+					StringBuilder sb=new StringBuilder();
+					String g="(读不到Tips)";
+					try{
+						BufferedReader br=new BufferedReader(new InputStreamReader(getAssets().open("tips.txt")));
+						while((g=br.readLine())!=null)sb.append(g).append("\n");
+						br.close();
+						String[] h=sb.toString().split("\n");
+						g=h[new Random().nextInt(h.length)];
+					}catch(Throwable pe){
+						toast(pe);
+					}
+					final String tc=g;
+					final Ui tip=new Ui("mainmenutip",100,50,350,300){
+						@Override public void onDraw(Canvas c){
+							super.onDraw(c);
+							p.setColor(0xff000000);
+							p.setTextSize(p(28));
+							String[] d=tc.split("\\\\n");
+							for(int i=0;i<d.length;i++)
+							c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
+						}
+					};
+					new Thread(new Runnable(){
+						@Override
+						public void run()
+						{
+							try
+							{
+								Thread.sleep(2000);
+								ui.remove(tip);
+							}
+							catch (InterruptedException e)
+							{}
+						}
+					}).start();
 				}
 			};
 		}
 		mainmenubuttback.visible=true;
-		new Thread(new Runnable(){
-			@Override
-			public void run()
-			{
-				try
-				{
-					Thread.sleep(1000);
-
-				}
-				catch (Exception e)
-				{
-					//toast(e);
-				}
-			}
-		}).start();
+		mainmenuabout.visible=mainmenubuttback.visible;
+		mainmenutitle.visible=mainmenubuttback.visible;
 	}
 	void uiGameMain()
 	{
@@ -607,7 +677,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		if(uiabout==null)
 		{
 			int cx=800,cy=450;
-			uiabout=new Ui("uiabout",cx-400,cy-350,800,700);
+			uiabout=new Ui("uiabout",cx-400,cy-350,800,700)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
 			uiaboutok=new Ui("uiaboutok",cx-75,cy+220,150,90){
 				@Override
 				public void onTouch(MotionEvent e)
@@ -617,13 +689,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					uiaboutyzr.visible=uiabout.visible;
 					uiaboutok.visible=uiabout.visible;
 				}
-			};
-			uiaboutyzr=new Ui("yzrilyzr",cx+20,cy+100,200,92);
-			uiaboutbesto=new Ui("bestodesign",cx+220,cy+100,100,100);
+			}.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutyzr=new Ui("yzrilyzr",850,500,100,46)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutbesto=new Ui("bestodesign",1000,500,150,150)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
 		}
-		uiabout.visible=true;
-		uiaboutbesto.visible=uiabout.visible;
-		uiaboutyzr.visible=uiabout.visible;
-		uiaboutok.visible=uiabout.visible;
+		else
+		{
+			uiabout.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutok.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutbesto.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutyzr.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+		}
 	}
 }
