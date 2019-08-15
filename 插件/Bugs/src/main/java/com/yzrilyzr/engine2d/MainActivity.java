@@ -577,28 +577,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					uiabout();
 				}
 			};
+			StringBuilder sb=new StringBuilder();
+			try{
+				String g=null;
+				BufferedReader br=new BufferedReader(new InputStreamReader(getAssets().open("tips.txt")));
+				while((g=br.readLine())!=null)sb.append(g).append("\n");
+				br.close();
+			}catch(Throwable pe){
+				toast(pe);
+			}
+			final String[] uh=sb.toString().split("\n");
 			mainmenuyzr=new Ui("mainmenuyzr",100,250,600,650){
 				@Override
 				public void onTouch(MotionEvent e)
 				{
-					StringBuilder sb=new StringBuilder();
-					String g="(读不到Tips)";
-					try{
-						BufferedReader br=new BufferedReader(new InputStreamReader(getAssets().open("tips.txt")));
-						while((g=br.readLine())!=null)sb.append(g).append("\n");
-						br.close();
-						String[] h=sb.toString().split("\n");
-						g=h[new Random().nextInt(h.length)];
-					}catch(Throwable pe){
-						toast(pe);
-					}
-					final String tc=g;
+					final String[] d=uh[new Random().nextInt(uh.length)].split("\\\\n");
 					final Ui tip=new Ui("mainmenutip",100,50,350,300){
 						@Override public void onDraw(Canvas c){
 							super.onDraw(c);
 							p.setColor(0xff000000);
 							p.setTextSize(p(28));
-							String[] d=tc.split("\\\\n");
 							for(int i=0;i<d.length;i++)
 							c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
 						}
