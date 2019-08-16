@@ -43,8 +43,11 @@ public class Shape
 	public static boolean up(MotionEvent e){
 		return e.getAction()==MotionEvent.ACTION_UP;
 	}
-	public static int p(float m){
+	public static int pi(float m){
 		return (int)(m*scale);
+	}
+	public static float p(float m){
+		return m*scale;
 	}
 	public static int r(int r){
 		return (int)(-r+Math.random()*2*r);

@@ -14,16 +14,18 @@ import java.util.Set;
 import java.util.Map.Entry;
 import com.yzrilyzr.engine2d.Map.AstarPoint;
 import java.util.Iterator;
+import android.graphics.Canvas;
 
 public class Map
 {
 	public int[][] map;//x y
 	public int size=0;
 	public String name="";
-	public Bitmap background=null;
+	public Bitmap background=null,back=null;
 	public VECfile backvec;
 	public Bitmap[] tiles=new Bitmap[100];
-	public float mscale=1;
+	public float mscale=1,tilew;
+	public Canvas bc;
 	public ArrayList<Wave> waves=new ArrayList<Wave>();
 	public ArrayList<AstarPoint[]> wpmap=new ArrayList<AstarPoint[]>();
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
@@ -36,7 +38,10 @@ public class Map
 		tiles[3]=tile("start");
 		tiles[4]=tile("finish");
 		tiles[5]=tile("waypoint");
-		background=VECfile.createBitmap(backvec,Shape.p(900f*ms),Shape.p(900f*ms));
+		background=VECfile.createBitmap(backvec,Shape.pi(900f*ms),Shape.pi(900f*ms));
+		back=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
+		bc=new Canvas(back);
+		tilew=(float)back.getWidth()/(float)size;
 	}
 	public static Map loadMap(InputStream i) throws Exception
 	{
@@ -186,7 +191,7 @@ public class Map
 	}
 	private Bitmap tile(String name) throws Exception
 	{
-		int s=Shape.p(900*mscale)/size;
+		int s=Shape.pi(900*mscale)/size;
 		return VECfile.createBitmap(MainActivity.ctx,"tiles/"+name,s,s);
 	}
 	private Bitmap tile(String name,float f) throws Exception

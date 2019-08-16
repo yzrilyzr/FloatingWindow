@@ -10,7 +10,7 @@ public class Ui extends Shape
 	Bitmap b;
 	boolean visible=true;
 	float x1,y1,w1,h1,mill,alpha,alphamill;
-	boolean isFrom=false,isAlpha=false;
+	boolean isFrom=false,isAlpha=false,isTo=false,isAto=false;
 	long st,stalpha;
 	Matrix m=new Matrix();
 	public Ui(String v,float x,float y,int w,int h){
@@ -22,7 +22,7 @@ public class Ui extends Shape
 		if(v!=null)
 		try
 		{
-			b=VECfile.createBitmap(MainActivity.ctx,v,p(w),p(h));
+			b=VECfile.createBitmap(MainActivity.ctx,v,pi(w),pi(h));
 		}
 		catch (Exception e)
 		{}
@@ -30,6 +30,17 @@ public class Ui extends Shape
 	}
 	public Ui tScFrom(float x,float y,float w,float h,float millis){
 		isFrom=true;
+		visible=true;
+		st=System.currentTimeMillis();
+		mill=millis;
+		x1=p(x);
+		y1=p(y);
+		w1=p(w);
+		h1=p(h);
+		return this;
+	}
+	public Ui tScTo(float x,float y,float w,float h,float millis){
+		isTo=true;
 		visible=true;
 		st=System.currentTimeMillis();
 		mill=millis;
@@ -47,6 +58,14 @@ public class Ui extends Shape
 		alphamill=m;
 		return  this;
 	}
+	public Ui alphaTo(float x,float m){
+		isAto=true;
+		visible=true;
+		alpha=x;
+		stalpha=System.currentTimeMillis();
+		alphamill=m;
+		return  this;
+	}
 	public Ui setVisable(boolean b){
 		visible=b;
 		return this;
@@ -55,15 +74,30 @@ public class Ui extends Shape
 	public void onDraw(Canvas c)
 	{
 		float tf=(float)(System.currentTimeMillis()-st)/mill;
-		float ta=(float)(System.currentTimeMillis()-st)/mill;
-		if(ta>1)isAlpha=false;
-		if(tf>1)isFrom=false;
+		float ta=(float)(System.currentTimeMillis()-stalpha)/alphamill;
+		if(ta>1){
+			isAlpha=false;
+			if(isAto)visible=false;
+			isAto=false;
+		}
+		if(tf>1){
+			isFrom=false;
+			if(isTo)visible=false;
+			isTo=false;
+		}
 		if(isAlpha)p.setAlpha((int)(2.55f*((100f-alpha)*ta+alpha)));
+		else if(isAto)p.setAlpha((int)(2.55f*((alpha-100f)*ta+100f)));
 		else p.setAlpha(255);
 		if(isFrom){
 			m.reset();
 			m.postScale((1f-w1/w)*tf+w1/w,(1f-h1/h)*tf+h1/h);
 			m.postTranslate((x-x1)*tf+x1,(y-y1)*tf+y1);
+			c.drawBitmap(b,m,p);
+		}
+		else if(isTo){
+			m.reset();
+			m.postScale((w1/w-1f)*tf+1f,(h1/h-1f)*tf+1f);
+			m.postTranslate((x1-x)*tf+x,(y1-y)*tf+y);
 			c.drawBitmap(b,m,p);
 		}
 		else if(visible&&b!=null)c.drawBitmap(b,x,y,p);

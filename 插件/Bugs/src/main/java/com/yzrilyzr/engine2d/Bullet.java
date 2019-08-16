@@ -1,21 +1,19 @@
 package com.yzrilyzr.engine2d;
 import com.yzrilyzr.icondesigner.VECfile;
 import android.graphics.Canvas;
-import android.view.MotionEvent;
 
-public class Tower extends Shape
+public class Bullet extends Shape
 {
-	float dmg,dtime,cdtime;
-	float rdmg,rtime,rdtime,brtime;
-	float x,y,money,slow;
-	VECfile ico;
-	int level;
+	Tower parent;
 	Bug target;
+	VECfile icon;
+	float brtime;
+	float x,y,vx,vy;
 	public void compute(Bug s){
-		
+
 	}
 	public void attack(Bug b){
-		
+
 	}
 
 	@Override
@@ -23,13 +21,6 @@ public class Tower extends Shape
 	{
 		// TODO: Implement this method
 		super.onDraw(c);
-	}
-
-	@Override
-	public void onTouch(MotionEvent e)
-	{
-		// TODO: Implement this method
-		super.onTouch(e);
 	}
 	
 }

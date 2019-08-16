@@ -9,21 +9,23 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.view.View.OnTouchListener;
 import android.widget.Toast;
 import com.yzrilyzr.icondesigner.VECfile;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.Random;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
+import android.graphics.Typeface;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -44,7 +46,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private int curui=0;
 
 	//uiload=0
-
+	private Ui loadcode;
 	//uimainmenu=1
 	private Ui mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout,mainmenuyzr;
 	public ArrayList<Bug> mainmenubug=new ArrayList<Bug>();
@@ -53,8 +55,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uimyjb=3
 
 	//uiganemain=4
-	Map map=null;
-	final static CopyOnWriteArrayList<Shape> bugs=new CopyOnWriteArrayList<Shape>();
+	static Map map=null;
+	final static CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
+	final static CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
+	final static CopyOnWriteArrayList<Bullet> bullets=new CopyOnWriteArrayList<Bullet>();
 	private Ui gamerightmenu;
 	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	private boolean moved=false;
@@ -92,9 +96,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	@Override
 	public boolean onTouch(View v,MotionEvent event)
 	{
+		event.setLocation(Shape.p(1600)*event.getX()/sv.getWidth(),Shape.p(900)*event.getY()/sv.getHeight());
 		for(int i=ui.size()-1;i>=0;i--)
 		{
 			Ui s=ui.get(i);
+			if(s.isAlpha||s.isAto||s.isFrom||s.isTo)continue;
 			if(Shape.down(event))
 				if(s.contains(event.getX(),event.getY())&&(s).visible)
 				{
@@ -182,6 +188,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	@Override
 	public void surfaceCreated(SurfaceHolder p1)
 	{
+		if(rb==null&&!run)start();
+	}
+	public void start()
+	{
 		run=true;
 		if(rb==null)
 		{
@@ -206,122 +216,122 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					float avgfps=0;
 					for(int i=0;i<bmpc.length;i++)
 					{
-						bmpc[i]=Bitmap.createBitmap(Shape.p(1600),Shape.p(900),Bitmap.Config.ARGB_8888);
+						bmpc[i]=Bitmap.createBitmap(Shape.pi(1600),Shape.pi(900),Bitmap.Config.ARGB_8888);
 						cvsc[i]=new Canvas(bmpc[i]);
 					}
 
 					//uiGameMain();
-					mainmenu();
+					load();
 					Matrix m=new Matrix();
 					while(run)
 					{
 						try
 						{
-							if(!pause)
+							if(pause)
 							{
-								if(!lock)
+								Thread.sleep(20);
+								continue;
+							}
+							if(lock)continue;
+							which=!which;
+							Canvas c=cvsc[which?0:1];
+							c.drawColor(0xff333333);
+							//uimainmeuu
+							if(curui==1)
+							{
+								Random r=new Random();
+								while(mainmenubug.size()<20)mainmenubug.add(new Bug(0,
+									r.nextBoolean()?0:Shape.p(1600),
+									r.nextBoolean()?0:Shape.p(900),
+									20));
+								float ro=Shape.p(50);
+								for(Bug pp:mainmenubug)
 								{
-									which=!which;
-									Canvas c=cvsc[which?0:1];
-									c.drawColor(0xff333333);
-									//uimainmeuu
-									if(curui==1)
-									{
-										Random r=new Random();
-										while(mainmenubug.size()<20)mainmenubug.add(new Bug(0,
-											r.nextBoolean()?0:Shape.p(1600),
-											r.nextBoolean()?0:Shape.p(900),
-											20));
-										float ro=Shape.p(50);
-										for(Bug pp:mainmenubug)
-										{
-											pp.vx+=pp.ax;
-											pp.vy+=pp.ay;
-											pp.x+=pp.vx;
-											pp.y+=pp.vy;
-											if(pp.x<-ro)pp.x=Shape.p(1600)+ro;
-											if(pp.y<-ro)pp.y=Shape.p(900)+ro;
-											if(pp.x>Shape.p(1600)+ro)pp.x=-ro;
-											if(pp.y>Shape.p(900)+ro)pp.y=-ro;
-											if(pp.vx>pp.vel)pp.vx=pp.vel;
-											if(pp.vx<-pp.vel)pp.vx=-pp.vel;
-											if(pp.vy>pp.vel)pp.vy=pp.vel;
-											if(pp.vy<-pp.vel)pp.vy=-pp.vel;
-											pp.ax=r.nextBoolean()?0.2f:-0.2f;
-											pp.ay=r.nextBoolean()?0.2f:-0.2f;
-											pp.onDraw(c);
-										}
+									pp.vx+=pp.ax;
+									pp.vy+=pp.ay;
+									pp.x+=pp.vx;
+									pp.y+=pp.vy;
+									if(pp.x<-ro)pp.x=Shape.p(1600)+ro;
+									if(pp.y<-ro)pp.y=Shape.p(900)+ro;
+									if(pp.x>Shape.p(1600)+ro)pp.x=-ro;
+									if(pp.y>Shape.p(900)+ro)pp.y=-ro;
+									if(pp.vx>pp.vel)pp.vx=pp.vel;
+									if(pp.vx<-pp.vel)pp.vx=-pp.vel;
+									if(pp.vy>pp.vel)pp.vy=pp.vel;
+									if(pp.vy<-pp.vel)pp.vy=-pp.vel;
+									pp.ax=(r.nextBoolean()?1:-1)*Shape.p(0.3f);
+									pp.ay=(r.nextBoolean()?1:-1)*Shape.p(0.3f);
+									pp.onDraw(c);
+								}
 
-									}
-									//uigamemain
-									else if(curui==4)
-									{
-										if(map!=null)
-										{
-											p.setColor(0xffff0000);
-											p.setStrokeWidth(10);
-											m.reset();
-											m.postTranslate(deltax,deltay);
-											m.postScale(scale,scale);
+							}
+							//uigamemain
+							else if(curui==4)
+							{
+								if(map!=null)
+								{
+									p.setColor(0xffff0000);
+									p.setStrokeWidth(10);
+									m.reset();
+									m.postTranslate(deltax,deltay);
+									m.postScale(scale,scale);
 
-											c.drawBitmap(map.background,m,p);
-											float s=(float)Shape.p(900)*scale/(float)map.size;
-											for(int i=0;i<map.map.length;i++)
-												for(int u=0;u<map.map[0].length;u++)
-												{
-													int id=map.map[i][u];
-													if(id!=0)
-													{
-														Bitmap b=map.tiles[id];
-														if(moved)
-														{
-															m.reset();
-															m.postScale(scale/lscale,scale/lscale);
-															//m.postTranslate(deltax*scale,deltay*scale);
-															m.postTranslate(+s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s);
-															c.drawBitmap(b,m,p);
-														}
-														else c.drawBitmap(b,deltax*scale+(s*i-(b.getWidth()-s)/2),deltay*scale+(s*u-b.getHeight()+s),p);
-													}
-												}
-											c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
-											p.setColor(0xff00ff00);
-											c.drawPoint(-deltax,-deltay,p);
+									c.drawBitmap(map.back,m,p);
+									/*float s=(float)Shape.p(900)*scale/(float)map.size;
+									 for(int i=0;i<map.map.length;i++)
+									 for(int u=0;u<map.map[0].length;u++)
+									 {
+									 int id=map.map[i][u];
+									 if(id!=0)
+									 {
+									 Bitmap b=map.tiles[id];
+									 if(moved)
+									 {
+									 m.reset();
+									 m.postScale(scale/lscale,scale/lscale);
+									 //m.postTranslate(deltax*scale,deltay*scale);
+									 m.postTranslate(+s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s);
+									 c.drawBitmap(b,m,p);
+									 }
+									 else c.drawBitmap(b,deltax*scale+(s*i-(b.getWidth()-s)/2),deltay*scale+(s*u-b.getHeight()+s),p);
+									 }
+									 }*/
+									c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
+									p.setColor(0xff00ff00);
+									c.drawPoint(-deltax,-deltay,p);
 
-										}
-									}
-									for(Shape s:sh)s.onDraw(c);
-									for(Shape s:ui)s.onDraw(c);
-									for(int i=0;i<1600;i+=50)
-									{
-										p.setColor(i%250==0?0xff00ff00:0xffff0000);
-										c.drawLine(Shape.p(i),0,Shape.p(i),Shape.p(900),p);
-									}
-									for(int u=0;u<900;u+=50)
-									{
-										p.setColor(u%250==0?0xff00ff00:0xffff0000);
-										c.drawLine(0,Shape.p(u),Shape.p(1600),Shape.p(u),p);
-									}
-									if(dt!=0)
-									{
-										lt++;
-										if(lt<=10)avgfps+=1000000000l/dt;
-										else
-										{
-											fps=(int)(avgfps/10f);
-											lt=0;
-											avgfps=0;
-										}
-										p.setColor(0xffff0000);
-										c.drawText(String.format("FPS:%d  Shape:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),deltax,deltay,scale),0,Shape.p(50),p);
-									}
-									dt=System.nanoTime()-ns;
-									//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
-									dt=System.nanoTime()-ns;
-									ns=System.nanoTime();
 								}
 							}
-							else Thread.sleep(20);
+							for(Shape s:sh)s.onDraw(c);
+							for(Shape s:ui)s.onDraw(c);
+							/*for(int i=0;i<1600;i+=50)
+							 {
+							 p.setColor(i%250==0?0xff00ff00:0xffff0000);
+							 c.drawLine(Shape.p(i),0,Shape.p(i),Shape.p(900),p);
+							 }
+							 for(int u=0;u<900;u+=50)
+							 {
+							 p.setColor(u%250==0?0xff00ff00:0xffff0000);
+							 c.drawLine(0,Shape.p(u),Shape.p(1600),Shape.p(u),p);
+							 }*/
+							if(dt!=0)
+							{
+								lt++;
+								if(lt<=10)avgfps+=1000000000l/dt;
+								else
+								{
+									fps=(int)(avgfps/10f);
+									lt=0;
+									avgfps=0;
+								}
+								p.setColor(0xffff0000);
+								c.drawText(String.format("FPS:%d  Shape:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),deltax,deltay,scale),0,Shape.p(50),p);
+							}
+							dt=System.nanoTime()-ns;
+							if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
+							dt=System.nanoTime()-ns;
+							ns=System.nanoTime();
+							
 						}
 						catch(Throwable e)
 						{
@@ -340,23 +350,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					try
 					{
 						Thread.sleep(300);
-						banner=VECfile.createBitmap(ctx,"banner",Shape.p(900),Shape.p(200));
+						banner=VECfile.createBitmap(ctx,"banner",Shape.pi(900),Shape.pi(200));
 					}
 					catch (Exception e)
 					{}
 					Matrix m=new Matrix();
 					m.postRotate(270);
-					m.postTranslate(Shape.p(1600),Shape.p(900));
-					
+					m.postTranslate(sv.getHeight()*16/9,sv.getHeight());
+					Matrix m2=new Matrix();
+					m2.postScale((float)sv.getWidth()/bmpc[0].getWidth(),(float)sv.getHeight()/bmpc[0].getHeight());
+					boolean isFull=sv.getHeight()==Shape.p(900);
 					Paint p=new Paint();
 					while(run)
 					{
 						try
 						{
+							if(pause)
+							{
+								Thread.sleep(20);
+								continue;
+							}
 							Canvas cs=hd.lockCanvas();
 							lock=true;
 							int w=which?1:0;
-							if(bmpc[w]!=null)cs.drawBitmap(bmpc[w],0,0,p);
+							if(bmpc[w]!=null)
+								if(isFull)cs.drawBitmap(bmpc[w],0,0,p);
+								else cs.drawBitmap(bmpc[w],m2,p);
 							lock=false;
 							cs.drawBitmap(banner,m,p);
 							if(cs!=null)hd.unlockCanvasAndPost(cs);
@@ -367,32 +386,73 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 				}
 			}).start();
-			/*
-			 new Thread(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 while(run)
-			 try
-			 {
-			 }
-			 catch(Throwable e)
-			 {}
-			 }
-			 }).start();
-			 new Thread(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 while(run)
-			 try
-			 {
 
-			 }
-			 catch(Exception e)
-			 {}
-			 }
-			 }).start();*/
+			new Thread(new Runnable(){
+				@Override
+				public void run()
+				{
+					while(run)
+						try
+						{
+							if(pause||curui!=4)
+							{
+								Thread.sleep(20);
+								continue;
+							}
+							for(Bug b:bugs)
+							{
+								b.compute();
+								for(Tower t:towers)t.compute(b);
+								for(Bullet t:bullets)t.compute(b);
+							}
+						}
+						catch(Throwable e)
+						{
+							toast(e);
+							break;
+						}
+				}
+			}).start();
+			new Thread(new Runnable(){
+				@Override
+				public void run()
+				{
+					Paint p=new Paint();
+					p.setColor(0xff000000);
+					while(run)
+						try
+						{
+							if(pause||curui!=4)
+							{
+								Thread.sleep(20);
+								continue;
+							}
+							Canvas c=map.bc;
+							c.drawBitmap(map.background,0,0,p);
+							for(int y=0;y<map.size;y++)
+							{
+								for(Bug b:bugs)if(Math.floor(b.y)==y)b.onDraw(c);
+								for(Tower b:towers)if(Math.floor(b.y)==y)b.onDraw(c);
+								for(int x=0;x<map.size;x++)
+								{
+									int id=map.map[x][y];
+									if(id!=0)
+									{
+										Bitmap b=map.tiles[id];
+										c.drawBitmap(b,x*map.tilew,y*map.tilew,p);
+									}
+								}
+								for(Bullet b:bullets)if(Math.floor(b.y)==y)b.onDraw(c);
+							}
+
+						}
+						catch(Exception e)
+						{
+							toast(e);
+							break;
+						}
+				}
+			}).start();
 			/*
 			 new Thread(new Runnable(){
 			 @Override
@@ -498,7 +558,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0)
+		if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0&&curui!=0)
 		{
 			if(exitdialog==null)
 			{
@@ -526,10 +586,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}
 			else
 			{
+				ui.remove(shadowcover);
+				ui.remove(exitdialog);
+				ui.remove(buttoncancel);
+				ui.remove(buttonok);
 				shadowcover.visible=!shadowcover.visible;
 				exitdialog.visible=shadowcover.visible;
 				buttonok.visible=shadowcover.visible;
 				buttoncancel.visible=shadowcover.visible;
+				ui.add(shadowcover);
+				ui.add(exitdialog);
+				ui.add(buttoncancel);
+				ui.add(buttonok);
 			}
 		}
 		return true;
@@ -548,8 +616,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			{
 				try
 				{
-					Thread.sleep(1000);
-
+					loadcode=new Ui("loadcode",0,0,1600,900);
+					Thread.sleep(500);
+					new Ui("bugs/bug",1000,500,250,250).alphaFrom(0,100).tScFrom(1125,625,0,0,100);
+					Thread.sleep(500);
+					Ui u=new Ui("loadpp",900,400,400,400).setVisable(false);
+					new Ui("loadp",900,400,700,700).tScFrom(1600,900,0,0,50);
+					Thread.sleep(50);
+					u.tScFrom(1100,600,0,0,10).alphaFrom(0,10);
+					Thread.sleep(200);
+					Random r=new Random();
+					for(int i=0;i<30;i++)
+					{
+						int x=r.nextInt(1600),y=r.nextInt(900);
+						Ui o=new Ui("bugs/bug",x,y,250,250).alphaFrom(0,20).tScFrom(x+125,y+125,0,0,20);
+						ui.remove(o);
+						ui.add(3,o);
+						Thread.sleep(50);
+					}
+					Thread.sleep(200);
+					ui.clear();
+					Ui g=new Ui("mainmenuyzr",350,0,900,975).alphaFrom(0,500);
+					Thread.sleep(500);
+					g.tScTo(100,250,600,650,500);
+					Thread.sleep(500);
+					ui.clear();
+					mainmenu();
 				}
 				catch (Exception e)
 				{
@@ -578,12 +670,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				}
 			};
 			StringBuilder sb=new StringBuilder();
-			try{
+			try
+			{
 				String g=null;
 				BufferedReader br=new BufferedReader(new InputStreamReader(getAssets().open("tips.txt")));
 				while((g=br.readLine())!=null)sb.append(g).append("\n");
 				br.close();
-			}catch(Throwable pe){
+			}
+			catch(Throwable pe)
+			{
 				toast(pe);
 			}
 			final String[] uh=sb.toString().split("\n");
@@ -593,14 +688,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				{
 					final String[] d=uh[new Random().nextInt(uh.length)].split("\\\\n");
 					final Ui tip=new Ui("mainmenutip",100,50,350,300){
-						@Override public void onDraw(Canvas c){
+						@Override public void onDraw(Canvas c)
+						{
 							super.onDraw(c);
-							p.setColor(0xff000000);
-							p.setTextSize(p(28));
-							for(int i=0;i<d.length;i++)
-							c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
+							if(!isFrom&&!isTo)
+							{
+								p.setColor(0xff000000);
+								p.setTextSize(p(28));
+								for(int i=0;i<d.length;i++)
+									c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
+							}
 						}
-					};
+					}.tScFrom(350,300,50,50,100)
+					.alphaFrom(0,100);
 					new Thread(new Runnable(){
 						@Override
 						public void run()
@@ -608,6 +708,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							try
 							{
 								Thread.sleep(2000);
+								tip.tScTo(350,300,50,50,100);
+								Thread.sleep(100);
 								ui.remove(tip);
 							}
 							catch (InterruptedException e)
@@ -617,9 +719,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				}
 			};
 		}
-		mainmenubuttback.visible=true;
-		mainmenuabout.visible=mainmenubuttback.visible;
-		mainmenutitle.visible=mainmenubuttback.visible;
+		else
+		{
+			mainmenubuttback.tScFrom(825,400,400,500,250)
+			.alphaFrom(0,500);
+			mainmenutitle=new Ui("mainmenutitle",450,0,700,300)
+			.tScFrom(400,0,800,300,250)
+			.alphaFrom(0,500);
+			mainmenuabout.visible=mainmenubuttback.visible;
+		}
+		new Thread(new Runnable(){
+			@Override
+			public void run()
+			{
+				while(curui==1)
+				{
+					try
+					{
+						Ui t=new Ui("mainmenuw",625,350,100,100).tScFrom(600,350,0,0,1000).alphaTo(0,1000);
+						ui.remove(t);
+						ui.add(4,t);
+						Thread.sleep(2000);
+						ui.remove(t);
+					}
+					catch (InterruptedException e)
+					{}
+				}
+			}
+		}).start();
 	}
 	void uiGameMain()
 	{
@@ -682,10 +809,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				@Override
 				public void onTouch(MotionEvent e)
 				{
-					uiabout.visible=false;
-					uiaboutbesto.visible=uiabout.visible;
-					uiaboutyzr.visible=uiabout.visible;
-					uiaboutok.visible=uiabout.visible;
+
+					uiabout.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutok.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutbesto.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutyzr.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
 				}
 			}.tScFrom(1025,700,175,100,200)
 			.alphaFrom(50,200);

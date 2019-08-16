@@ -2,21 +2,27 @@ package com.yzrilyzr.engine2d;
 import android.graphics.Bitmap;
 import com.yzrilyzr.icondesigner.VECfile;
 import android.graphics.Canvas;
+import android.graphics.PointF;
 
 public class Bug extends Shape
 {
 	Bitmap bugicon;
-	float mscale=1;
-	float x,y;
 	float vx,vy;
 	float ax,ay;
+	float mscale=1;
+	float x,y;
 	float vel;
-	
+	float hp,frztime;
+	float rdmg,rtime,rdtime,rdcdtime;
+	float money,slow;
+	VECfile ico,dico;
+	PointF wayp;
+	int wayIndex;
 	public Bug(int id,float x,float y,int size)
 	{
 		try
 		{
-			int s=Shape.p(900*mscale)/size;
+			int s=Shape.pi(900*mscale)/size;
 			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/bug",s,s);
 			this.x=x;
 			this.y=y;
@@ -27,7 +33,7 @@ public class Bug extends Shape
 			MainActivity.toast(e);
 		}
 	}
-
+	public void compute(){}
 	@Override
 	public void onDraw(Canvas c)
 	{
