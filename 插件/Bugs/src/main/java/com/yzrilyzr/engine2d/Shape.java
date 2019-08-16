@@ -52,4 +52,18 @@ public class Shape
 	public static int r(int r){
 		return (int)(-r+Math.random()*2*r);
 	}
+	public static float limit(float x,float min,float max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+	public static long limit(long x,long min,long max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+	public static int limit(int x,int min,int max)
+	{
+		return Math.max(Math.min(x,max),min);
+	}
+
+	
 }

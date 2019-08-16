@@ -3,6 +3,8 @@ import android.graphics.Bitmap;
 import com.yzrilyzr.icondesigner.VECfile;
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import java.util.ArrayList;
+import com.yzrilyzr.engine2d.Map.AstarPoint;
 
 public class Bug extends Shape
 {
@@ -10,13 +12,13 @@ public class Bug extends Shape
 	float vx,vy;
 	float ax,ay;
 	float mscale=1;
-	float x,y;
+	//float x,y;
 	float vel;
 	float hp,frztime;
 	float rdmg,rtime,rdtime,rdcdtime;
 	float money,slow;
 	VECfile ico,dico;
-	PointF wayp;
+	AstarPoint wayp;
 	int wayIndex;
 	public Bug(int id,float x,float y,int size)
 	{
@@ -33,7 +35,40 @@ public class Bug extends Shape
 			MainActivity.toast(e);
 		}
 	}
-	public void compute(){}
+	public void compute(float dt){
+		Map map=MainActivity.map;
+		float tilew=map.tilew;
+		if(hp<=0){
+			MainActivity.bugs.remove(this);
+			MainActivity.money+=money;
+			Canvas c=new Canvas(map.background);
+			c.drawBitmap(VECfile.createBitmap(dico,(int)tilew,(int)tilew),x,y,p);
+		}
+		float d=(float)Math.sqrt((wayp.x-x)*(wayp.x-x)+(wayp.y-y)*(wayp.y-y));
+		if(frztime>0)frztime-=dt;
+		else{
+			float v2=vel*limit(slow,0.3f,1);
+			x+=(wayp.x-x)*v2/d;
+			y+=(wayp.y-y)*v2/d;
+		}
+		if(d<0.05f*tilew){
+			ArrayList<Map.AstarPoint> u=map.wpwaypoint.get(wayIndex);
+			int f=u.indexOf(wayp);
+			if(f>=u.size()){
+				MainActivity.bugs.remove(this);
+				MainActivity.lives--;
+			}
+			else wayp=u.get(f+1);
+		}
+		if(rtime>0){
+			rtime-=dt;
+			if(rdcdtime<=0){
+				rdcdtime=rdtime;
+				hp-=rdmg;
+			}
+			else rdcdtime-=dt;
+		}
+	}
 	@Override
 	public void onDraw(Canvas c)
 	{

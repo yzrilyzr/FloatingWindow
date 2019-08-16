@@ -20,12 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import android.graphics.Typeface;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -63,6 +60,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	private boolean moved=false;
 	private float ddx,ddy;
+	static int money,lives;
 
 	//uicustom=5
 
@@ -331,7 +329,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
 							ns=System.nanoTime();
-							
+
 						}
 						catch(Throwable e)
 						{
@@ -391,6 +389,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				@Override
 				public void run()
 				{
+					long dt=0,ns=System.nanoTime();
 					while(run)
 						try
 						{
@@ -401,10 +400,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							}
 							for(Bug b:bugs)
 							{
-								b.compute();
-								for(Tower t:towers)t.compute(b);
-								for(Bullet t:bullets)t.compute(b);
+								b.compute(dt/1000000000f);
+								for(Tower t:towers)t.compute(b,dt/1000000000f);
+								for(Bullet t:bullets)t.compute(b,dt/1000000000f);
 							}
+							dt=System.nanoTime()-ns;
+							//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
+							dt=System.nanoTime()-ns;
+							ns=System.nanoTime();
 						}
 						catch(Throwable e)
 						{
@@ -796,7 +799,49 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 	}
 	void uisettings()
-	{}
+	{
+		if(uiabout==null)
+		{
+			int cx=800,cy=450;
+			uiabout=new Ui("uiabout",cx-400,cy-350,800,700)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutok=new Ui("uiaboutok",cx-75,cy+220,150,90){
+				@Override
+				public void onTouch(MotionEvent e)
+				{
+
+					uiabout.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutok.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutbesto.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+					uiaboutyzr.tScTo(1025,700,175,100,200)
+					.alphaFrom(50,200);
+				}
+			}.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutyzr=new Ui("yzrilyzr",850,500,100,46)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutbesto=new Ui("bestodesign",1000,500,150,150)
+			.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+		}
+		else
+		{
+			uiabout.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutok.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutbesto.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+			uiaboutyzr.tScFrom(1025,700,175,100,200)
+			.alphaFrom(50,200);
+		}
+	}
+
 	void uiabout()
 	{
 		if(uiabout==null)
