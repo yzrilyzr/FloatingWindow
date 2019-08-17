@@ -1,7 +1,7 @@
 package com.yzrilyzr.engine2d;
-import com.yzrilyzr.icondesigner.VECfile;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
+import com.yzrilyzr.icondesigner.VECfile;
 
 public class Tower extends Shape
 {
@@ -22,9 +22,10 @@ public class Tower extends Shape
 	}
 	public void attack()
 	{
-		float tilew=MainActivity.map.tilew;
+		Map map=MainActivity.map;
+		float tilew=map.tilew;
 
-		for(Bug s:MainActivity.bugs)
+		for(Bug s:map.bugs)
 		{
 			if(target==null)target=s;
 			if(!inRange(target)||target.hp<=0)
@@ -38,11 +39,11 @@ public class Tower extends Shape
 				s.hp-=dmg*Math.pow(1.25,level);
 				//定向范围
 				//~
-				MainActivity.bullets.add(new Bullet(s,this,tilew*0.7f,tilew*0.5f,brtime));
+				map.bullets.add(new Bullet(s,this,tilew*0.7f,tilew*0.5f,brtime));
 				//子弹
-				MainActivity.bullets.add(new Bullet(s,this,tilew*0.1f,tilew*2,-1));
+				map.bullets.add(new Bullet(s,this,tilew*0.1f,tilew*2,-1));
 				//远定
-				MainActivity.bullets.add(new Bullet(s,this,tilew*1.5f,tilew*0.5f,-1));
+				map.bullets.add(new Bullet(s,this,tilew*1.5f,tilew*0.5f,-1));
 			}
 		}
 	}

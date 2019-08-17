@@ -39,8 +39,8 @@ public class Bug extends Shape
 		Map map=MainActivity.map;
 		float tilew=map.tilew;
 		if(hp<=0){
-			MainActivity.bugs.remove(this);
-			MainActivity.money+=money;
+			map.bugs.remove(this);
+			map.money+=money;
 			Canvas c=new Canvas(map.background);
 			c.drawBitmap(VECfile.createBitmap(dico,(int)tilew,(int)tilew),x,y,p);
 		}
@@ -55,8 +55,8 @@ public class Bug extends Shape
 			ArrayList<Map.AstarPoint> u=map.wpwaypoint.get(wayIndex);
 			int f=u.indexOf(wayp);
 			if(f>=u.size()){
-				MainActivity.bugs.remove(this);
-				MainActivity.lives--;
+				map.bugs.remove(this);
+				map.lives--;
 			}
 			else wayp=u.get(f+1);
 		}

@@ -1,20 +1,15 @@
 package com.yzrilyzr.engine2d;
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import com.yzrilyzr.engine2d.Bug;
+import com.yzrilyzr.engine2d.Bullet;
+import com.yzrilyzr.engine2d.Tower;
 import com.yzrilyzr.icondesigner.VECfile;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import android.graphics.Point;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Map.Entry;
-import com.yzrilyzr.engine2d.Map.AstarPoint;
-import java.util.Iterator;
-import android.graphics.Canvas;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Map
 {
@@ -29,6 +24,11 @@ public class Map
 	public ArrayList<Wave> waves=new ArrayList<Wave>();
 	public ArrayList<AstarPoint[]> wpmap=new ArrayList<AstarPoint[]>();
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
+	public int lives,money;
+	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
+	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
+	public CopyOnWriteArrayList<Bullet> bullets=new CopyOnWriteArrayList<Bullet>();
+
 	public void loadTiles(float ms) throws Exception
 	{
 		this.mscale=ms;
@@ -63,8 +63,10 @@ public class Map
 				AstarPoint b=new AstarPoint(Integer.parseInt(f[2]),Integer.parseInt(f[3]));
 				tmp.wpmap.add(new AstarPoint[]{a,b});
 			}
-			else if(l.startsWith("name:"))tmp.setName(l.substring(5));
+			else if(l.startsWith("name:"))tmp.name=(l.substring(5));
 			else if(l.startsWith("size:"))tmp.setSize(Integer.parseInt(l.substring(5)));
+			else if(l.startsWith("money:"))tmp.money=(Integer.parseInt(l.substring(6)));
+			else if(l.startsWith("lives:"))tmp.lives=(Integer.parseInt(l.substring(6)));
 			else if(l.startsWith("background:"))
 			{
 				String b=l.substring(11);
@@ -136,24 +138,24 @@ public class Map
 			}
 			for(AstarPoint x:u)c.remove(x);
 			/*AstarPoint a=new AstarPoint(start.x,start.y),d=null;
-			u.clear();
-			//u.add(a);
-			for(int i=0;i<c.size();i++)
-			{
-				AstarPoint b=c.get(i);
-				if(reachable(a,b))d=b;
-				else
-				{
-					if(d==null)
-					{
-						MainActivity.toast(i+"");
-						break;
-					}
-					a=d;
-					u.add(a);
-					i--;
-				}
-			}*/
+			 u.clear();
+			 //u.add(a);
+			 for(int i=0;i<c.size();i++)
+			 {
+			 AstarPoint b=c.get(i);
+			 if(reachable(a,b))d=b;
+			 else
+			 {
+			 if(d==null)
+			 {
+			 MainActivity.toast(i+"");
+			 break;
+			 }
+			 a=d;
+			 u.add(a);
+			 i--;
+			 }
+			 }*/
 			wpwaypoint.add(c);
 			MainActivity.toast("u");
 		}
@@ -208,30 +210,12 @@ public class Map
 		this.background = background;
 	}
 
-	public Bitmap getBackground()
-	{
-		return background;
-	}
 	public void setSize(int size)
 	{
 		this.size = size;
 		map=new int[size][size];
 	}
 
-	public int getSize()
-	{
-		return size;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
 	public void fillData(int y,String line)
 	{
 		if(line.length()!=size)return;

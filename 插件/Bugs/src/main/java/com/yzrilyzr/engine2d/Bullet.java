@@ -28,10 +28,10 @@ public class Bullet extends Shape
 		}
 		else cdtime-=dt;
 		brtime-=dt;
-		if(brtime<=0)MainActivity.bullets.remove(this);
+		if(brtime<=0)MainActivity.map.bullets.remove(this);
 	}
 	public void attack(){
-		for(Bug s:MainActivity.bugs){
+		for(Bug s:MainActivity.map.bugs){
 			if(inRange(s))s.hp-=parent.dmg*Math.pow(1.25,parent.level);
 		}
 	}

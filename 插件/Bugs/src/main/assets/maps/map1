@@ -1,7 +1,7 @@
 #MAP V1.0
 name:地图1
 money:300
-life:25
+lives:25
 size:20
 background:@maps/map1.vec
 map:

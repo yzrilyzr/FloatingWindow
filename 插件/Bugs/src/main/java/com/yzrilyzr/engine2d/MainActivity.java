@@ -5,6 +5,7 @@ import android.view.*;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -26,7 +27,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import android.content.SharedPreferences;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -61,14 +61,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 
 	//uiganemain=4
 	static Map map=null;
-	final static CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
-	final static CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
-	final static CopyOnWriteArrayList<Bullet> bullets=new CopyOnWriteArrayList<Bullet>();
 	private Ui gamerightmenu;
 	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	private boolean moved=false;
 	private float ddx,ddy;
-	static int money,lives;
 
 	//uicustom=5
 
@@ -219,15 +215,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						musiceffv=sp.getInt("musiceffv",musiceffv);
 						backgrun=sp.getBoolean("backgrun",backgrun);
 						showfps=sp.getBoolean("showfps",showfps);
-				/*public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=0,unlockulevel=0;
-				public static int musicv=70,musiceffv=80,fpslimit=30;
-				public static int resolution=50;
-				public static boolean backgrun=false,showfps=false;*/
-				plevel=sp.getInt(plevel,plevel);
-				exp=sp.getInt(exp,exp);
-				pscore=sp.getInt(pscore,pscore);
-				pbugs=sp.getInt(pbugs,pbugs);
-				
+						plevel=sp.getInt("plevel",plevel);
+						exp=sp.getInt("exp",exp);
+						pscore=sp.getInt("pscore",pscore);
+						pbugs=sp.getInt("pbugs",pbugs);
+						pmoney=sp.getInt("pmoney",pmoney);
+						levelunlock=sp.getInt("levelunlock",levelunlock);
+						unlocktower=sp.getInt("unlocktower",unlocktower);
+						unlockulevel=sp.getInt("unlockulevel",unlockulevel);
+
 						Shape.scale=sv.getHeight()*((float)resolution/100f)/900f;
 						try
 						{
@@ -440,15 +436,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					while(run)
 						try
 						{
-							if(pause||curui!=4)
+							if(pause||curui!=4||map==null)
 							{
 								Thread.sleep(20);
 								continue;
 							}
 							float dty=dt/1000000000f;
-							for(Bug b:bugs)b.compute(dty);
-							for(Tower t:towers)t.compute(dty);
-							for(Bullet t:bullets)t.compute(dty);
+							for(Bug b:map.bugs)b.compute(dty);
+							for(Tower t:map.towers)t.compute(dty);
+							for(Bullet t:map.bullets)t.compute(dty);
 
 							dt=System.nanoTime()-ns;
 							//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
@@ -471,7 +467,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					while(run)
 						try
 						{
-							if(pause||curui!=4)
+							if(pause||curui!=4||map==null)
 							{
 								Thread.sleep(20);
 								continue;
@@ -480,8 +476,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							c.drawBitmap(map.background,0,0,p);
 							for(int y=0;y<map.size;y++)
 							{
-								for(Bug b:bugs)if(Math.floor(b.y)==y)b.onDraw(c);
-								for(Tower b:towers)if(Math.floor(b.y)==y)b.onDraw(c);
+								for(Bug b:map.bugs)if(Math.floor(b.y)==y)b.onDraw(c);
+								for(Tower b:map.towers)if(Math.floor(b.y)==y)b.onDraw(c);
 								for(int x=0;x<map.size;x++)
 								{
 									int id=map.map[x][y];
@@ -491,7 +487,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										c.drawBitmap(b,x*map.tilew,y*map.tilew,p);
 									}
 								}
-								for(Bullet b:bullets)if(Math.floor(b.y)==y)b.onDraw(c);
+								for(Bullet b:map.bullets)if(Math.floor(b.y)==y)b.onDraw(c);
 							}
 
 						}
@@ -545,6 +541,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				}
 			}).start();
 		}
+	}
+	void saveData()
+	{
+		ctx.getSharedPreferences("data",MODE_PRIVATE).edit()
+		.putInt("resolution",resolution)
+		.putInt("fpslimit",fpslimit)
+		.putInt("musicv",musicv)
+		.putInt("musiceffv",musiceffv)
+		.putBoolean("backgrun",backgrun)
+		.putBoolean("showfps",showfps)
+		.putInt("plevel",plevel)
+		.putInt("exp",exp)
+		.putInt("pscore",pscore)
+		.putInt("pbugs",pbugs)
+		.putInt("pmoney",pmoney)
+		.putInt("levelunlock",levelunlock)
+		.putInt("unlocktower",unlocktower)
+		.putInt("unlockulevel",unlockulevel)
+		.commit();
 	}
 	@Override
 	public void surfaceChanged(SurfaceHolder p1, int p2, int p3, int p4)
@@ -896,6 +911,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						{}
 						mainmenu();
 					}
+
+					saveData();
 				}
 			}.tScFrom(1100,-800,80,80,200).alphaFrom(0,200);
 			uisetmv=(SeekBar) new SeekBar(650,218,550,50,musicv,100){
