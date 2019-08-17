@@ -9,6 +9,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -23,13 +26,14 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import android.content.SharedPreferences;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
 	//global
 	static SurfaceView sv;
 	static SurfaceHolder hd;
-	static boolean run=false,pause=false,lock=false,which=false;
+	static boolean run=false,pause=false,lock=false,which=false,inited=false;
 	static Runnable rb=null;
 	final static CopyOnWriteArrayList<Shape> sh=new CopyOnWriteArrayList<Shape>();
     final static CopyOnWriteArrayList<Ui> ui=new CopyOnWriteArrayList<Ui>();
@@ -41,7 +45,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	static String mainDir=Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/Bugs/";
 	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
 	private int curui=0;
-
+	//data
+	public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=0,unlockulevel=0;
+	public static int musicv=70,musiceffv=80,fpslimit=30;
+	public static int resolution=50;
+	public static boolean backgrun=false,showfps=false;
 	//uiload=0
 	private Ui loadcode;
 	//uimainmenu=1
@@ -73,9 +81,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uitutorial=9
 
 	//uisettings
-
+	private Ui uisetting,uisettclose,uisetshadow;
+	private Switch uishowfps,uibackrun;
+	private SeekBar uisetmv,uisetmfv,uisetfps,uisetres;
 	//uiabout
-	private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr;
+	private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr,shadowcover2;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,8 +98,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		hd=sv.getHolder();
 		sv.setOnTouchListener(this);
 		hd.addCallback(this);
-		File f=new File(mainDir);
-		if(!f.exists())f.mkdirs();
 	}
 	@Override
 	public boolean onTouch(View v,MotionEvent event)
@@ -106,6 +114,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					break;
 				}
 				else tui=null;
+			else if(Shape.move(event)&&tui!=null)
+			{
+				tui.onMove(event);
+				return true;
+			}
 			else if(Shape.up(event)&&tui!=null&&tui.contains(event.getX(),event.getY()))
 			{
 				tui.onTouch(event);
@@ -197,30 +210,55 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				@Override
 				public void run()
 				{
-					Shape.scale=sv.getHeight()/900f;
-					try
+					if(!inited)
 					{
-						Thread.sleep(300);
+						SharedPreferences sp=ctx.getSharedPreferences("data",MODE_PRIVATE);
+						resolution=sp.getInt("resolution",resolution);
+						fpslimit=sp.getInt("fpslimit",fpslimit);
+						musicv=sp.getInt("musicv",musicv);
+						musiceffv=sp.getInt("musiceffv",musiceffv);
+						backgrun=sp.getBoolean("backgrun",backgrun);
+						showfps=sp.getBoolean("showfps",showfps);
+				/*public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=0,unlockulevel=0;
+				public static int musicv=70,musiceffv=80,fpslimit=30;
+				public static int resolution=50;
+				public static boolean backgrun=false,showfps=false;*/
+				plevel=sp.getInt(plevel,plevel);
+				exp=sp.getInt(exp,exp);
+				pscore=sp.getInt(pscore,pscore);
+				pbugs=sp.getInt(pbugs,pbugs);
+				
+						Shape.scale=sv.getHeight()*((float)resolution/100f)/900f;
+						try
+						{
+							Thread.sleep(300);
+						}
+						catch (InterruptedException e)
+						{}
+						rb=this;
+						sh.clear();
+						ui.clear();
+						for(int i=0;i<bmpc.length;i++)
+						{
+							bmpc[i]=Bitmap.createBitmap(Shape.pi(1600),Shape.pi(900),Bitmap.Config.ARGB_8888);
+							cvsc[i]=new Canvas(bmpc[i]);
+						}
+						File f=new File(mainDir);
+						if(!f.exists())f.mkdirs();
+						//uiGameMain();
+						//load();
+						mainmenu();
+						inited=true;
 					}
-					catch (InterruptedException e)
-					{}
-					rb=this;
-					sh.clear();
-					long ns=System.nanoTime(),dt=0;
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 					p.setColor(0xffff0000);
 					p.setTextSize(Shape.p(50));
+					long ns=System.nanoTime(),dt=0;
+					Matrix m=new Matrix();
+					Runtime ru=Runtime.getRuntime();
 					int lt=0,fps=0;
 					float avgfps=0;
-					for(int i=0;i<bmpc.length;i++)
-					{
-						bmpc[i]=Bitmap.createBitmap(Shape.pi(1600),Shape.pi(900),Bitmap.Config.ARGB_8888);
-						cvsc[i]=new Canvas(bmpc[i]);
-					}
-
-					//uiGameMain();
-					load();
-					Matrix m=new Matrix();
+					int ram=0;
 					while(run)
 					{
 						try
@@ -302,17 +340,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							}
 							for(Shape s:sh)s.onDraw(c);
 							for(Shape s:ui)s.onDraw(c);
-							/*for(int i=0;i<1600;i+=50)
-							 {
-							 p.setColor(i%250==0?0xff00ff00:0xffff0000);
-							 c.drawLine(Shape.p(i),0,Shape.p(i),Shape.p(900),p);
-							 }
-							 for(int u=0;u<900;u+=50)
-							 {
-							 p.setColor(u%250==0?0xff00ff00:0xffff0000);
-							 c.drawLine(0,Shape.p(u),Shape.p(1600),Shape.p(u),p);
-							 }*/
-							if(dt!=0)
+							for(int i=0;i<1600;i+=50)
+							{
+								p.setColor(i%250==0?0xff00ff00:0xffff0000);
+								c.drawLine(Shape.p(i),0,Shape.p(i),Shape.p(900),p);
+							}
+							for(int u=0;u<900;u+=50)
+							{
+								p.setColor(u%250==0?0xff00ff00:0xffff0000);
+								c.drawLine(0,Shape.p(u),Shape.p(1600),Shape.p(u),p);
+							}
+							if(dt!=0&&showfps)
 							{
 								lt++;
 								if(lt<=10)avgfps+=1000000000l/dt;
@@ -323,10 +361,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									avgfps=0;
 								}
 								p.setColor(0xffff0000);
-								c.drawText(String.format("FPS:%d  Shape:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),deltax,deltay,scale),0,Shape.p(50),p);
+								c.drawText(String.format("FPS:%d  Shape:%d RAM:%d dx:%f dy:%f sc:%f",fps,sh.size()+ui.size(),ram,deltax,deltay,scale),0,Shape.p(50),p);
 							}
 							dt=System.nanoTime()-ns;
-							if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
+							ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
+							if(dt<1000000000/fpslimit)Thread.sleep((int)((float)(1000000000/fpslimit-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
 							ns=System.nanoTime();
 
@@ -356,8 +395,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					m.postRotate(270);
 					m.postTranslate(sv.getHeight()*16/9,sv.getHeight());
 					Matrix m2=new Matrix();
-					m2.postScale((float)sv.getWidth()/bmpc[0].getWidth(),(float)sv.getHeight()/bmpc[0].getHeight());
-					boolean isFull=sv.getHeight()==Shape.p(900);
+					int lres=0;
 					Paint p=new Paint();
 					while(run)
 					{
@@ -372,8 +410,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							lock=true;
 							int w=which?1:0;
 							if(bmpc[w]!=null)
-								if(isFull)cs.drawBitmap(bmpc[w],0,0,p);
-								else cs.drawBitmap(bmpc[w],m2,p);
+								if(sv.getHeight()==bmpc[w].getHeight())cs.drawBitmap(bmpc[w],0,0,p);
+								else
+								{
+									if(lres!=bmpc[w].getHeight())
+									{
+										m2.reset();
+										m2.postScale((float)sv.getWidth()/bmpc[0].getWidth(),(float)sv.getHeight()/bmpc[0].getHeight());
+										lres=bmpc[w].getHeight();
+									}
+									cs.drawBitmap(bmpc[w],m2,p);
+								}
 							lock=false;
 							cs.drawBitmap(banner,m,p);
 							if(cs!=null)hd.unlockCanvasAndPost(cs);
@@ -398,12 +445,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								Thread.sleep(20);
 								continue;
 							}
-							for(Bug b:bugs)
-							{
-								b.compute(dt/1000000000f);
-								for(Tower t:towers)t.compute(b,dt/1000000000f);
-								for(Bullet t:bullets)t.compute(b,dt/1000000000f);
-							}
+							float dty=dt/1000000000f;
+							for(Bug b:bugs)b.compute(dty);
+							for(Tower t:towers)t.compute(dty);
+							for(Bullet t:bullets)t.compute(dty);
+
 							dt=System.nanoTime()-ns;
 							//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
@@ -456,48 +502,48 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						}
 				}
 			}).start();
-			/*
-			 new Thread(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 try
-			 {
-			 AudioTrack t=new AudioTrack(
-			 AudioManager.STREAM_MUSIC,44100,
-			 AudioFormat.CHANNEL_CONFIGURATION_MONO,
-			 AudioFormat.ENCODING_PCM_16BIT,
-			 AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-			 AudioFormat.ENCODING_PCM_16BIT)*10,
-			 AudioTrack.MODE_STREAM);
-			 t.play();
-			 String s="#BGM\n#yzrilyzr\nBPM:170\n#PWM:A width rise fall\nPWM:1 0.45 0.025 0.025\nPWM:0.8 0.45 0.025 0.025\nPWM:0.7 0 0.5 0.5\nPWM:0.7 -1 0 0.05\nPITCH:0\nPITCH:-24\nPITCH:-12\nPITCH:0\n\nPART:\n3 0 1._* 7_* 1._ 6 0 0 4_ 3_ 2 0 2_* 5_* 2_ \n3 0 0 1_ .7_ .6_ 0_ .7_ 1_ 2_ 0__ 3_ 0__ 4_ \n3_ 0_ 5_ 0_ 3_ 0__ 5_ 0__ 6_ 3_ 0_ 7_ 1._ 1._ 0_ 7_ 5_ 6_ 0_ 0-- \n\nEND\n\nPART:\n0_* 3._* 6._* 0_ 2._* 5._* 0_ 1._* 4._* 0_* 0 \n0_* 7_* 3._ 0_* 4._* 7._ 1.._* 7._* 6._* 0_* 0 \n0_ 3._ 6._ 3._ 0_ 2._ 5._ 2._ 0_ 1._ 4._ 1._ 3.* 3._ 0< 0__< 7_ 0_* \n0_ 7_ 3._ 7_ 0_ 2._ 5._ 2._ 0_ 3._ 6._ 3._ 6.-\nEND\n\nPART:\n1- .7- .6-- .5 .4- .7- 1-- .6 \n1- .7- .6- .5- .4- .7- 1- .6- \nEND\n\nPART:\nx x x y x x x y x x x y x x x y x x x y x x x y x x x y x x x y \nEND";
-			 int[] buff2=Sound.parse(s);
-			 byte[] buff=Sound.mono_PCM_16Bit(buff2);
-			 while(run)
-			 try
-			 {
-			 if(pause)Thread.sleep(1);
-			 t.write(buff,0,buff.length);
-			 t.flush();
-			 }
-			 catch(Throwable e)
-			 {}
-			 t.stop();
-			 }
-			 catch(final Throwable e)
-			 {
-			 new Handler(ctx.getMainLooper()).post(new Runnable(){
-			 @Override
-			 public void run()
-			 {
-			 Toast.makeText(MainActivity.this,e.toString(),0).show();
-			 }
-			 });
 
-			 }
-			 }
-			 }).start();*/
+			new Thread(new Runnable(){
+				@Override
+				public void run()
+				{
+					try
+					{
+						AudioTrack t=new AudioTrack(
+						AudioManager.STREAM_MUSIC,44100,
+						AudioFormat.CHANNEL_CONFIGURATION_MONO,
+						AudioFormat.ENCODING_PCM_16BIT,
+						AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+						AudioFormat.ENCODING_PCM_16BIT)*10,
+						AudioTrack.MODE_STREAM);
+						t.play();
+						String s="#BGM\n#yzrilyzr\nBPM:170\n#PWM:A width rise fall\nPWM:1 0.45 0.025 0.025\nPWM:0.8 0.45 0.025 0.025\nPWM:0.7 0 0.5 0.5\nPWM:0.7 -1 0 0.05\nPITCH:0\nPITCH:-24\nPITCH:-12\nPITCH:0\n\nPART:\n3 0 1._* 7_* 1._ 6 0 0 4_ 3_ 2 0 2_* 5_* 2_ \n3 0 0 1_ .7_ .6_ 0_ .7_ 1_ 2_ 0__ 3_ 0__ 4_ \n3_ 0_ 5_ 0_ 3_ 0__ 5_ 0__ 6_ 3_ 0_ 7_ 1._ 1._ 0_ 7_ 5_ 6_ 0_ 0-- \n\nEND\n\nPART:\n0_* 3._* 6._* 0_ 2._* 5._* 0_ 1._* 4._* 0_* 0 \n0_* 7_* 3._ 0_* 4._* 7._ 1.._* 7._* 6._* 0_* 0 \n0_ 3._ 6._ 3._ 0_ 2._ 5._ 2._ 0_ 1._ 4._ 1._ 3.* 3._ 0< 0__< 7_ 0_* \n0_ 7_ 3._ 7_ 0_ 2._ 5._ 2._ 0_ 3._ 6._ 3._ 6.-\nEND\n\nPART:\n1- .7- .6-- .5 .4- .7- 1-- .6 \n1- .7- .6- .5- .4- .7- 1- .6- \nEND\n\nPART:\nx x x y x x x y x x x y x x x y x x x y x x x y x x x y x x x y \nEND";
+						int[] buff2=Sound.parse(s);
+						byte[] buff=Sound.mono_PCM_16Bit(buff2);
+						while(run)
+							try
+							{
+								if(pause)Thread.sleep(1);
+								t.write(buff,0,buff.length);
+								t.flush();
+							}
+							catch(Throwable e)
+							{}
+						t.stop();
+					}
+					catch(final Throwable e)
+					{
+						new Handler(ctx.getMainLooper()).post(new Runnable(){
+							@Override
+							public void run()
+							{
+								Toast.makeText(MainActivity.this,e.toString(),0).show();
+							}
+						});
+
+					}
+				}
+			}).start();
 		}
 	}
 	@Override
@@ -548,7 +594,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		// TODO: Implement this method
 		super.onPause();
-		pause=true;
+		if(!backgrun)pause=true;
 	}
 
 	@Override
@@ -563,7 +609,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0&&curui!=0)
 		{
-			if(exitdialog==null)
+			if(exitdialog==null||!ui.contains(exitdialog))
 			{
 				int cx=800,cy=450;
 				shadowcover=new Ui("shadowcover",0,0,1600,900);
@@ -657,15 +703,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		hideAllUi();
 		curui=1;
-		if(mainmenubuttback==null)
+		if(mainmenubuttback==null||!ui.contains(mainmenubuttback))
 		{
-			mainmenubuttback=new Ui("mainmenubuttback",825,350,400,500)
-			.tScFrom(825,400,400,500,250)
+			mainmenubuttback=new Ui("mainmenubuttback",975,350,400,500)
+			.tScFrom(975,400,400,500,250)
 			.alphaFrom(0,500);
 			mainmenutitle=new Ui("mainmenutitle",450,0,700,300)
 			.tScFrom(400,0,800,300,250)
 			.alphaFrom(0,500);
-			mainmenuabout=new Ui(null,1025,700,175,100){
+			mainmenusettings=new Ui(null,1025,700,175,100){
+				@Override
+				public void onTouch(MotionEvent e)
+				{
+					uisettings();
+				}
+			};
+			mainmenuabout=new Ui(null,1175,700,175,100){
 				@Override
 				public void onTouch(MotionEvent e)
 				{
@@ -724,12 +777,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		else
 		{
-			mainmenubuttback.tScFrom(825,400,400,500,250)
+			mainmenubuttback.tScFrom(975,400,400,500,250)
 			.alphaFrom(0,500);
 			mainmenutitle=new Ui("mainmenutitle",450,0,700,300)
 			.tScFrom(400,0,800,300,250)
 			.alphaFrom(0,500);
 			mainmenuabout.visible=mainmenubuttback.visible;
+			mainmenusettings.visible=mainmenubuttback.visible;
 		}
 		new Thread(new Runnable(){
 			@Override
@@ -745,8 +799,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						Thread.sleep(2000);
 						ui.remove(t);
 					}
-					catch (InterruptedException e)
-					{}
+					catch (Exception e)
+					{
+						break;
+					}
 				}
 			}
 		}).start();
@@ -757,7 +813,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		curui=4;
 		try
 		{
-			if(gamerightmenu==null)
+			if(gamerightmenu==null||!ui.contains(gamerightmenu))
 			{
 				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900);
 			}
@@ -800,89 +856,162 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	}
 	void uisettings()
 	{
-		if(uiabout==null)
+		final int pres=resolution;
+		if(uisetting==null||!ui.contains(uisetting))
 		{
-			int cx=800,cy=450;
-			uiabout=new Ui("uiabout",cx-400,cy-350,800,700)
-			.tScFrom(1025,700,175,100,200)
+			uisetshadow=new Ui("shadowcover",0,0,1600,900).alphaFrom(0,200);
+
+			uisetting=new Ui("uisetting",350,50,900,800)
+			.tScFrom(350,-800,900,800,200)
 			.alphaFrom(50,200);
-			uiaboutok=new Ui("uiaboutok",cx-75,cy+220,150,90){
+			uisettclose=new Ui("uisettingclose",1100,100,80,80){
 				@Override
 				public void onTouch(MotionEvent e)
 				{
-
-					uiabout.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutok.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutbesto.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutyzr.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
+					uisetmv.tScTo(650,-800,550,50,200).alphaTo(50,200);
+					uisetmfv.tScTo(650,-800,550,50,200).alphaTo(50,200);
+					uisetfps.tScTo(650,-800,550,50,200).alphaTo(50,200);
+					uisetres.tScTo(650,-800,550,50,200).alphaTo(50,200);
+					uishowfps.tScTo(1050,-800,100,50,200).alphaTo(50,200);
+					uibackrun.tScTo(1050,-800,100,50,200).alphaTo(50,200);
+					uisetting.tScTo(350,-800,900,800,200).alphaTo(50,200);
+					uisettclose.tScTo(1100,-800,80,80,200).alphaTo(50,200);
+					uisetshadow.alphaTo(50,200);
+					if(pres!=resolution)
+					{
+						Shape.scale=sv.getHeight()*((float)resolution/100f)/900f;
+						sh.clear();
+						ui.clear();
+						for(int i=0;i<bmpc.length;i++)
+						{
+							bmpc[i]=Bitmap.createBitmap(Shape.pi(1600),Shape.pi(900),Bitmap.Config.ARGB_8888);
+							cvsc[i]=new Canvas(bmpc[i]);
+						}
+						curui=-1;
+						try
+						{
+							Thread.sleep(300);
+						}
+						catch (InterruptedException j)
+						{}
+						mainmenu();
+					}
 				}
-			}.tScFrom(1025,700,175,100,200)
+			}.tScFrom(1100,-800,80,80,200).alphaFrom(0,200);
+			uisetmv=(SeekBar) new SeekBar(650,218,550,50,musicv,100){
+				@Override public void onMove(MotionEvent e)
+				{
+					super.onMove(e);
+					musicv=pro;
+				}
+			}.tScFrom(650,-800,550,50,200)
 			.alphaFrom(50,200);
-			uiaboutyzr=new Ui("yzrilyzr",850,500,100,46)
-			.tScFrom(1025,700,175,100,200)
+			uisetmfv=(SeekBar) new SeekBar(650,218+81,550,50,musiceffv,100){
+				@Override public void onMove(MotionEvent e)
+				{
+					super.onMove(e);
+					musiceffv=pro;
+				}
+			}.tScFrom(650,-800,550,50,200)
 			.alphaFrom(50,200);
-			uiaboutbesto=new Ui("bestodesign",1000,500,150,150)
-			.tScFrom(1025,700,175,100,200)
+			uisetfps=(SeekBar) new SeekBar(650,218+81*2,550,50,fpslimit-15,45){
+				@Override public void onMove(MotionEvent e)
+				{
+					super.onMove(e);
+					fpslimit=pro+15;
+				}
+			}.tScFrom(650,-800,550,50,200)
+			.alphaFrom(50,200);
+			uisetres=(SeekBar) new SeekBar(650,218+81*3,550,50,resolution-20,80){
+				@Override public void onMove(MotionEvent e)
+				{
+					super.onMove(e);
+					resolution=pro+20;
+				}
+			}.tScFrom(650,-800,550,50,200)
+			.alphaFrom(50,200);
+			uibackrun=(Switch) new Switch(1050,218+81*4,100,50,backgrun){
+				@Override public void onTouch(MotionEvent e)
+				{
+					super.onTouch(e);
+					backgrun=isOn;
+				}
+			}.
+			tScFrom(1050,-800,100,50,200)
+			.alphaFrom(50,200);
+			uishowfps=(Switch) new Switch(1050,218+81*5,100,50,showfps){
+				@Override public void onTouch(MotionEvent e)
+				{
+					super.onTouch(e);
+					showfps=isOn;
+				}
+			}.
+			tScFrom(1050,-800,100,50,200)
 			.alphaFrom(50,200);
 		}
 		else
 		{
-			uiabout.tScFrom(1025,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutok.tScFrom(1025,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutbesto.tScFrom(1025,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutyzr.tScFrom(1025,700,175,100,200)
-			.alphaFrom(50,200);
+			uisetmv.tScFrom(650,-800,550,50,200).alphaFrom(50,200);
+			uisetmfv.tScFrom(650,-800,550,50,200).alphaFrom(50,200);
+			uisetfps.tScFrom(650,-800,550,50,200).alphaFrom(50,200);
+			uisetres.tScFrom(650,-800,550,50,200).alphaFrom(50,200);
+			uishowfps.tScFrom(1050,-800,100,50,200).alphaFrom(50,200);
+			uibackrun.tScFrom(1050,-800,100,50,200).alphaFrom(50,200);
+			uisetting.tScFrom(350,-800,900,800,200).alphaFrom(50,200);
+			uisettclose.tScFrom(1100,-800,80,80,200).alphaFrom(50,200);
+			uisetshadow.alphaFrom(50,200);
 		}
+		uisetmv.pro=musicv;
+		uisetmfv.pro=musiceffv;
+		uisetfps.pro=fpslimit-15;
+		uisetres.pro=resolution-20;
+		uishowfps.isOn=showfps;
+		uibackrun.isOn=backgrun;
 	}
 
 	void uiabout()
 	{
-		if(uiabout==null)
+		if(uiabout==null||!ui.contains(uiabout))
 		{
-			int cx=800,cy=450;
-			uiabout=new Ui("uiabout",cx-400,cy-350,800,700)
-			.tScFrom(1025,700,175,100,200)
+			shadowcover2=new Ui("shadowcover",0,0,1600,900).alphaFrom(0,200);
+			uiabout=new Ui("uiabout",400,100,800,700)
+			.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
-			uiaboutok=new Ui("uiaboutok",cx-75,cy+220,150,90){
+			uiaboutok=new Ui("uiaboutok",725,670,150,90){
 				@Override
 				public void onTouch(MotionEvent e)
 				{
 
-					uiabout.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutok.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutbesto.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
-					uiaboutyzr.tScTo(1025,700,175,100,200)
-					.alphaFrom(50,200);
+					uiabout.tScTo(1175,700,175,100,200)
+					.alphaTo(50,200);
+					uiaboutok.tScTo(1175,700,175,100,200)
+					.alphaTo(50,200);
+					uiaboutbesto.tScTo(1175,700,175,100,200)
+					.alphaTo(50,200);
+					uiaboutyzr.tScTo(1175,700,175,100,200)
+					.alphaTo(50,200);
+					shadowcover2.alphaTo(0,200);
 				}
-			}.tScFrom(1025,700,175,100,200)
+			}.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
 			uiaboutyzr=new Ui("yzrilyzr",850,500,100,46)
-			.tScFrom(1025,700,175,100,200)
+			.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
 			uiaboutbesto=new Ui("bestodesign",1000,500,150,150)
-			.tScFrom(1025,700,175,100,200)
+			.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
 		}
 		else
 		{
-			uiabout.tScFrom(1025,700,175,100,200)
+			uiabout.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
-			uiaboutok.tScFrom(1025,700,175,100,200)
+			uiaboutok.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
-			uiaboutbesto.tScFrom(1025,700,175,100,200)
+			uiaboutbesto.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
-			uiaboutyzr.tScFrom(1025,700,175,100,200)
+			uiaboutyzr.tScFrom(1175,700,175,100,200)
 			.alphaFrom(50,200);
+			shadowcover2.alphaFrom(0,200);
 		}
 	}
 }

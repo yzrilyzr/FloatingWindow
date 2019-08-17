@@ -11,34 +11,43 @@ public class Tower extends Shape
 	VECfile ico;
 	int level;
 	Bug target;
-	public void compute(Bug s,float dt){
-		if(target==null)target=s;
-		if(!inRange(target)||target.hp<=0){
-			target=null;
-			return;
-		}
-		if(target==s)//单一目标
+	public void compute(float dt)
+	{
+		if(cdtime<=0)
 		{
-			if(cdtime<=0){
-				cdtime=dtime*(float)Math.pow(1.25,-level);
-				attack(s);
+			cdtime=dtime*(float)Math.pow(1.25,-level);
+			attack();
+		}
+		else cdtime-=dt;
+	}
+	public void attack()
+	{
+		float tilew=MainActivity.map.tilew;
+
+		for(Bug s:MainActivity.bugs)
+		{
+			if(target==null)target=s;
+			if(!inRange(target)||target.hp<=0)
+			{
+				target=null;
+				return;
 			}
-			else cdtime-=dt;
+			if(target==s)
+			{//单一目标
+				//直接或范围
+				s.hp-=dmg*Math.pow(1.25,level);
+				//定向范围
+				//~
+				MainActivity.bullets.add(new Bullet(s,this,tilew*0.7f,tilew*0.5f,brtime));
+				//子弹
+				MainActivity.bullets.add(new Bullet(s,this,tilew*0.1f,tilew*2,-1));
+				//远定
+				MainActivity.bullets.add(new Bullet(s,this,tilew*1.5f,tilew*0.5f,-1));
+			}
 		}
 	}
-	public void attack(Bug b){
-		float tilew=MainActivity.map.tilew;
-		//直接或范围
-		b.hp-=dmg*Math.pow(1.25,level);
-		//定向范围
-		//~
-		MainActivity.bullets.add(new Bullet(b,this,tilew*0.7f,tilew*0.5f,brtime));
-		//子弹
-		MainActivity.bullets.add(new Bullet(b,this,tilew*0.1f,tilew*2,-1));
-		//远定
-		MainActivity.bullets.add(new Bullet(b,this,tilew*1.5f,tilew*0.5f,-1));
-	}
-	public boolean inRange(Bug b){
+	public boolean inRange(Bug b)
+	{
 		return contains(b.x,b.y);
 	}
 	@Override
@@ -54,5 +63,5 @@ public class Tower extends Shape
 		// TODO: Implement this method
 		super.onTouch(e);
 	}
-	
+
 }

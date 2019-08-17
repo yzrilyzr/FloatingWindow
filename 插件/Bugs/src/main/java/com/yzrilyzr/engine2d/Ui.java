@@ -25,7 +25,9 @@ public class Ui extends Shape
 			b=VECfile.createBitmap(MainActivity.ctx,v,pi(w),pi(h));
 		}
 		catch (Exception e)
-		{}
+		{
+		}
+		else b=Bitmap.createBitmap(pi(w),pi(h),Bitmap.Config.ARGB_8888);
 		MainActivity.ui.add(this);
 	}
 	public Ui tScFrom(float x,float y,float w,float h,float millis){
@@ -109,5 +111,5 @@ public class Ui extends Shape
 		
 		super.onTouch(e);
 	}
-	
+	public void onMove(MotionEvent e){}
 }

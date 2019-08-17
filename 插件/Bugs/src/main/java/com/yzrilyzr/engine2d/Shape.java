@@ -25,6 +25,7 @@ public class Shape
 	public Shape(){}
 	public void onDraw(Canvas c){}
 	public void onTouch(MotionEvent e){}
+	public void onMove(MotionEvent e){}
 	public boolean contains(float x,float y){
 		return r==0?x>this.x&&x<this.x+w&&y>this.y&&y<this.y+h:(x-this.x)*(x-this.x)+(y-this.y)*(y-this.y)<r*r;
 	}
@@ -38,7 +39,7 @@ public class Shape
 		return x<0||y<0||x>p(1600)||y>p(900);
 	}
 	public static boolean move(MotionEvent e){
-		return e.getAction()==MotionEvent.ACTION_MASK;
+		return e.getAction()==MotionEvent.ACTION_MOVE||e.getAction()==MotionEvent.ACTION_MASK;
 	}
 	public static boolean up(MotionEvent e){
 		return e.getAction()==MotionEvent.ACTION_UP;
