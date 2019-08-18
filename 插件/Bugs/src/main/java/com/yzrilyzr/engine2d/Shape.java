@@ -26,6 +26,7 @@ public class Shape
 	public void onDraw(Canvas c){}
 	public void onTouch(MotionEvent e){}
 	public void onMove(MotionEvent e){}
+	public void onDown(MotionEvent e){}
 	public boolean contains(float x,float y){
 		return r==0?x>this.x&&x<this.x+w&&y>this.y&&y<this.y+h:(x-this.x)*(x-this.x)+(y-this.y)*(y-this.y)<r*r;
 	}

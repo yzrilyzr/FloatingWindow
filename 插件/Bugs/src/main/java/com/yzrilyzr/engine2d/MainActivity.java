@@ -58,7 +58,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Ui buttonmainmenu,mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout,mainmenuyzr;
 	public ArrayList<Bug> mainmenubug=new ArrayList<Bug>();
 	//uiselectlevel=2
-	private Ui levelselectmyjb;
+	private Ui levelselectmyjb,levelselectlist,levelselectmap,levelselectplayer;
+	private List levelselectllist;
 	//uimyjb=3
 
 	//uiganemain=4
@@ -67,8 +68,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	private boolean moved=false;
 	private float ddx,ddy;
-
-	//uicustom=5
 
 	//uiselectmap=6
 
@@ -85,12 +84,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiabout
 	private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr,shadowcover2;
 
-	private Ui levelselectlist;
-
-	private Ui levelselectmap;
-
-	private Ui levelselectplayer;
-//
+	//
 	@Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -117,6 +111,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				if(s.contains(event.getX(),event.getY())&&(s).visible)
 				{
 					tui=s;
+					tui.onDown(event);
 					break;
 				}
 				else tui=null;
@@ -253,8 +248,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						File f=new File(mainDir);
 						if(!f.exists())f.mkdirs();
 						//uiGameMain();
-						load();
+						//load();
 						//mainmenu();
+						uiSelLevel();
 						inited=true;
 					}
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -279,7 +275,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							Canvas c=cvsc[which?0:1];
 							c.drawColor(0xff333333);
 							//uimainmeuu
-							if(curui==1||curui==2||curui==3||curui==5||curui==6||curui==8)
+							if(curui==1||curui==2||curui==3||curui==6||curui==8)
 							{
 								Random r=new Random();
 								while(mainmenubug.size()<20)mainmenubug.add(new Bug(0,
@@ -556,7 +552,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 
 					}
 				}
-			}).start();
+			});//.start();
 		}
 	}
 	void saveData()
@@ -637,8 +633,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		super.onResume();
 		pause=false;
 	}
-	void canLevepUp(){
-		if(exp>100*Math.pow(1.1,plevel)){
+	void canLevepUp()
+	{
+		if(exp>100*Math.pow(1.1,plevel))
+		{
 			plevel++;
 			exp=0;
 		}
@@ -687,14 +685,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				ui.add(buttoncancel);
 				ui.add(buttonok);
 			}
+			return true;
 		}
-		return true;
+		return super.onKeyDown(keyCode,event);
 	}
 	void hideAllUi()
 	{
 		for(Ui ui:ui)
-			if(ui.visible&&!ui.isAnim())ui.visible=false;
-		//ui.alphaTo(0,500).tScTo(800,450,0,0,500);
+			if(ui.visible&&!ui.isAnim())//ui.visible=false;
+				ui.alphaTo(0,50).tScTo(800,450,0,0,50);
 	}
 	void load()
 	{
@@ -775,6 +774,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			};
 			mainmenuyzr=new Ui("mainmenuyzr",100,250,600,650){
 				String[] uh=null;
+				Ui tip=null;
 				public Ui init()
 				{
 					StringBuilder sb=new StringBuilder();
@@ -796,35 +796,42 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				public void onTouch(MotionEvent e)
 				{
 					final String[] d=uh[new Random().nextInt(uh.length)].split("\\\\n");
-					final Ui tip=new Ui("mainmenutip",100,50,350,300){
-						@Override public void onDraw(Canvas c)
-						{
-							super.onDraw(c);
-							if(!isAnim()&&visible)
+					if(tip==null)
+					{
+						tip=new Ui("mainmenutip",100,50,350,300){
+							@Override public void onDraw(Canvas c)
 							{
-								p.setColor(0xff000000);
-								p.setTextSize(p(28));
-								for(int i=0;i<d.length;i++)
-									c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
+								super.onDraw(c);
+								if(!isAnim()&&visible)
+								{
+									p.setColor(0xff000000);
+									p.setTextSize(p(28));
+									for(int i=0;i<d.length;i++)
+										c.drawText(d[i],x+p(25),y+(i+1)*p(50),p);
+								}
 							}
-						}
-					}.tScFrom(350,300,50,50,100)
-					.alphaFrom(0,100);
-					new Thread(new Runnable(){
-						@Override
-						public void run()
-						{
-							try
+						};
+						ui.remove(tip);
+						ui.add(ui.indexOf(mainmenuyzr)+1,tip);
+						tip.tScFrom(350,300,50,50,100)
+						.alphaFrom(0,100);
+						new Thread(new Runnable(){
+							@Override
+							public void run()
 							{
-								Thread.sleep(2000);
-								if(tip.visible)tip.tScTo(350,300,50,50,100);
-								Thread.sleep(100);
-								ui.remove(tip);
+								try
+								{
+									Thread.sleep(2000);
+									if(tip.visible)tip.tScTo(350,300,50,50,100);
+									Thread.sleep(100);
+									ui.remove(tip);
+									tip=null;
+								}
+								catch (InterruptedException e)
+								{}
 							}
-							catch (InterruptedException e)
-							{}
-						}
-					}).start();
+						}).start();
+					}
 				}
 			}.init();
 		}
@@ -908,6 +915,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 				}
 			}.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
+			levelselectllist=(List) new List(750,100,800,650).alphaFrom(0,200).tScFrom(750,-900,800,750,200);
 		}
 		else
 		{
@@ -916,8 +924,37 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			levelselectlist.alphaFrom(0,200).tScFrom(750,-900,800,750,200);
 			levelselectmap.alphaFrom(0,200).tScFrom(-600,50,600,600,200);
 			levelselectplayer.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
-			
+			levelselectllist.alphaFrom(0,200).tScFrom(750,-900,800,750,200);
 		}
+		try
+		{
+			levelselectllist.views.clear();
+			String[] ms=getAssets().list("maps");
+			for(int i=0,u=0;i<ms.length;i++)
+			{
+				final String c=ms[i];
+				if(c.contains(".vec"))continue;
+				final int yt=u+1;
+				levelselectllist.addView(new Ui(null,750+u%2*400,(u/2)*200,400,200){
+					@Override public void onDraw(Canvas c)
+					{
+						if(!isAnim()&&visible)
+						{
+							p.setTextSize(p(50));
+							p.setColor(0xffffffff);
+							c.drawText(String.format("关卡%d",yt),x+p(50),y+p(50),p);
+						}
+					}
+				});
+				u++;
+			}
+			levelselectllist.measure();
+		}
+		catch(Throwable e)
+		{
+			toast(e);
+		}
+		
 	}
 	void uiMyJb()
 	{

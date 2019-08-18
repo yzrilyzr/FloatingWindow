@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<VEC version="3">
+<Data name="uiabout" info="" width="800" height="700" antialias="true" dither="false" backgroundColor="0" dp="4.0"/>
+<BackgroundImg path="null"/>
+<Shape flag="1000000000000000000000000000000000000101000100000000">
+<Points>
+<P x="5" y="5"/>
+<P x="195" y="170"/>
+<P x="8" y="8"/>
+<P x="0" y="0"/>
+</Points>
+<Params p0="ff15154a" p1="ff000000" p2="0" p3="100" p4="4" p5="3" p6="100" p7="86000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000010" text="关  于">
+<Points>
+<P x="100" y="29"/>
+<P x="2000" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="哎呀！程序又出Bug了">
+<Points>
+<P x="22" y="58"/>
+<P x="1000" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="快来一起消灭Bug吧！">
+<Points>
+<P x="42" y="74"/>
+<P x="1000" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="——yzrilyzr">
+<Points>
+<P x="128" y="90"/>
+<P x="1000" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="作者:yzrilyzr @Besto Design">
+<Points>
+<P x="14" y="104"/>
+<P x="800" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="版本:测试版1.0">
+<Points>
+<P x="14" y="117"/>
+<P x="800" y="0"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+<Shape flag="10000000000000000000000000000000000000000101000100000000" text="感谢我的小伙伴们为我提供帮助与支持">
+<Points>
+<P x="14" y="130"/>
+<P x="805" y="-44"/>
+</Points>
+<Params p0="ffffffff" p1="ff000000" p2="0" p3="100" p4="0" p5="0" p6="0" p7="ff000000" p8="0" p9="0" p10="0" p11="0"/>
+<Dash arr=""/>
+<Shader/>
+</Shape>
+</VEC>

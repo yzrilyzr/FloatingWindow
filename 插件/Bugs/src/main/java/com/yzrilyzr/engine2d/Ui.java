@@ -121,4 +121,5 @@ public class Ui extends Shape
 		super.onTouch(e);
 	}
 	public void onMove(MotionEvent e){}
+	public void onDown(MotionEvent e){}
 }
