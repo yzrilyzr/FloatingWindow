@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Shape
 {
-	static final List<Shape> l=MainActivity.sh;
+	//static final List<Shape> l=MainActivity.sh;
 	public float x,y,w,h,r,t=0;
 	static float scale=1;
 	public Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);

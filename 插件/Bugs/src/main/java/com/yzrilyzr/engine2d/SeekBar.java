@@ -24,7 +24,7 @@ public class SeekBar extends Ui
 	{
 		// TODO: Implement this method
 		super.onMove(e);
-		pro=(int)(max*(limit(e.getX(),x+h/2,x+w-h/2)-x-h/2)/(w-h));
+		pro=(int)((float)max*(limit(e.getX(),x+h/2,x+w-h/2)-x-h/2)/(w-h));
 	}
 	@Override
 	public void onTouch(MotionEvent e)

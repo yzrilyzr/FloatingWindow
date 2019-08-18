@@ -10,7 +10,7 @@ public class Ui extends Shape
 	Bitmap b;
 	boolean visible=true;
 	float x1,y1,w1,h1,mill,alpha,alphamill;
-	boolean isFrom=false,isAlpha=false,isTo=false,isAto=false;
+	boolean isFrom=false,isAlphaFrom=false,isTo=false,isAlphaTo=false;
 	long st,stalpha;
 	Matrix m=new Matrix();
 	public Ui(String v,float x,float y,int w,int h){
@@ -26,12 +26,17 @@ public class Ui extends Shape
 		}
 		catch (Exception e)
 		{
+			MainActivity.toast(e);
 		}
 		else b=Bitmap.createBitmap(pi(w),pi(h),Bitmap.Config.ARGB_8888);
 		MainActivity.ui.add(this);
 	}
+	public boolean isAnim(){
+		return visible&&(isAlphaTo||isAlphaFrom||isFrom||isTo);
+	}
 	public Ui tScFrom(float x,float y,float w,float h,float millis){
 		isFrom=true;
+		isTo=false;
 		visible=true;
 		st=System.currentTimeMillis();
 		mill=millis;
@@ -43,6 +48,7 @@ public class Ui extends Shape
 	}
 	public Ui tScTo(float x,float y,float w,float h,float millis){
 		isTo=true;
+		isFrom=false;
 		visible=true;
 		st=System.currentTimeMillis();
 		mill=millis;
@@ -53,7 +59,8 @@ public class Ui extends Shape
 		return this;
 	}
 	public Ui alphaFrom(float x,float m){
-		isAlpha=true;
+		isAlphaFrom=true;
+		isAlphaTo=false;
 		visible=true;
 		alpha=x;
 		stalpha=System.currentTimeMillis();
@@ -61,7 +68,8 @@ public class Ui extends Shape
 		return  this;
 	}
 	public Ui alphaTo(float x,float m){
-		isAto=true;
+		isAlphaTo=true;
+		isAlphaFrom=false;
 		visible=true;
 		alpha=x;
 		stalpha=System.currentTimeMillis();
@@ -78,18 +86,19 @@ public class Ui extends Shape
 		float tf=(float)(System.currentTimeMillis()-st)/mill;
 		float ta=(float)(System.currentTimeMillis()-stalpha)/alphamill;
 		if(ta>1){
-			isAlpha=false;
-			if(isAto)visible=false;
-			isAto=false;
+			isAlphaFrom=false;
+			if(isAlphaTo)visible=false;
+			isAlphaTo=false;
 		}
 		if(tf>1){
 			isFrom=false;
 			if(isTo)visible=false;
 			isTo=false;
 		}
-		if(isAlpha)p.setAlpha((int)(2.55f*((100f-alpha)*ta+alpha)));
-		else if(isAto)p.setAlpha((int)(2.55f*((alpha-100f)*ta+100f)));
+		if(isAlphaFrom)p.setAlpha((int)(2.55f*((100f-alpha)*ta+alpha)));
+		else if(isAlphaTo)p.setAlpha((int)(2.55f*((alpha-100f)*ta+100f)));
 		else p.setAlpha(255);
+		if(b==null)return;
 		if(isFrom){
 			m.reset();
 			m.postScale((1f-w1/w)*tf+w1/w,(1f-h1/h)*tf+h1/h);
@@ -102,7 +111,7 @@ public class Ui extends Shape
 			m.postTranslate((x1-x)*tf+x,(y1-y)*tf+y);
 			c.drawBitmap(b,m,p);
 		}
-		else if(visible&&b!=null)c.drawBitmap(b,x,y,p);
+		else if(visible)c.drawBitmap(b,x,y,p);
 	}
 
 	@Override
