@@ -16,15 +16,18 @@ public class Map
 	public int[][] map;//x y
 	public int size=0;
 	public String name="";
-	public Bitmap background=null,back=null;
+	public Bitmap background=null;
+	public Bitmap[] mapcache=null;
 	public VECfile backvec;
 	public Bitmap[] tiles=new Bitmap[100];
 	public float mscale=1,tilew;
-	public Canvas bc;
+	public Canvas[] mapcanvas;
 	public ArrayList<Wave> waves=new ArrayList<Wave>();
 	public ArrayList<AstarPoint[]> wpmap=new ArrayList<AstarPoint[]>();
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
+	public int wpindex=0;
 	public int lives,money;
+	public boolean lock=false,which=false;
 	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
 	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
 	public CopyOnWriteArrayList<Bullet> bullets=new CopyOnWriteArrayList<Bullet>();
@@ -39,9 +42,13 @@ public class Map
 		tiles[4]=tile("finish");
 		tiles[5]=tile("waypoint");
 		background=VECfile.createBitmap(backvec,Shape.pi(900f*ms),Shape.pi(900f*ms));
-		back=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
-		bc=new Canvas(back);
-		tilew=(float)back.getWidth()/(float)size;
+		mapcanvas=new Canvas[2];
+		mapcache=new Bitmap[2];
+		for(int i=0;i<2;i++){
+		mapcache[i]=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
+		mapcanvas[i]=new Canvas(mapcache[i]);
+		}
+		tilew=(float)mapcache[0].getWidth()/(float)size;
 	}
 	public static Map loadMap(InputStream i) throws Exception
 	{
@@ -53,16 +60,6 @@ public class Map
 		while((l=br.readLine())!=null)
 		{
 			if(l.startsWith("#"))continue;
-			else if(mapi!=-1)tmp.fillData(mapi++,l);
-			else if(fw)tmp.waves.add(new Wave(l));
-			else if(wp)
-			{
-				String[] f=l.split(" ");
-				MainActivity.toast("=");
-				AstarPoint a=new AstarPoint(Integer.parseInt(f[0]),Integer.parseInt(f[1]));
-				AstarPoint b=new AstarPoint(Integer.parseInt(f[2]),Integer.parseInt(f[3]));
-				tmp.wpmap.add(new AstarPoint[]{a,b});
-			}
 			else if(l.startsWith("name:"))tmp.name=(l.substring(5));
 			else if(l.startsWith("size:"))tmp.setSize(Integer.parseInt(l.substring(5)));
 			else if(l.startsWith("money:"))tmp.money=(Integer.parseInt(l.substring(6)));
@@ -79,15 +76,24 @@ public class Map
 			else if(l.startsWith("waveend"))fw=false;
 			else if(l.startsWith("wpmap:"))wp=true;
 			else if(l.startsWith("wpmapend"))wp=false;
+			else if(mapi!=-1)tmp.fillData(mapi++,l);
+			else if(fw)tmp.waves.add(new Wave(l));
+			else if(wp)
+			{
+				String[] f=l.split(" ");
+				MainActivity.toast("=");
+				AstarPoint a=new AstarPoint(Integer.parseInt(f[0]),Integer.parseInt(f[1]));
+				AstarPoint b=new AstarPoint(Integer.parseInt(f[2]),Integer.parseInt(f[3]));
+				tmp.wpmap.add(new AstarPoint[]{a,b});
+			}
 		}
 		return tmp;
 	}
 
 	public void findWayPoint()
 	{
-		for(AstarPoint[] asp:wpmap)
+		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
-			MainActivity.toast("next");
 			AstarPoint start=asp[0];
 			AstarPoint finish=asp[1];
 			ArrayList<AstarPoint> c=new ArrayList<AstarPoint>();
@@ -157,7 +163,6 @@ public class Map
 			 }
 			 }*/
 			wpwaypoint.add(c);
-			MainActivity.toast("u");
 		}
 	}
 	boolean isWall(int x,int y)

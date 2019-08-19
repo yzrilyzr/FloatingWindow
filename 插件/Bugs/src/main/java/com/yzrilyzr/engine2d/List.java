@@ -61,7 +61,7 @@ public class List extends Ui
 		ypos=limit(ypos,-totalH+h,0);
 		if(ypos>0)ypos=0;
 		//p.setColor(0xff15154a);
-		for(int i=0;i<views.size();i++)
+		for(int i=0;i<Math.min(views.size(),oys.size());i++)
 		{
 			Ui v=views.get(i);
 			float oy=oys.get(i);
@@ -97,7 +97,7 @@ public class List extends Ui
 		ypos=lastypos+py-lasty;
 		ypos=limit(ypos,-totalH+h,0);
 		if(ypos>0)ypos=0;
-		//if(lasty>ypos+5||lasty<ypos-5)isScroll=true;
+		if(Math.abs(ypos-lastypos)>p(5))isScroll=true;
 	}
 
 	@Override
@@ -105,17 +105,27 @@ public class List extends Ui
 	{
 		// TODO: Implement this method
 		touch=true;
+		isScroll=false;
 		lasty=e.getY();
 		lastdy=lasty;
 		lastypos=ypos;
 	}
 
 	@Override
-	public void onTouch(MotionEvent e)
+	public void onClick(MotionEvent e)
 	{
 		touch=false;
-		isScroll=false;
-		vy=dy;
+		vy=dy/2;
+		//MainActivity.toast("u");
+		if(!isScroll)
+			for(Ui u:views){
+				//MainActivity.toast("y:"+u.y+"  py:"+e.getY()+" ly:"+y+" ?y:"+ypos);
+				if(u.contains(e.getX()-x,e.getY()-y))
+				{
+					u.onClick(e);
+					break;
+				}
+				}
 	}
 	public void addView(Ui... m)
 	{

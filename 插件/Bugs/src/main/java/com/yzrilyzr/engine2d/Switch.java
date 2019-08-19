@@ -19,10 +19,10 @@ public class Switch extends Ui
 	}
 
 	@Override
-	public void onTouch(MotionEvent e)
+	public void onClick(MotionEvent e)
 	{
 		// TODO: Implement this method
-		super.onTouch(e);
+		super.onClick(e);
 		isOn=!isOn;
 	}
 

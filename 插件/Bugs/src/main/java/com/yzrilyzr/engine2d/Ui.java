@@ -114,12 +114,7 @@ public class Ui extends Shape
 		else if(visible)c.drawBitmap(b,x,y,p);
 	}
 
-	@Override
-	public void onTouch(MotionEvent e)
-	{
-		
-		super.onTouch(e);
-	}
+	public void onClick(MotionEvent e){}
 	public void onMove(MotionEvent e){}
 	public void onDown(MotionEvent e){}
 }

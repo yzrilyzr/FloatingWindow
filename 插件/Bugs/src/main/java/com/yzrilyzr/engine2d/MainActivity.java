@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import android.graphics.RectF;
+import java.io.FileInputStream;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -48,7 +49,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private int curui=0;
 	private int ppx,ppy;
 	//data
-	public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=0,unlockulevel=0;
+	public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=0,unlockulevel=0;//解锁至
 	public static int musicv=70,musiceffv=80,fpslimit=30;
 	public static int resolution=50;
 	public static boolean backgrun=false,showfps=false,showgrid=false;
@@ -122,7 +123,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}
 			else if(Shape.up(event)&&tui!=null&&tui.contains(event.getX(),event.getY()))
 			{
-				tui.onTouch(event);
+				tui.onClick(event);
 				tui=null;
 				return false;
 			}
@@ -138,7 +139,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					else if(a==MotionEvent.ACTION_UP)
 					{
 						moved=false;
-						map.loadTiles(scale);
+						//map.loadTiles(scale);
 					}
 				}
 				else if(event.getPointerCount()==2)
@@ -170,7 +171,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
 						deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
 						if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
-						if(scale<1)
+						if(scale<=1)
 						{
 							scale=1;
 							deltax=Shape.p(100);
@@ -308,13 +309,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							{
 								if(map!=null)
 								{
+									deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
+									deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
+									if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
+									if(scale<=1)
+									{
+										scale=1;
+										deltax=Shape.p(100);
+										deltay=0;
+									}
 									p.setColor(0xffff0000);
 									p.setStrokeWidth(10);
-									m.reset();
-									m.postTranslate(deltax,deltay);
-									m.postScale(scale,scale);
-
-									c.drawBitmap(map.back,m,p);
+									if(map.mapcache!=null)
+									{
+										//m.postTranslate(-map.mapcache.getWidth()/2,-map.mapcache.getHeight()/2);
+										//m.postScale(scale,scale);
+										m.reset();
+										m.postTranslate(deltax,deltay);
+										m.postScale(scale,scale);
+										map.lock=true;
+										c.drawBitmap(map.mapcache[map.which?0:1],m,p);
+										map.lock=false;
+									}
 									/*float s=(float)Shape.p(900)*scale/(float)map.size;
 									 for(int i=0;i<map.map.length;i++)
 									 for(int u=0;u<map.map[0].length;u++)
@@ -485,7 +501,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								Thread.sleep(20);
 								continue;
 							}
-							Canvas c=map.bc;
+							if(map.lock)continue;
+							map.which=!map.which;
+							if(map.mapcanvas==null)continue;
+							Canvas c=map.mapcanvas[which?0:1];
+							if(c==null)continue;
 							c.drawBitmap(map.background,0,0,p);
 							for(int y=0;y<map.size;y++)
 							{
@@ -497,7 +517,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									if(id!=0)
 									{
 										Bitmap b=map.tiles[id];
-										c.drawBitmap(b,x*map.tilew,y*map.tilew,p);
+										
+										c.drawBitmap(b,x*map.tilew-(b.getWidth()-map.tilew)/2,y*map.tilew-b.getHeight()+map.tilew,p);
 									}
 								}
 								for(Bullet b:map.bullets)if(Math.floor(b.y)==y)b.onDraw(c);
@@ -653,7 +674,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				exitdialog=new Ui("exitdialog",cx-250,cy-150,500,300);
 				buttoncancel=new Ui("buttoncancel",cx-190,cy+20,150,90){
 					@Override
-					public void onTouch(MotionEvent e)
+					public void onClick(MotionEvent e)
 					{
 						shadowcover.visible=false;
 						exitdialog.visible=shadowcover.visible;
@@ -663,7 +684,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				};
 				buttonok=new Ui("buttonok",cx+40,cy+20,150,90){
 					@Override
-					public void onTouch(MotionEvent e)
+					public void onClick(MotionEvent e)
 					{
 						finish();
 						System.exit(0);
@@ -753,21 +774,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			.alphaFrom(0,500);
 			mainmenustart=new Ui(null,1010,380,330,100){
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 					uiSelLevel();
 				}
 			};
 			mainmenusettings=new Ui(null,1025,700,175,100){
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 					uisettings();
 				}
 			};
 			mainmenuabout=new Ui(null,1175,700,175,100){
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 					uiabout();
 				}
@@ -793,7 +814,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					return this;
 				}
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 					final String[] d=uh[new Random().nextInt(uh.length)].split("\\\\n");
 					if(tip==null)
@@ -876,13 +897,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		if(!ui.contains(levelselectmyjb))
 		{
 			levelselectmyjb=new Ui("levelselectmyjb",775,760,400,114){
-				@Override public void onTouch(MotionEvent e)
+				@Override public void onClick(MotionEvent e)
 				{
 
 				}
 			}.alphaFrom(0,200).tScFrom(800,900,400,114,200);
 			buttonmainmenu=new Ui("buttonmainmenu",1175,760,400,114){
-				@Override public void onTouch(MotionEvent e)
+				@Override public void onClick(MotionEvent e)
 				{
 					mainmenu();
 				}
@@ -916,6 +937,40 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				}
 			}.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
 			levelselectllist=(List) new List(750,100,800,650).alphaFrom(0,200).tScFrom(750,-900,800,750,200);
+			try
+			{
+				levelselectllist.views.clear();
+				String[] ms=getAssets().list("maps");
+				for(int i=0,u=0;i<ms.length;i++)
+				{
+					final String c=ms[i];
+					if(c.contains(".vec"))continue;
+					final int yt=u+1;
+					levelselectllist.addView(new Ui(null,750+u%2*400,(u/2)*200,400,200){
+						int ind=yt;
+						@Override public void onDraw(Canvas c)
+						{
+							if(!isAnim()&&visible)
+							{
+								p.setTextSize(p(70));
+								p.setColor(0xffffffff);
+								c.drawText(String.format("关卡 %d%s",yt,unlockulevel>=yt-1?"":"👏"),x+p(100),y+p(100),p);
+							}
+						}
+						@Override public void onClick(MotionEvent e)
+						{
+							if(unlockulevel>=yt-1)uiGameMain(true,"maps/"+c);
+						}
+					});
+					u++;
+				}
+				levelselectllist.measure();
+			}
+			catch(Throwable e)
+			{
+				toast(e);
+			}
+
 		}
 		else
 		{
@@ -926,42 +981,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			levelselectplayer.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
 			levelselectllist.alphaFrom(0,200).tScFrom(750,-900,800,750,200);
 		}
-		try
-		{
-			levelselectllist.views.clear();
-			String[] ms=getAssets().list("maps");
-			for(int i=0,u=0;i<ms.length;i++)
-			{
-				final String c=ms[i];
-				if(c.contains(".vec"))continue;
-				final int yt=u+1;
-				levelselectllist.addView(new Ui(null,750+u%2*400,(u/2)*200,400,200){
-					@Override public void onDraw(Canvas c)
-					{
-						if(!isAnim()&&visible)
-						{
-							p.setTextSize(p(50));
-							p.setColor(0xffffffff);
-							c.drawText(String.format("关卡%d",yt),x+p(50),y+p(50),p);
-						}
-					}
-				});
-				u++;
-			}
-			levelselectllist.measure();
-		}
-		catch(Throwable e)
-		{
-			toast(e);
-		}
-		
+
 	}
 	void uiMyJb()
 	{
 		hideAllUi();
 		curui=3;
 	}
-	void uiGameMain()
+	void uiGameMain(boolean isAsset,String path)
 	{
 		hideAllUi();
 		curui=4;
@@ -974,9 +1001,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			gamerightmenu.visible=true;
 			scale=1;
 			lscale=1;
-			deltax=0;
+			deltax=Shape.p(100);
 			deltay=0;
-			map=Map.loadMap(getAssets().open("maps/map1"));
+			if(isAsset)map=Map.loadMap(getAssets().open(path));
+			else map=Map.loadMap(new FileInputStream(path));
 			map.loadTiles(1);
 			new Thread(new Runnable(){
 				@Override
@@ -985,7 +1013,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					try
 					{
 						map.findWayPoint();
-						Thread.sleep(1000);
 						ArrayList<Map.AstarPoint> p=map.wpwaypoint.get(0);
 						for(Map.AstarPoint c:p)
 						{
@@ -997,7 +1024,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					catch (Exception e)
 					{
-						//toast(e);
+						toast(e);
 					}
 				}
 			}).start();
@@ -1005,7 +1032,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		catch (Exception e)
 		{
-			//toast(e);
+			toast(e);
 		}
 	}
 	void uisettings()
@@ -1020,7 +1047,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			.alphaFrom(50,200);
 			uisettclose=new Ui("uisettingclose",1100,100,80,80){
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 					uisetmv.tScTo(650,-800,550,50,200).alphaTo(50,200);
 					uisetmfv.tScTo(650,-800,550,50,200).alphaTo(50,200);
@@ -1089,27 +1116,27 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}.tScFrom(650,-800,550,50,200)
 			.alphaFrom(50,200);
 			uibackrun=(Switch) new Switch(1050,218+81*4,100,50,backgrun){
-				@Override public void onTouch(MotionEvent e)
+				@Override public void onClick(MotionEvent e)
 				{
-					super.onTouch(e);
+					super.onClick(e);
 					backgrun=isOn;
 				}
 			}.
 			tScFrom(1050,-800,100,50,200)
 			.alphaFrom(50,200);
 			uishowfps=(Switch) new Switch(1050,218+81*5,100,50,showfps){
-				@Override public void onTouch(MotionEvent e)
+				@Override public void onClick(MotionEvent e)
 				{
-					super.onTouch(e);
+					super.onClick(e);
 					showfps=isOn;
 				}
 			}.
 			tScFrom(1050,-800,100,50,200)
 			.alphaFrom(50,200);
 			uishowgrid=(Switch) new Switch(1050,218+81*6,100,50,showgrid){
-				@Override public void onTouch(MotionEvent e)
+				@Override public void onClick(MotionEvent e)
 				{
-					super.onTouch(e);
+					super.onClick(e);
 					showgrid=isOn;
 				}
 			}.
@@ -1148,7 +1175,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			.alphaFrom(50,200);
 			uiaboutok=new Ui("uiaboutok",725,670,150,90){
 				@Override
-				public void onTouch(MotionEvent e)
+				public void onClick(MotionEvent e)
 				{
 
 					uiabout.tScTo(1175,700,175,100,200)

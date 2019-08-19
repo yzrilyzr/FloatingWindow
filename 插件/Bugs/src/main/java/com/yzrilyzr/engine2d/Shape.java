@@ -24,7 +24,7 @@ public class Shape
 	}
 	public Shape(){}
 	public void onDraw(Canvas c){}
-	public void onTouch(MotionEvent e){}
+	public void onClick(MotionEvent e){}
 	public void onMove(MotionEvent e){}
 	public void onDown(MotionEvent e){}
 	public boolean contains(float x,float y){

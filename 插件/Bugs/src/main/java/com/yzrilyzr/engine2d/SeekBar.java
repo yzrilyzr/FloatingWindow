@@ -27,10 +27,10 @@ public class SeekBar extends Ui
 		pro=(int)((float)max*(limit(e.getX(),x+h/2,x+w-h/2)-x-h/2)/(w-h));
 	}
 	@Override
-	public void onTouch(MotionEvent e)
+	public void onClick(MotionEvent e)
 	{
 		// TODO: Implement this method
-		super.onTouch(e);
+		super.onClick(e);
 		onMove(e);
 	}
 	@Override
