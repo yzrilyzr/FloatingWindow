@@ -89,7 +89,10 @@ public class Map
 		}
 		return tmp;
 	}
-
+	public void setUpBugs(){
+		bugs.add(new Bug(0,wpindex));
+		if(++wpindex>=wpmap.size())wpindex=0;
+	}
 	public void findWayPoint()
 	{
 		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…

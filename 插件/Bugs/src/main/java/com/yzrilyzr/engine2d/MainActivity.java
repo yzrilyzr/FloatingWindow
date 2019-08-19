@@ -279,7 +279,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(curui==1||curui==2||curui==3||curui==6||curui==8)
 							{
 								Random r=new Random();
-								while(mainmenubug.size()<20)mainmenubug.add(new Bug(0,
+								while(mainmenubug.size()<20)mainmenubug.add(new Bug(
 									r.nextBoolean()?0:Shape.p(1600),
 									r.nextBoolean()?0:Shape.p(900),
 									20));
@@ -474,7 +474,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							for(Bug b:map.bugs)b.compute(dty);
 							for(Tower t:map.towers)t.compute(dty);
 							for(Bullet t:map.bullets)t.compute(dty);
-
+							Thread.sleep(1);
 							dt=System.nanoTime()-ns;
 							//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
@@ -1018,9 +1018,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						{
 							map.map[c.x][c.y]=5;
 
-							Thread.sleep(50);
+							//Thread.sleep(0);
 
 						}
+						map.setUpBugs();
 					}
 					catch (Exception e)
 					{

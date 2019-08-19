@@ -20,7 +20,7 @@ public class Bug extends Shape
 	VECfile ico,dico;
 	AstarPoint wayp;
 	int wayIndex;
-	public Bug(int id,float x,float y,int size)
+	public Bug(float x,float y,int size)
 	{
 		try
 		{
@@ -35,10 +35,31 @@ public class Bug extends Shape
 			MainActivity.toast(e);
 		}
 	}
-	public void compute(float dt){
+	public Bug(int id,int way)
+	{
+		if(id==0)
+		{
+			hp=20;vel=0.005f;
+			wayIndex=way;
+			wayp=MainActivity.map.wpwaypoint.get(wayIndex).get(0);
+			x=wayp.x;
+			y=wayp.y;
+			int s=(int)MainActivity.map.tilew;
+			try
+			{
+				bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/bug",s,s);
+			}
+			catch (Exception e)
+			{}
+
+		}
+	}
+	public void compute(float dt)
+	{
 		Map map=MainActivity.map;
 		float tilew=map.tilew;
-		if(hp<=0){
+		if(hp<=0)
+		{
 			map.bugs.remove(this);
 			map.money+=money;
 			Canvas c=new Canvas(map.background);
@@ -46,23 +67,28 @@ public class Bug extends Shape
 		}
 		float d=(float)Math.sqrt((wayp.x-x)*(wayp.x-x)+(wayp.y-y)*(wayp.y-y));
 		if(frztime>0)frztime-=dt;
-		else{
+		else if(d!=0)
+		{
 			float v2=vel*limit(slow,0.3f,1);
 			x+=(wayp.x-x)*v2/d;
 			y+=(wayp.y-y)*v2/d;
 		}
-		if(d<0.05f*tilew){
+		if(d<0.005f*tilew)
+		{
 			ArrayList<Map.AstarPoint> u=map.wpwaypoint.get(wayIndex);
 			int f=u.indexOf(wayp);
-			if(f>=u.size()){
+			if(f>=u.size()-1)
+			{
 				map.bugs.remove(this);
 				map.lives--;
 			}
 			else wayp=u.get(f+1);
 		}
-		if(rtime>0){
+		if(rtime>0)
+		{
 			rtime-=dt;
-			if(rdcdtime<=0){
+			if(rdcdtime<=0)
+			{
 				rdcdtime=rdtime;
 				hp-=rdmg;
 			}
@@ -75,7 +101,15 @@ public class Bug extends Shape
 		// TODO: Implement this method
 		super.onDraw(c);
 		p.setColor(0xff000000);
-		c.drawBitmap(bugicon,(int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2),p);
+		if(MainActivity.map!=null)
+		{
+			Map map=MainActivity.map;
+			float tilew=map.tilew;
+
+			c.drawBitmap(bugicon,(int)(x*tilew),(int)(y*tilew),p);
+		}
+		else c.drawBitmap(bugicon,(int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2),p);
+		
 	}
 
 }
