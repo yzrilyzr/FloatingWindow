@@ -26,12 +26,11 @@ public class Map
 	public ArrayList<AstarPoint[]> wpmap=new ArrayList<AstarPoint[]>();
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
 	public int wpindex=0;
-	public int lives,money;
+	public int lives,money,score;
 	public boolean lock=false,which=false;
 	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
 	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
 	public CopyOnWriteArrayList<Bullet> bullets=new CopyOnWriteArrayList<Bullet>();
-
 	public void loadTiles(float ms) throws Exception
 	{
 		this.mscale=ms;
@@ -44,9 +43,10 @@ public class Map
 		background=VECfile.createBitmap(backvec,Shape.pi(900f*ms),Shape.pi(900f*ms));
 		mapcanvas=new Canvas[2];
 		mapcache=new Bitmap[2];
-		for(int i=0;i<2;i++){
-		mapcache[i]=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
-		mapcanvas[i]=new Canvas(mapcache[i]);
+		for(int i=0;i<2;i++)
+		{
+			mapcache[i]=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
+			mapcanvas[i]=new Canvas(mapcache[i]);
 		}
 		tilew=(float)mapcache[0].getWidth()/(float)size;
 	}
@@ -81,7 +81,6 @@ public class Map
 			else if(wp)
 			{
 				String[] f=l.split(" ");
-				MainActivity.toast("=");
 				AstarPoint a=new AstarPoint(Integer.parseInt(f[0]),Integer.parseInt(f[1]));
 				AstarPoint b=new AstarPoint(Integer.parseInt(f[2]),Integer.parseInt(f[3]));
 				tmp.wpmap.add(new AstarPoint[]{a,b});
@@ -89,9 +88,37 @@ public class Map
 		}
 		return tmp;
 	}
-	public void setUpBugs(){
-		bugs.add(new Bug(0,wpindex));
-		if(++wpindex>=wpmap.size())wpindex=0;
+	public void setUpBugs()
+	{
+		new Thread(new Runnable(){
+			@Override
+			public void run()
+			{
+				try
+				{
+					for(Wave w:waves)
+					{
+						Thread.sleep(w.sec*1000);
+						if(w.id1!=-1)for(int i=0;i<w.c1;i++)
+							{
+								bugs.add(new Bug(w.id1,wpindex));
+								Thread.sleep(700);
+							}
+						if(w.id2!=-1)for(int i=0;i<w.c2;i++)
+							{
+								bugs.add(new Bug(w.id2,wpindex));
+								Thread.sleep(700);
+							}
+						if(++wpindex>=wpmap.size())wpindex=0;
+					}
+				}
+				catch(Throwable e)
+				{}
+				
+			}
+		}).start();
+
+
 	}
 	public void findWayPoint()
 	{
@@ -146,32 +173,33 @@ public class Map
 				}
 			}
 			for(AstarPoint x:u)c.remove(x);
-			/*AstarPoint a=new AstarPoint(start.x,start.y),d=null;
-			 u.clear();
-			 //u.add(a);
-			 for(int i=0;i<c.size();i++)
-			 {
-			 AstarPoint b=c.get(i);
-			 if(reachable(a,b))d=b;
-			 else
-			 {
-			 if(d==null)
-			 {
-			 MainActivity.toast(i+"");
-			 break;
-			 }
-			 a=d;
-			 u.add(a);
-			 i--;
-			 }
-			 }*/
-			wpwaypoint.add(c);
+			AstarPoint a=new AstarPoint(start.x,start.y),d=null;
+			u.clear();
+			u.add(a);
+			for(int i=0;i<c.size();i++)
+			{
+				AstarPoint b=c.get(i);
+				if(reachable(a,b))d=b;
+				else
+				{
+					if(d==null)
+					{
+						//MainActivity.toast(i+"");
+						break;
+					}
+					a=d;
+					u.add(a);
+					i--;
+				}
+			}
+			u.add(new AstarPoint(finish.x,finish.y));
+			wpwaypoint.add(u);
 		}
 	}
 	boolean isWall(int x,int y)
 	{
 		int id=map[x][y];
-		return id!=0&&id!=4&&id!=5;
+		return id!=0&&id!=3&&id!=4&&id!=5;
 	}
 	boolean reachable(AstarPoint a,AstarPoint b)
 	{

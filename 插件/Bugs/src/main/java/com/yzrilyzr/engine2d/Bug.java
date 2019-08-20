@@ -5,21 +5,25 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import java.util.ArrayList;
 import com.yzrilyzr.engine2d.Map.AstarPoint;
+import android.graphics.Matrix;
+import android.content.Context;
 
 public class Bug extends Shape
 {
-	Bitmap bugicon;
+	Bitmap bugicon,bugdicon;
 	float vx,vy;
 	float ax,ay;
 	float mscale=1;
 	//float x,y;
 	float vel;
-	float hp,frztime;
+	float hp,maxhp,frztime;
 	float rdmg,rtime,rdtime,rdcdtime;
-	float money,slow;
+	float slow,dir;
 	VECfile ico,dico;
 	AstarPoint wayp;
 	int wayIndex;
+	int score,money,exp;
+	Matrix ma=new Matrix();
 	public Bug(float x,float y,int size)
 	{
 		try
@@ -39,15 +43,23 @@ public class Bug extends Shape
 	{
 		if(id==0)
 		{
-			hp=20;vel=0.005f;
+			maxhp=20;hp=20;vel=5f;
 			wayIndex=way;
+			money=80;
+			score=50;
+			exp=2;
 			wayp=MainActivity.map.wpwaypoint.get(wayIndex).get(0);
 			x=wayp.x;
 			y=wayp.y;
 			int s=(int)MainActivity.map.tilew;
+			Context c=MainActivity.ctx;
 			try
 			{
-				bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/bug",s,s);
+				ico=VECfile.readFileFromIs(c.getAssets().open("bugs/bug.vec"));
+				dico=VECfile.readFileFromIs(c.getAssets().open("bugs/bugdie1.vec"));
+				bugicon=VECfile.createBitmap(ico,s,s);
+				bugdicon=VECfile.createBitmap(dico,s,s);
+				
 			}
 			catch (Exception e)
 			{}
@@ -62,6 +74,9 @@ public class Bug extends Shape
 		{
 			map.bugs.remove(this);
 			map.money+=money;
+			map.score+=score;
+			MainActivity.exp+=exp;
+			MainActivity.canLevepUp();
 			Canvas c=new Canvas(map.background);
 			c.drawBitmap(VECfile.createBitmap(dico,(int)tilew,(int)tilew),x,y,p);
 		}
@@ -69,11 +84,14 @@ public class Bug extends Shape
 		if(frztime>0)frztime-=dt;
 		else if(d!=0)
 		{
-			float v2=vel*limit(slow,0.3f,1);
-			x+=(wayp.x-x)*v2/d;
-			y+=(wayp.y-y)*v2/d;
+			float v2=vel*dt*limit(slow,0.3f,1);
+			float dx=wayp.x-x,dy=wayp.y-y;
+			x+=dx*v2/d;
+			y+=dy*v2/d;
+			dir=(float)(getArc(dx,dy,d)*180f/Math.PI)+90f;
+			
 		}
-		if(d<0.005f*tilew)
+		if(d<0.05f)
 		{
 			ArrayList<Map.AstarPoint> u=map.wpwaypoint.get(wayIndex);
 			int f=u.indexOf(wayp);
@@ -105,11 +123,20 @@ public class Bug extends Shape
 		{
 			Map map=MainActivity.map;
 			float tilew=map.tilew;
-
-			c.drawBitmap(bugicon,(int)(x*tilew),(int)(y*tilew),p);
+			ma.reset();
+			ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
+			ma.postRotate(dir);
+			ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
+			ma.postTranslate(x*tilew,y*tilew);
+			c.drawBitmap(bugicon,ma,p);
+			p.setColor(0xffcccccc);
+			c.drawRect(x*tilew,y*tilew-tilew/8,x*tilew+tilew,y*tilew,p);
+			p.setColor(0xff00ff00);
+			c.drawRect(x*tilew,y*tilew-tilew/8,x*tilew+tilew*hp/maxhp,y*tilew,p);
 		}
-		else c.drawBitmap(bugicon,(int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2),p);
-		
+		else{
+			c.drawBitmap(bugicon,(int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2),p);
+		}
 	}
 
 }

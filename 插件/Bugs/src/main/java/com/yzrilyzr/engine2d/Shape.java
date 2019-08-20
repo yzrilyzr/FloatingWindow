@@ -66,6 +66,13 @@ public class Shape
 	{
 		return Math.max(Math.min(x,max),min);
 	}
-
+	public static double getArc(double x,double y,double r)
+	{
+		double a=Math.asin(y/r);
+		if(x<0)a=Math.PI-a;
+		if(x>0&&y<0)a+=2*Math.PI;
+		return a;
+	}
+	
 	
 }

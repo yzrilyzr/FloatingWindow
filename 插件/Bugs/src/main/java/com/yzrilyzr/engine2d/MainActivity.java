@@ -309,6 +309,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							{
 								if(map!=null)
 								{
+									map.lock=true;
 									deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
 									deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
 									if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
@@ -327,34 +328,30 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										m.reset();
 										m.postTranslate(deltax,deltay);
 										m.postScale(scale,scale);
-										map.lock=true;
-										c.drawBitmap(map.mapcache[map.which?0:1],m,p);
+										c.drawBitmap(map.mapcache[map.which?1:0],m,p);
 										map.lock=false;
 									}
-									/*float s=(float)Shape.p(900)*scale/(float)map.size;
-									 for(int i=0;i<map.map.length;i++)
-									 for(int u=0;u<map.map[0].length;u++)
-									 {
-									 int id=map.map[i][u];
-									 if(id!=0)
-									 {
-									 Bitmap b=map.tiles[id];
-									 if(moved)
-									 {
-									 m.reset();
-									 m.postScale(scale/lscale,scale/lscale);
-									 //m.postTranslate(deltax*scale,deltay*scale);
-									 m.postTranslate(+s*i-(b.getWidth()-s)/2,s*u-b.getHeight()+s);
-									 c.drawBitmap(b,m,p);
-									 }
-									 else c.drawBitmap(b,deltax*scale+(s*i-(b.getWidth()-s)/2),deltay*scale+(s*u-b.getHeight()+s),p);
-									 }
-									 }*/
+									
 									c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
 									p.setColor(0xff00ff00);
 									c.drawPoint(-deltax,-deltay,p);
-
-								}
+									p.setTextAlign(Paint.Align.LEFT);
+									p.setTextSize(Shape.p(40));
+									p.setColor(0xff22ff22);
+									c.drawText(String.format("分数:%d",map.score),0,Shape.p(40),p);
+									c.drawText(String.format("等级:%d",plevel),0,Shape.p(880),p);
+									p.setTextAlign(Paint.Align.CENTER);
+									c.drawText(String.format("生命:%d",map.lives),Shape.p(550),Shape.p(40),p);
+									p.setTextAlign(Paint.Align.RIGHT);
+									c.drawText(String.format("金钱:%d",map.money),Shape.p(1100),Shape.p(40),p);
+									RectF rf=new RectF();
+									rf.set(Shape.p(150),Shape.p(860),Shape.p(1050),Shape.p(890));
+									p.setStyle(Paint.Style.STROKE);
+									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+									p.setStyle(Paint.Style.FILL);
+									rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
+									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+									}
 							}
 							//for(Shape s:sh)s.onDraw(c);
 							for(Shape s:ui)s.onDraw(c);
@@ -474,7 +471,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							for(Bug b:map.bugs)b.compute(dty);
 							for(Tower t:map.towers)t.compute(dty);
 							for(Bullet t:map.bullets)t.compute(dty);
-							Thread.sleep(1);
 							dt=System.nanoTime()-ns;
 							//if(dt<16666666)Thread.sleep((int)((float)(16666666-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
@@ -654,7 +650,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		super.onResume();
 		pause=false;
 	}
-	void canLevepUp()
+	static void canLevepUp()
 	{
 		if(exp>100*Math.pow(1.1,plevel))
 		{
@@ -1013,15 +1009,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					try
 					{
 						map.findWayPoint();
-						ArrayList<Map.AstarPoint> p=map.wpwaypoint.get(0);
-						for(Map.AstarPoint c:p)
-						{
-							map.map[c.x][c.y]=5;
-
-							//Thread.sleep(0);
-
-						}
 						map.setUpBugs();
+						map.towers.add(new Tower(1,7,5));
+						map.towers.add(new Tower(1,5,5));
 					}
 					catch (Exception e)
 					{
