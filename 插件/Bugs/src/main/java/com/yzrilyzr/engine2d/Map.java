@@ -45,7 +45,7 @@ public class Map
 		mapcache=new Bitmap[2];
 		for(int i=0;i<2;i++)
 		{
-			mapcache[i]=Bitmap.createBitmap(Shape.pi(900f*ms),Shape.pi(900f*ms),Bitmap.Config.ARGB_8888);
+			mapcache[i]=Bitmap.createBitmap(background.getWidth(),background.getHeight(),Bitmap.Config.ARGB_8888);
 			mapcanvas[i]=new Canvas(mapcache[i]);
 		}
 		tilew=(float)mapcache[0].getWidth()/(float)size;

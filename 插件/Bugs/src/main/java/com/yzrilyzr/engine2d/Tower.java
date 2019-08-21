@@ -1,13 +1,14 @@
 package com.yzrilyzr.engine2d;
-import android.graphics.Canvas;
-import android.view.MotionEvent;
-import com.yzrilyzr.icondesigner.VECfile;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PathDashPathEffect;
-import android.graphics.DashPathEffect;
+import android.view.MotionEvent;
+import com.yzrilyzr.engine2d.Bug;
+import com.yzrilyzr.icondesigner.VECfile;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Tower extends Shape
 {
@@ -19,6 +20,7 @@ public class Tower extends Shape
 	int level;
 	Bug target;
 	Matrix ma=new Matrix();
+	CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
 	public Tower(int id,float x,float y)
 	{
@@ -30,7 +32,7 @@ public class Tower extends Shape
 			int s=(int)MainActivity.map.tilew;
 			if(id==1)
 			{
-				dmg=5f;
+				dmg=3f;
 				dtime=0.3f;
 				money=80;
 				r=3;
@@ -48,9 +50,11 @@ public class Tower extends Shape
 		Map map=MainActivity.map;
 		float tilew=map.tilew;
 		if(cdtime>0)cdtime-=dt;
+		inRbugs.clear();
 		for(Bug s:map.bugs)
 		{
 			if(!inRange(s))continue;
+			inRbugs.add(s);
 			if(target==null)target=s;			
 		}
 		if(target==null||target.hp<=0||!inRange(target)){
@@ -60,12 +64,13 @@ public class Tower extends Shape
 		if(cdtime<=0&&target!=null)
 		{
 			cdtime=dtime*(float)Math.pow(1.25,-level);
-			target.hp-=dmg*Math.pow(1.25,level);
+			attack();
 		}
 	}
 	public void attack()
 	{
-
+		target.hp-=dmg*Math.pow(1.25,level);
+		for(Bug rg:inRbugs)rg.hp-=dmg/6*Math.pow(1.25,level);
 		//if(target==s)
 		{//单一目标
 			//直接或范围

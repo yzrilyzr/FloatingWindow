@@ -35,14 +35,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//global
 	static SurfaceView sv;
 	static SurfaceHolder hd;
-	static boolean run=false,pause=false,lock=false,which=false,inited=false;
+	static boolean run=false,pause=false,inited=false;
 	static Runnable rb=null;
 	//final static CopyOnWriteArrayList<Shape> sh=new CopyOnWriteArrayList<Shape>();
     final static CopyOnWriteArrayList<Ui> ui=new CopyOnWriteArrayList<Ui>();
 	static Context ctx;
-	static int cachecount=2;
+	static int cachecount=5;
 	static Bitmap[] bmpc=new Bitmap[cachecount];
 	static Canvas[] cvsc=new Canvas[cachecount];
+	static int curdraw=0,lock=0;
 	Shape tui;
 	static final String mainDir=Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/Bugs/";
 	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
@@ -168,15 +169,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						deltay-=(ddy-(y+y1)/2)/scale;
 						ddx=(x+x1)/2;
 						ddy=(y+y1)/2;
-						deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
-						deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
-						if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
+						//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
+						//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
+						/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
 						if(scale<=1)
 						{
 							scale=1;
 							deltax=Shape.p(100);
 							deltay=0;
-						}
+						}*/
 					}
 				}
 			}
@@ -256,6 +257,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 					p.setColor(0xffff0000);
+					p.setFilterBitmap(true);
 					long ns=System.nanoTime(),dt=0;
 					Matrix m=new Matrix();
 					Runtime ru=Runtime.getRuntime();
@@ -271,9 +273,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								Thread.sleep(20);
 								continue;
 							}
-							if(lock)continue;
-							which=!which;
-							Canvas c=cvsc[which?0:1];
+							if(map!=null)map.lock=true;
+							//if(curdraw==lock)continue;
+							if(++curdraw>=cvsc.length)curdraw=0;
+							if(curdraw==lock)continue;
+							//if(curdraw==lock)curdraw++;
+							//if(curdraw>=cvsc.length)curdraw=0;
+							Canvas c=cvsc[curdraw];
 							c.drawColor(0xff333333);
 							//uimainmeuu
 							if(curui==1||curui==2||curui==3||curui==6||curui==8)
@@ -309,18 +315,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							{
 								if(map!=null)
 								{
-									map.lock=true;
-									deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*scale,0);
-									deltay=limit(deltay,Shape.p(900)-Shape.p(900f)*scale,0);
-									if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
+									//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
+									//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
+									/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
 									if(scale<=1)
 									{
 										scale=1;
 										deltax=Shape.p(100);
 										deltay=0;
-									}
+									}*/
 									p.setColor(0xffff0000);
-									p.setStrokeWidth(10);
+									p.setStrokeWidth(Shape.p(4));
 									if(map.mapcache!=null)
 									{
 										//m.postTranslate(-map.mapcache.getWidth()/2,-map.mapcache.getHeight()/2);
@@ -329,7 +334,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										m.postTranslate(deltax,deltay);
 										m.postScale(scale,scale);
 										c.drawBitmap(map.mapcache[map.which?1:0],m,p);
-										map.lock=false;
 									}
 									
 									c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
@@ -339,7 +343,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									p.setTextSize(Shape.p(40));
 									p.setColor(0xff22ff22);
 									c.drawText(String.format("分数:%d",map.score),0,Shape.p(40),p);
-									c.drawText(String.format("等级:%d",plevel),0,Shape.p(880),p);
+									c.drawText(String.format("等级:%d",plevel),0,Shape.p(885),p);
 									p.setTextAlign(Paint.Align.CENTER);
 									c.drawText(String.format("生命:%d",map.lives),Shape.p(550),Shape.p(40),p);
 									p.setTextAlign(Paint.Align.RIGHT);
@@ -390,7 +394,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(fpslimit!=120&&dt<1000000000/fpslimit)Thread.sleep((int)((float)(1000000000/fpslimit-(int)dt)/1000000f));
 							dt=System.nanoTime()-ns;
 							ns=System.nanoTime();
-
+							if(map!=null)map.lock=false;
+							
 						}
 						catch(Throwable e)
 						{
@@ -429,8 +434,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								continue;
 							}
 							Canvas cs=hd.lockCanvas();
-							lock=true;
-							int w=which?1:0;
+							lock=curdraw-1;
+							if(lock<0)lock=bmpc.length-1;
+							int w=lock;
 							if(bmpc[w]!=null)
 								if(sv.getHeight()==bmpc[w].getHeight())cs.drawBitmap(bmpc[w],0,0,p);
 								else
@@ -443,9 +449,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									}
 									cs.drawBitmap(bmpc[w],m2,p);
 								}
-							lock=false;
 							cs.drawBitmap(banner,m,p);
 							if(cs!=null)hd.unlockCanvasAndPost(cs);
+							lock=-1;
 							Thread.sleep(0,1000);
 						}
 						catch (Exception e)
@@ -500,7 +506,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(map.lock)continue;
 							map.which=!map.which;
 							if(map.mapcanvas==null)continue;
-							Canvas c=map.mapcanvas[which?0:1];
+							Canvas c=map.mapcanvas[map.which?0:1];
 							if(c==null)continue;
 							c.drawBitmap(map.background,0,0,p);
 							for(int y=0;y<map.size;y++)
@@ -1001,7 +1007,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			deltay=0;
 			if(isAsset)map=Map.loadMap(getAssets().open(path));
 			else map=Map.loadMap(new FileInputStream(path));
-			map.loadTiles(1);
+			map.loadTiles(3);
 			new Thread(new Runnable(){
 				@Override
 				public void run()

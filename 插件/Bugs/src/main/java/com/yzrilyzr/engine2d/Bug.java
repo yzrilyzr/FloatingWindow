@@ -78,7 +78,7 @@ public class Bug extends Shape
 			MainActivity.exp+=exp;
 			MainActivity.canLevepUp();
 			Canvas c=new Canvas(map.background);
-			c.drawBitmap(VECfile.createBitmap(dico,(int)tilew,(int)tilew),x,y,p);
+			c.drawBitmap(bugdicon,x*tilew,y*tilew,p);
 		}
 		float d=(float)Math.sqrt((wayp.x-x)*(wayp.x-x)+(wayp.y-y)*(wayp.y-y));
 		if(frztime>0)frztime-=dt;
