@@ -28,11 +28,11 @@ public class Bug extends Shape
 	{
 		try
 		{
-			int s=Shape.pi(900*mscale)/size;
-			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/bug",s,s);
+			int s=Shape.pi(size);
+			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+Math.round(Math.random()*1),s,s);
 			this.x=x;
 			this.y=y;
-			vel=5;
+			vel=p(1000);
 		}
 		catch(Throwable e)
 		{
@@ -41,30 +41,48 @@ public class Bug extends Shape
 	}
 	public Bug(int id,int way)
 	{
+		wayp=MainActivity.map.wpwaypoint.get(wayIndex).get(0);
+		x=wayp.x;
+		y=wayp.y;
+		int s=(int)MainActivity.map.tilew;
+		Context c=MainActivity.ctx;
+		wayIndex=way;
+		try
+		{
+			ico=VECfile.readFileFromIs(c.getAssets().open("bugs/"+id+".vec"));
+		}
+		catch(Throwable e)
+		{}
+		try
+		{
+			dico=VECfile.readFileFromIs(c.getAssets().open("bugs/d"+id+".vec"));
+		}
+		catch (Exception e)
+		{
+			try
+			{
+				dico=VECfile.readFileFromIs(c.getAssets().open("bugs/d0.vec"));
+			}
+			catch(Throwable pe)
+			{}
+		}
+		bugicon=VECfile.createBitmap(ico,s,s);
+		bugdicon=VECfile.createBitmap(dico,s,s);
 		if(id==0)
 		{
 			maxhp=20;hp=20;vel=5f;
-			wayIndex=way;
-			money=80;
-			score=50;
+			money=25;
+			score=10;
 			exp=2;
-			wayp=MainActivity.map.wpwaypoint.get(wayIndex).get(0);
-			x=wayp.x;
-			y=wayp.y;
-			int s=(int)MainActivity.map.tilew;
-			Context c=MainActivity.ctx;
-			try
-			{
-				ico=VECfile.readFileFromIs(c.getAssets().open("bugs/bug.vec"));
-				dico=VECfile.readFileFromIs(c.getAssets().open("bugs/bugdie1.vec"));
-				bugicon=VECfile.createBitmap(ico,s,s);
-				bugdicon=VECfile.createBitmap(dico,s,s);
-				
-			}
-			catch (Exception e)
-			{}
-
 		}
+		if(id==1)
+		{
+			maxhp=40;hp=40;vel=5f;
+			money=40;
+			score=20;
+			exp=3;
+		}
+
 	}
 	public void compute(float dt)
 	{
@@ -89,7 +107,7 @@ public class Bug extends Shape
 			x+=dx*v2/d;
 			y+=dy*v2/d;
 			dir=(float)(getArc(dx,dy,d)*180f/Math.PI)+90f;
-			
+
 		}
 		if(d<0.05f)
 		{
@@ -134,8 +152,17 @@ public class Bug extends Shape
 			p.setColor(0xff00ff00);
 			c.drawRect(x*tilew,y*tilew-tilew/8,x*tilew+tilew*hp/maxhp,y*tilew,p);
 		}
-		else{
-			c.drawBitmap(bugicon,(int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2),p);
+		else
+		{
+			dir=(float)(getArc(vx,vy,vel)*180f/Math.PI)+90f;
+			ma.reset();
+			ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
+			ma.postRotate(dir);
+			ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
+			ma.postTranslate((int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2));
+			c.drawBitmap(bugicon,ma,p);
+			
+			c.drawBitmap(bugicon,ma,p);
 		}
 	}
 

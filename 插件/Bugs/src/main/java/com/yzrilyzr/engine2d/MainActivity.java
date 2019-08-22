@@ -92,6 +92,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
     {
 		ctx=this;
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(sv=new SurfaceView(this));
@@ -288,24 +289,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								while(mainmenubug.size()<20)mainmenubug.add(new Bug(
 									r.nextBoolean()?0:Shape.p(1600),
 									r.nextBoolean()?0:Shape.p(900),
-									20));
+									75+r.nextInt(50)));
 								float ro=Shape.p(50);
+								float ddt=dt/1000000000f;
 								for(Bug pp:mainmenubug)
 								{
-									pp.vx+=pp.ax;
-									pp.vy+=pp.ay;
-									pp.x+=pp.vx;
-									pp.y+=pp.vy;
+									pp.vx=limit(pp.vx+pp.ax*ddt,-pp.vel,pp.vel);
+									pp.vy=limit(pp.vy+pp.ay*ddt,-pp.vel,pp.vel);
+									pp.x+=pp.vx*ddt;
+									pp.y+=pp.vy*ddt;
 									if(pp.x<-ro)pp.x=Shape.p(1600)+ro;
 									if(pp.y<-ro)pp.y=Shape.p(900)+ro;
 									if(pp.x>Shape.p(1600)+ro)pp.x=-ro;
 									if(pp.y>Shape.p(900)+ro)pp.y=-ro;
-									if(pp.vx>pp.vel)pp.vx=pp.vel;
-									if(pp.vx<-pp.vel)pp.vx=-pp.vel;
-									if(pp.vy>pp.vel)pp.vy=pp.vel;
-									if(pp.vy<-pp.vel)pp.vy=-pp.vel;
-									pp.ax=(r.nextBoolean()?1:-1)*Shape.p(0.3f);
-									pp.ay=(r.nextBoolean()?1:-1)*Shape.p(0.3f);
+									pp.ax=(r.nextBoolean()?1:-1)*Shape.p(150f);
+									pp.ay=(r.nextBoolean()?1:-1)*Shape.p(150f);
 									pp.onDraw(c);
 								}
 
