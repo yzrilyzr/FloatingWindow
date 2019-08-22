@@ -70,16 +70,16 @@ public class Bug extends Shape
 		bugdicon=VECfile.createBitmap(dico,s,s);
 		if(id==0)
 		{
-			maxhp=20;hp=20;vel=5f;
-			money=25;
-			score=10;
+			maxhp=100;hp=100;vel=5f;
+			money=12;
+			score=6;
 			exp=2;
 		}
 		if(id==1)
 		{
-			maxhp=40;hp=40;vel=5f;
-			money=40;
-			score=20;
+			maxhp=200;hp=200;vel=5f;
+			money=25;
+			score=15;
 			exp=3;
 		}
 
@@ -117,6 +117,20 @@ public class Bug extends Shape
 			{
 				map.bugs.remove(this);
 				map.lives--;
+			}
+			else if(f==-1){
+				int ind=0;
+				float mind=-1;
+				for(int i=0;i<u.size();i++){
+					Map.AstarPoint a=u.get(i);
+					float dd=(float)Math.sqrt((a.x-x)*(a.x-x)+(a.y-y)*(a.y-y));
+					if(mind==-1)mind=dd;
+					if(dd<mind){
+						ind=i;
+						mind=dd;
+					}
+				}
+				wayp=u.get(ind);
 			}
 			else wayp=u.get(f+1);
 		}

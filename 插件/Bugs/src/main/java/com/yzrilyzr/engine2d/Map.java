@@ -99,14 +99,9 @@ public class Map
 					for(Wave w:waves)
 					{
 						Thread.sleep(w.sec*1000);
-						if(w.id1!=-1)for(int i=0;i<w.c1;i++)
+						if(w.id!=-1)for(int i=0;i<w.c;i++)
 							{
-								bugs.add(new Bug(w.id1,wpindex));
-								Thread.sleep(700);
-							}
-						if(w.id2!=-1)for(int i=0;i<w.c2;i++)
-							{
-								bugs.add(new Bug(w.id2,wpindex));
+								bugs.add(new Bug(w.id,wpindex));
 								Thread.sleep(700);
 							}
 						if(++wpindex>=wpmap.size())wpindex=0;
@@ -120,8 +115,9 @@ public class Map
 
 
 	}
-	public void findWayPoint()
+	public boolean findWayPoint()
 	{
+	ArrayList<ArrayList<AstarPoint>> wpwaypointt=new ArrayList<ArrayList<AstarPoint>>();
 		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
 			AstarPoint start=asp[0];
@@ -157,6 +153,7 @@ public class Map
 				{
 					u.add(np);
 					np=np.parent;
+					if(np==null)return false;
 				}
 				else
 				{
@@ -165,7 +162,8 @@ public class Map
 				}
 				try
 				{
-					if(np==null||np.x==finish.x&&np.y==finish.y)break;
+					if(np==null)return false;
+					if(np.x==finish.x&&np.y==finish.y)break;
 				}
 				catch(Throwable tt)
 				{
@@ -193,14 +191,28 @@ public class Map
 				}
 			}
 			u.add(new AstarPoint(finish.x,finish.y));
-			wpwaypoint.add(u);
+			wpwaypointt.add(u);
 		}
+		wpwaypoint.clear();
+		for(ArrayList<AstarPoint>m:wpwaypointt)wpwaypoint.add(m);
+		return true;
 	}
 	boolean isWall(int x,int y)
 	{
 		int id=map[x][y];
-		return id!=0&&id!=3&&id!=4&&id!=5;
+		if(id!=0&&id!=3&&id!=4&&id!=5)return true;
+		for(Tower t:towers)if((int)t.x==x&&(int)t.y==y)return true;
+		return false;
 	}
+	boolean containBug(int x,int y)
+	{
+		for(Bug t:bugs){
+			if(x<=Math.ceil(t.x)&&x>=Math.floor(t.x)&&
+			y<=Math.ceil(t.y)&&y>=Math.floor(t.y))return true;
+		}
+			return false;
+	}
+	
 	boolean reachable(AstarPoint a,AstarPoint b)
 	{
 		//if(a==null||b==null)return true;
@@ -284,15 +296,13 @@ public class Map
 
 	public static class Wave
 	{
-		int id1,c1,id2,c2,sec;
+		int id,c,sec;
 		public Wave(String pas)
 		{
 			String[] f=pas.split(" ");
-			id1=Integer.parseInt(f[0]);
-			c1=Integer.parseInt(f[1]);
-			id2=Integer.parseInt(f[2]);
-			c2=Integer.parseInt(f[3]);
-			sec=Integer.parseInt(f[4]);
+			id=Integer.parseInt(f[0]);
+			c=Integer.parseInt(f[1]);
+			sec=Integer.parseInt(f[2]);
 		}
 	}
 }

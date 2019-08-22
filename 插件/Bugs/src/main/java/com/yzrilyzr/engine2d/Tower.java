@@ -30,14 +30,27 @@ public class Tower extends Shape
 		{
 			Context c=MainActivity.ctx;
 			int s=(int)MainActivity.map.tilew;
+			ico=VECfile.readFileFromIs(c.getAssets().open("towers/"+id+".vec"));
+			bico=VECfile.createBitmap(ico,s,s);
+			dtime=1;
+			r=2;
+			dmg=1;
+			money=10;
+			if(id==0)
+			{
+				dmg=20f;
+				dtime=0.8f;
+				money=50;
+				r=1.5f;
+
+			}
 			if(id==1)
 			{
-				dmg=3f;
-				dtime=0.3f;
+				dmg=8f;
+				dtime=0.4f;
 				money=80;
-				r=3;
-				ico=VECfile.readFileFromIs(c.getAssets().open("towers/mgtower.vec"));
-				bico=VECfile.createBitmap(ico,s,s);
+				r=1.5f;
+				
 			}
 		}
 		catch(Throwable e)
@@ -100,7 +113,7 @@ public class Tower extends Shape
 			ma.reset();
 			ma.postTranslate(-bico.getWidth()/2,-bico.getHeight()/2);
 			//ma.postRotate(0);
-			ma.postScale(1+cdtime/dtime,1+cdtime/dtime);
+			ma.postScale(1+cdtime/dtime/7,1+cdtime/dtime/7);
 			ma.postTranslate(bico.getWidth()/2,bico.getHeight()/2);
 			ma.postTranslate(x*tilew,y*tilew);
 			c.drawBitmap(bico,ma,p);

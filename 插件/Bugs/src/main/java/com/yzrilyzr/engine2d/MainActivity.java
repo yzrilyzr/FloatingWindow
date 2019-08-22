@@ -67,9 +67,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiganemain=4
 	static Map map=null;
 	private Ui gamerightmenu;
-	private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
-	private boolean moved=false;
-	private float ddx,ddy;
+	private Tower selTower;
+	//private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
+	//private boolean moved=false;
+	//private float ddx,ddy;
 
 	//uiselectmap=6
 
@@ -133,57 +134,76 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		if(curui==4)
 		{
 			int a=event.getAction();
-			try
+			float x=event.getX(),y=event.getY();
+			int mx=(int) Math.floor((x-Shape.p(100))*map.size/Shape.p(900));
+			int my=(int) Math.floor(y*map.size/Shape.p(900));
+			if(a==MotionEvent.ACTION_UP&&
+			selTower!=null&&
+			!map.towers.contains(selTower)&&
+			x>Shape.p(100)&&x<Shape.p(1000)&&
+			!map.isWall(mx,my)&&
+			!map.containBug(mx,my))
 			{
-				if(event.getPointerCount()==1)
-				{
-					if(a==MotionEvent.ACTION_DOWN)moved=false;
-					else if(a==MotionEvent.ACTION_UP)
-					{
-						moved=false;
-						//map.loadTiles(scale);
-					}
+				selTower.x=mx;
+				selTower.y=my;
+				map.towers.add(selTower);
+				if(!map.findWayPoint()){
+					map.towers.remove(selTower);
+					selTower=null;
 				}
-				else if(event.getPointerCount()==2)
-				{
-					float x1=event.getX(1),y1=event.getY(1);
-					float x=event.getX(0),y=event.getY(0);
-					if(!moved)
-					{
-						if(x1>Shape.p(1100)||x>Shape.p(1100))return false;
-
-						ddx=(x+x1)/2;
-						ddy=(y+y1)/2;
-						lpointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
-						lscale=scale;
-						moved=true;
-					}
-					else
-					{
-						float pointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
-						float llsc=scale;
-						scale=lscale*pointLen/lpointLen;
-						float cx=(x+x1)/2f,cy=(y+y1)/2f;
-						deltax=(deltax-cx/llsc)+cx/scale;
-						deltay=(deltay-cy/llsc)+cy/scale;
-						deltax-=(ddx-(x+x1)/2)/scale;
-						deltay-=(ddy-(y+y1)/2)/scale;
-						ddx=(x+x1)/2;
-						ddy=(y+y1)/2;
-						//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
-						//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
-						/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
-						if(scale<=1)
-						{
-							scale=1;
-							deltax=Shape.p(100);
-							deltay=0;
-						}*/
-					}
-				}
+				else map.money-=selTower.money;
 			}
-			catch (Exception e)
-			{}
+			/*try
+			 {
+			 if(event.getPointerCount()==1)
+			 {
+			 if(a==MotionEvent.ACTION_DOWN)moved=false;
+			 else if(a==MotionEvent.ACTION_UP)
+			 {
+			 moved=false;
+			 //map.loadTiles(scale);
+			 }
+			 }
+			 else if(event.getPointerCount()==2)
+			 {
+			 float x1=event.getX(1),y1=event.getY(1);
+			 float x=event.getX(0),y=event.getY(0);
+			 if(!moved)
+			 {
+			 if(x1>Shape.p(1100)||x>Shape.p(1100))return false;
+
+			 ddx=(x+x1)/2;
+			 ddy=(y+y1)/2;
+			 lpointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
+			 lscale=scale;
+			 moved=true;
+			 }
+			 else
+			 {
+			 float pointLen=(float)Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1,2));
+			 float llsc=scale;
+			 scale=lscale*pointLen/lpointLen;
+			 float cx=(x+x1)/2f,cy=(y+y1)/2f;
+			 deltax=(deltax-cx/llsc)+cx/scale;
+			 deltay=(deltay-cy/llsc)+cy/scale;
+			 deltax-=(ddx-(x+x1)/2)/scale;
+			 deltay-=(ddy-(y+y1)/2)/scale;
+			 ddx=(x+x1)/2;
+			 ddy=(y+y1)/2;
+			 //deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
+			 //deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
+			 /*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
+			 if(scale<=1)
+			 {
+			 scale=1;
+			 deltax=Shape.p(100);
+			 deltay=0;
+			 }
+			 }
+			 }
+			 }
+			 catch (Exception e)
+			 {}*/
 		}
 		return true;
 	}
@@ -258,9 +278,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 					p.setColor(0xffff0000);
-					p.setFilterBitmap(true);
+					//p.setFilterBitmap(true);
 					long ns=System.nanoTime(),dt=0;
-					Matrix m=new Matrix();
+					//Matrix m=new Matrix();
 					Runtime ru=Runtime.getRuntime();
 					int lt=0,fps=0;
 					float avgfps=0;
@@ -316,27 +336,27 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
 									//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
 									/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
-									if(scale<=1)
-									{
-										scale=1;
-										deltax=Shape.p(100);
-										deltay=0;
-									}*/
+									 if(scale<=1)
+									 {
+									 scale=1;
+									 deltax=Shape.p(100);
+									 deltay=0;
+									 }*/
 									p.setColor(0xffff0000);
 									p.setStrokeWidth(Shape.p(4));
 									if(map.mapcache!=null)
 									{
 										//m.postTranslate(-map.mapcache.getWidth()/2,-map.mapcache.getHeight()/2);
 										//m.postScale(scale,scale);
-										m.reset();
-										m.postTranslate(deltax,deltay);
-										m.postScale(scale,scale);
-										c.drawBitmap(map.mapcache[map.which?1:0],m,p);
+										//m.reset();
+										//m.postTranslate(deltax,deltay);
+										//	m.postScale(scale,scale);
+										c.drawBitmap(map.mapcache[map.which?1:0],Shape.p(1100)/2-map.mapcache[0].getWidth()/2,0,p);
 									}
-									
-									c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
-									p.setColor(0xff00ff00);
-									c.drawPoint(-deltax,-deltay,p);
+
+									//c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
+									p.setColor(0xffffffff);
+									//c.drawPoint(-deltax,-deltay,p);
 									p.setTextAlign(Paint.Align.LEFT);
 									p.setTextSize(Shape.p(40));
 									p.setColor(0xff22ff22);
@@ -353,12 +373,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									p.setStyle(Paint.Style.FILL);
 									rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
 									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
-									}
+								}
 							}
 							//for(Shape s:sh)s.onDraw(c);
 							for(Shape s:ui)s.onDraw(c);
 							if(showgrid)
 							{
+								p.setStrokeWidth(1);
 								for(int i=0;i<1600;i+=50)
 								{
 									p.setColor(i%250==0?0xff00ff00:0xffff0000);
@@ -375,6 +396,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							}
 							if(dt!=0&&showfps)
 							{
+								p.setStyle(Paint.Style.FILL);
 								lt++;
 								if(lt<=10)avgfps+=1000000000l/dt;
 								else
@@ -384,8 +406,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									avgfps=0;
 								}
 								p.setColor(0xffff0000);
-								p.setTextSize(Shape.p(30));
-								c.drawText(String.format("FPS:%d Shape:%d RAM:%d Size:%dx%d x:%d y:%d dx:%f dy:%f sc:%f",fps,/*sh.size()*/+ui.size(),ram,bmpc[0].getWidth(),bmpc[0].getHeight(),ppx,ppy,deltax,deltay,scale),0,Shape.p(50),p);
+								p.setTextSize(Shape.p(50));
+								c.drawText(String.format("FPS:%d Shape:%d RAM:%d Size:%dx%d x:%d y:%d",fps,/*sh.size()*/+ui.size(),ram,bmpc[0].getWidth(),bmpc[0].getHeight(),ppx,ppy/*,deltax,deltay,scale*/),0,Shape.p(50),p);
 							}
 							dt=System.nanoTime()-ns;
 							ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
@@ -393,7 +415,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							dt=System.nanoTime()-ns;
 							ns=System.nanoTime();
 							if(map!=null)map.lock=false;
-							
+
 						}
 						catch(Throwable e)
 						{
@@ -517,7 +539,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									if(id!=0)
 									{
 										Bitmap b=map.tiles[id];
-										
+
 										c.drawBitmap(b,x*map.tilew-(b.getWidth()-map.tilew)/2,y*map.tilew-b.getHeight()+map.tilew,p);
 									}
 								}
@@ -997,25 +1019,37 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			if(!ui.contains(gamerightmenu))
 			{
 				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900);
+				for(int i=0;i<10;i++){
+					final int yy=i;
+					Ui o=new Ui("towers/"+i,1100+i%2*250,150+(int)(i/2)*100,100,100){
+						@Override public void onClick(MotionEvent e){
+							selTower=new Tower(yy,-1,-1);
+						}
+						@Override public void onDown(MotionEvent e){
+							selTower=new Tower(yy,-1,-1);
+						}
+					};
+					o.w=Shape.p(250);
+				}
 			}
 			gamerightmenu.visible=true;
-			scale=1;
-			lscale=1;
-			deltax=Shape.p(100);
-			deltay=0;
+			/*scale=1;
+			 lscale=1;
+			 deltax=Shape.p(100);
+			 deltay=0*/;
 			if(isAsset)map=Map.loadMap(getAssets().open(path));
 			else map=Map.loadMap(new FileInputStream(path));
-			map.loadTiles(3);
+			map.loadTiles(1);
 			new Thread(new Runnable(){
 				@Override
 				public void run()
 				{
 					try
 					{
-						map.findWayPoint();
+						if(!map.findWayPoint())toast("地图载入错误:无法寻找路点");
 						map.setUpBugs();
-						map.towers.add(new Tower(1,7,5));
-						map.towers.add(new Tower(1,5,5));
+						//map.towers.add(new Tower(1,7,5));
+						//map.towers.add(new Tower(4,5,5));
 					}
 					catch (Exception e)
 					{
