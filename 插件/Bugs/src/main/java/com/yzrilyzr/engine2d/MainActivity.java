@@ -343,6 +343,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							//uigamemain
 							else if(curui==4)
 							{
+								try{
 								if(map!=null)
 								{
 									//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
@@ -367,7 +368,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									}
 
 									//c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
-									p.setColor(0xbb000000);
+									p.setColor(0xbbffffff);
 									//c.drawPoint(-deltax,-deltay,p);
 									p.setTextAlign(Paint.Align.LEFT);
 									p.setTextSize(Shape.p(40));
@@ -385,6 +386,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									p.setStyle(Paint.Style.FILL);
 									rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
 									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+								}
+								}catch(Throwable e){
+									toast(e);
 								}
 							}
 							//for(Shape s:sh)s.onDraw(c);
@@ -512,6 +516,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								pscore+=map.score;
 								pmoney+=map.money;
 								pbugs+=map.tobugs;
+								saveData();
 								map=null;
 								uiSelLevel();
 								continue;
@@ -521,6 +526,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								pscore+=map.score;
 								pmoney+=map.money;
 								pbugs+=map.tobugs;
+								saveData();
 								map=null;
 								uiSelLevel();
 								continue;
@@ -1069,9 +1075,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						{
 							if(map.selectedTower!=null)
 							{
+								int idn=ui.indexOf(this);
 								if(map.towers.contains(map.selectedTower)){
-								ui.get(ui.indexOf(this)+1).setVisable(true);
-								ui.get(ui.indexOf(this)+2).setVisable(true);
+								ui.get(idn+1).setVisable(true);
+								ui.get(idn+2).setVisable(true);
+								}
+								else{
+									ui.get(idn+1).setVisable(false);
+									ui.get(idn+2).setVisable(false);
+									
 								}
 								p.setTextSize(p(30));
 								c.drawBitmap(icos[map.selectedTower.id],x+p(12),y+p(25),p);
@@ -1174,7 +1186,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			gamerightmenu.visible=true;
 			int in=ui.indexOf(gamerightmenu);
 			for(int i=0;i<10;i++)
-				ui.get(i+in+1).visible=true;
+				ui.get(i+in+3).visible=true;
 			if(isAsset)map=Map.loadMap(getAssets().open(path));
 			else map=Map.loadMap(new FileInputStream(path));
 			map.loadTiles(1);

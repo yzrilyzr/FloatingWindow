@@ -23,6 +23,10 @@ public class Tower extends Shape
 	int id;
 	CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
+	float[] moneys=new float[]{50,80,170,200,100,300,350,400,350,350};
+	float[] dmgs=new float[]{20,7,36,50,30,200,35,50,40,40};
+	float[] rs=new float[]{1.5f,1.5f,1.9f,2.5f,1,2.2f,1,2.5f,1.1f,1.1f};
+	float[] dts=new float[]{0.9f,0.4f,0.8f,1.1f,0.5f,0.7f,0.3f,1.1f,1,1};
 	public Tower(int id,float x,float y)
 	{
 		this.x=x;
@@ -34,26 +38,10 @@ public class Tower extends Shape
 			int s=(int)MainActivity.map.tilew;
 			ico=VECfile.readFileFromIs(c.getAssets().open("towers/"+id+".vec"));
 			bico=VECfile.createBitmap(ico,s,s);
-			dtime=1;
-			r=2;
-			dmg=1;
-			money=10;
-			if(id==0)
-			{
-				dmg=20f;
-				dtime=0.8f;
-				money=50;
-				r=1.5f;
-
-			}
-			if(id==1)
-			{
-				dmg=8f;
-				dtime=0.4f;
-				money=80;
-				r=1.5f;
-
-			}
+			dtime=dts[id];
+			r=rs[id];
+			dmg=dmgs[id];
+			money=moneys[id];
 		}
 		catch(Throwable e)
 		{
