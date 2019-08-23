@@ -20,12 +20,14 @@ public class Tower extends Shape
 	int level;
 	Bug target;
 	Matrix ma=new Matrix();
+	int id;
 	CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
 	public Tower(int id,float x,float y)
 	{
 		this.x=x;
 		this.y=y;
+		this.id=id;
 		try
 		{
 			Context c=MainActivity.ctx;

@@ -27,6 +27,7 @@ public class Map
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
 	public int wpindex=0;
 	public int lives,money,score;
+	public Wave nextwave;
 	public boolean lock=false,which=false;
 	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
 	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
@@ -96,16 +97,20 @@ public class Map
 			{
 				try
 				{
-					for(Wave w:waves)
+					for(int t=0;t<waves.size();t++)
 					{
+						Wave w=waves.get(t);
+						nextwave=w;
 						Thread.sleep(w.sec*1000);
 						if(w.id!=-1)for(int i=0;i<w.c;i++)
 							{
+								if(lives<=0)break;
 								bugs.add(new Bug(w.id,wpindex));
 								Thread.sleep(700);
 							}
 						if(++wpindex>=wpmap.size())wpindex=0;
 					}
+					nextwave=null;
 				}
 				catch(Throwable e)
 				{}

@@ -133,6 +133,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		}
 		if(curui==4)
 		{
+			if(map==null)return false;
 			int a=event.getAction();
 			float x=event.getX(),y=event.getY();
 			int mx=(int) Math.floor((x-Shape.p(100))*map.size/Shape.p(900));
@@ -142,16 +143,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			!map.towers.contains(selTower)&&
 			x>Shape.p(100)&&x<Shape.p(1000)&&
 			!map.isWall(mx,my)&&
-			!map.containBug(mx,my))
+			!map.containBug(mx,my)&&
+			map.money-selTower.money>=0)
 			{
 				selTower.x=mx;
 				selTower.y=my;
 				map.towers.add(selTower);
-				if(!map.findWayPoint()){
+				if(!map.findWayPoint())
+				{
 					map.towers.remove(selTower);
 					selTower=null;
 				}
 				else map.money-=selTower.money;
+			}
+			if(a==MotionEvent.ACTION_UP)
+			{
+				selTower=null;
+				for(Tower t:map.towers)
+					if(t.x==mx&&t.y==my)
+					{
+						selTower=t;
+						break;
+					}
 			}
 			/*try
 			 {
@@ -394,8 +407,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								c.drawLine(0,Shape.p(ppy),Shape.p(1600),Shape.p(ppy),p);
 								c.drawLine(Shape.p(ppx),0,Shape.p(ppx),Shape.p(900),p);
 							}
-							if(dt!=0&&showfps)
+							if(showfps)
 							{
+								if(dt==0)dt=1;
 								p.setStyle(Paint.Style.FILL);
 								lt++;
 								if(lt<=10)avgfps+=1000000000l/dt;
@@ -1018,15 +1032,52 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		{
 			if(!ui.contains(gamerightmenu))
 			{
-				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900);
-				for(int i=0;i<10;i++){
+				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900){
+					Bitmap[]icos=new Bitmap[10];
+					@Override public void onDraw(Canvas c)
+					{
+						super.onDraw(c);
+						try
+						{
+							if(icos[0]==null)
+								for(int i=0;i<icos.length;i++)
+									icos[i]=VECfile.createBitmap(ctx,"towers/"+i,pi(100),pi(100));
+						}
+						catch (Exception e)
+						{}
+						p.setColor(0xffffffff);
+						p.setTextSize(p(30));
+						try{
+						if(selTower!=null)
+						{
+							c.drawBitmap(icos[selTower.id],x+p(25),y+p(25),p);
+							c.drawText(String.format("伤害:%d",(int)selTower.dmg),x+p(150),y+p(40),p);
+							c.drawText(String.format("攻速:%d",(int)(1f/selTower.dtime)),x+p(150),y+p(90),p);
+							c.drawText(String.format("范围:%d",(int)selTower.r),x+p(150),y+p(140),p);
+						}
+						}catch(Throwable e){}
+					}
+				};
+				for(int i=0;i<10;i++)
+				{
 					final int yy=i;
 					Ui o=new Ui("towers/"+i,1100+i%2*250,150+(int)(i/2)*100,100,100){
-						@Override public void onClick(MotionEvent e){
+						Tower d;
+						@Override public void onClick(MotionEvent e)
+						{
 							selTower=new Tower(yy,-1,-1);
 						}
-						@Override public void onDown(MotionEvent e){
+						@Override public void onDown(MotionEvent e)
+						{
 							selTower=new Tower(yy,-1,-1);
+						}
+						@Override public void onDraw(Canvas c)
+						{
+							super.onDraw(c);
+							if(d==null&&map!=null&&map.tilew!=0)d=new Tower(yy,-1,-1);
+							p.setTextSize(p(50));
+							p.setColor(0xffffffff);
+							if(d!=null)c.drawText(Integer.toString((int)d.money),x+p(125),y+p(65),p);
 						}
 					};
 					o.w=Shape.p(250);
