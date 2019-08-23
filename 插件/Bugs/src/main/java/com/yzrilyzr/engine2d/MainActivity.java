@@ -67,6 +67,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiganemain=4
 	static Map map=null;
 	private Ui gamerightmenu;
+	private int nowplevel=0;
 	//private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	//private boolean moved=false;
 	//private float ddx,ddy;
@@ -343,51 +344,82 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							//uigamemain
 							else if(curui==4)
 							{
-								try{
-								if(map!=null)
+								try
 								{
-									//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
-									//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
-									/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
-									 if(scale<=1)
-									 {
-									 scale=1;
-									 deltax=Shape.p(100);
-									 deltay=0;
-									 }*/
-									p.setColor(0xffff0000);
-									p.setStrokeWidth(Shape.p(4));
-									if(map.mapcache!=null)
+									if(map!=null)
 									{
-										//m.postTranslate(-map.mapcache.getWidth()/2,-map.mapcache.getHeight()/2);
-										//m.postScale(scale,scale);
-										//m.reset();
-										//m.postTranslate(deltax,deltay);
-										//	m.postScale(scale,scale);
-										c.drawBitmap(map.mapcache[map.which?1:0],Shape.p(1100)/2-map.mapcache[0].getWidth()/2,0,p);
-									}
+										//deltax=limit(deltax,Shape.p(1100)-Shape.p(900f)*map.mscale*scale,0);
+										//deltay=limit(deltay,Shape.p(900)*map.mscale-Shape.p(900f)*map.mscale*scale,0);
+										/*if(scale<1100f/900f)deltax=Shape.p(100f)-Shape.p(100f)*(scale-1)/(1100f/900f-1);
+										 if(scale<=1)
+										 {
+										 scale=1;
+										 deltax=Shape.p(100);
+										 deltay=0;
+										 }*/
+										p.setColor(0xffff0000);
+										p.setStrokeWidth(Shape.p(4));
+										if(map.mapcache!=null)
+										{
+											//m.postTranslate(-map.mapcache.getWidth()/2,-map.mapcache.getHeight()/2);
+											//m.postScale(scale,scale);
+											//m.reset();
+											//m.postTranslate(deltax,deltay);
+											//	m.postScale(scale,scale);
+											c.drawBitmap(map.mapcache[map.which?1:0],Shape.p(1100)/2-map.mapcache[0].getWidth()/2,0,p);
+										}
 
-									//c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
-									p.setColor(0xbbffffff);
-									//c.drawPoint(-deltax,-deltay,p);
-									p.setTextAlign(Paint.Align.LEFT);
-									p.setTextSize(Shape.p(40));
-									//p.setColor(0xff22ff22);
-									c.drawText(String.format("分数:%d",map.score),0,Shape.p(40),p);
-									c.drawText(String.format("等级:%d",plevel),0,Shape.p(885),p);
-									p.setTextAlign(Paint.Align.CENTER);
-									c.drawText(String.format("生命:%d",map.lives),Shape.p(550),Shape.p(40),p);
-									p.setTextAlign(Paint.Align.RIGHT);
-									c.drawText(String.format("金钱:%d",map.money),Shape.p(1100),Shape.p(40),p);
-									RectF rf=new RectF();
-									rf.set(Shape.p(150),Shape.p(860),Shape.p(1050),Shape.p(890));
-									p.setStyle(Paint.Style.STROKE);
-									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
-									p.setStyle(Paint.Style.FILL);
-									rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
-									c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+										//c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
+										p.setColor(0xbbffffff);
+										//c.drawPoint(-deltax,-deltay,p);
+										p.setTextAlign(Paint.Align.LEFT);
+										p.setTextSize(Shape.p(40));
+										//p.setColor(0xff22ff22);
+										c.drawText(String.format("分数:%d",map.score),0,Shape.p(40),p);
+										c.drawText(String.format("等级:%d",plevel),0,Shape.p(885),p);
+										p.setTextAlign(Paint.Align.CENTER);
+										c.drawText(String.format("生命:%d",map.lives),Shape.p(550),Shape.p(40),p);
+										p.setTextAlign(Paint.Align.RIGHT);
+										c.drawText(String.format("金钱:%d",map.money),Shape.p(1100),Shape.p(40),p);
+										RectF rf=new RectF();
+										rf.set(Shape.p(150),Shape.p(860),Shape.p(1050),Shape.p(890));
+										p.setStyle(Paint.Style.STROKE);
+										c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+										p.setStyle(Paint.Style.FILL);
+										rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
+										c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
+										if(map.lives<=0)
+										{
+											Ui u=new Ui("shadowcover",0,0,1600,900).alphaFrom(0,2000);
+											Thread.sleep(2000);
+											ui.remove(u);
+											uiSelLevel();
+											pscore+=map.score;
+											pmoney+=map.money;
+											pbugs+=map.tobugs;
+											saveData();
+											map=null;
+											continue;
+										}
+										if((map.nowaveindex==map.waves.size())&&(map.bugs.size()==0))
+										{
+											Ui u=new Ui("shadowcover",0,0,1600,900).alphaFrom(0,2000);
+											Thread.sleep(2000);
+											ui.remove(u);
+											uiSelLevel();
+											pscore+=map.score;
+											pmoney+=map.money;
+											pbugs+=map.tobugs;
+											saveData();
+											map=null;
+											if(nowplevel==levelunlock)levelunlock++;
+											continue;
+										}
+										
+									}
 								}
-								}catch(Throwable e){
+								catch(Throwable e)
+								{
 									toast(e);
 								}
 							}
@@ -511,26 +543,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								continue;
 							}
 							float dty=dt/1000000000f;
-							if(map.lives<=0)
-							{
-								pscore+=map.score;
-								pmoney+=map.money;
-								pbugs+=map.tobugs;
-								saveData();
-								map=null;
-								uiSelLevel();
-								continue;
-							}
-							if((map.nowaveindex==map.waves.size())&&(map.bugs.size()==0))
-							{
-								pscore+=map.score;
-								pmoney+=map.money;
-								pbugs+=map.tobugs;
-								saveData();
-								map=null;
-								uiSelLevel();
-								continue;
-							}
 							for(Bug b:map.bugs)b.compute(dty);
 							for(Tower t:map.towers)t.compute(dty);
 							for(Bullet t:map.bullets)t.compute(dty);
@@ -1018,7 +1030,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						}
 						@Override public void onClick(MotionEvent e)
 						{
-							if(levelunlock>=yt-1)uiGameMain(true,"maps/"+c);
+							if(levelunlock>=yt-1)
+							{
+								uiGameMain(true,"maps/"+c);
+								nowplevel=yt-1;
+							}
 						}
 					});
 					u++;
@@ -1076,14 +1092,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(map.selectedTower!=null)
 							{
 								int idn=ui.indexOf(this);
-								if(map.towers.contains(map.selectedTower)){
-								ui.get(idn+1).setVisable(true);
-								ui.get(idn+2).setVisable(true);
+								if(map.towers.contains(map.selectedTower))
+								{
+									ui.get(idn+1).setVisable(true);
+									ui.get(idn+2).setVisable(true);
 								}
-								else{
+								else
+								{
 									ui.get(idn+1).setVisable(false);
 									ui.get(idn+2).setVisable(false);
-									
+
 								}
 								p.setTextSize(p(30));
 								c.drawBitmap(icos[map.selectedTower.id],x+p(12),y+p(25),p);
@@ -1105,7 +1123,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						p.setTextAlign(Paint.Align.CENTER);
 						c.drawText(String.format("%d/%d",map.nowaveindex,map.waves.size()),x+p(375),p(790),p);
 						p.setTextAlign(Paint.Align.LEFT);
-						
+
 
 					}
 				};

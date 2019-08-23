@@ -118,7 +118,7 @@ public class Map
 							{
 								if(w.id!=-1)for(int i=0;i<w.c;i++)
 									{
-										if(lives<=0)break;
+										if(lives<=0||MainActivity.map==null)break;
 										bugs.add(new Bug(w.id,wpindex));
 										try
 										{
