@@ -93,6 +93,7 @@ public class Bug extends Shape
 			map.bugs.remove(this);
 			map.money+=money;
 			map.score+=score;
+			map.tobugs++;
 			MainActivity.exp+=exp;
 			MainActivity.canLevepUp();
 			Canvas c=new Canvas(map.background);

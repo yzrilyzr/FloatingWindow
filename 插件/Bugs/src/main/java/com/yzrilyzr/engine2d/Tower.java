@@ -52,7 +52,7 @@ public class Tower extends Shape
 				dtime=0.4f;
 				money=80;
 				r=1.5f;
-				
+
 			}
 		}
 		catch(Throwable e)
@@ -72,7 +72,8 @@ public class Tower extends Shape
 			inRbugs.add(s);
 			if(target==null)target=s;			
 		}
-		if(target==null||target.hp<=0||!inRange(target)){
+		if(target==null||target.hp<=0||!inRange(target))
+		{
 			target=null;
 			return;
 		}
@@ -101,7 +102,7 @@ public class Tower extends Shape
 	public boolean inRange(Bug b)
 	{
 		float dx=b.x-x,dy=b.y-y;
-		return dx*dx+dy*dy<r*r;
+		return dx*dx+dy*dy<r*r*Math.pow(1.25,level)*Math.pow(1.25,level);
 	}
 	@Override
 	public void onDraw(Canvas c)
@@ -119,11 +120,20 @@ public class Tower extends Shape
 			ma.postTranslate(bico.getWidth()/2,bico.getHeight()/2);
 			ma.postTranslate(x*tilew,y*tilew);
 			c.drawBitmap(bico,ma,p);
-			p.setStyle(Paint.Style.STROKE);
+			p.setTextSize(tilew/2);
+			p.setTextAlign(Paint.Align.CENTER);
 			p.setColor(0xff000000);
-			p.setPathEffect(new DashPathEffect(new float[]{tilew/4,tilew/4},0));
-			c.drawCircle(x*tilew+tilew/2,y*tilew+tilew/2,r*tilew,p);
-			p.setStyle(Paint.Style.FILL);
+			c.drawText(String.format("LV:%d",level+1),x*tilew+tilew/2,y*tilew-tilew/8,p);
+			
+			if(this==map.selectedTower)
+			{
+				p.setStyle(Paint.Style.STROKE);
+				p.setColor(0xffffffff);
+				p.setStrokeWidth(tilew/10);
+				p.setPathEffect(new DashPathEffect(new float[]{tilew/4,tilew/4},0));
+				c.drawCircle(x*tilew+tilew/2,y*tilew+tilew/2,(float)(r*tilew*Math.pow(1.25,level)),p);
+				p.setStyle(Paint.Style.FILL);
+			}
 		}
 	}
 

@@ -28,6 +28,8 @@ public class Map
 	public int wpindex=0;
 	public int lives,money,score;
 	public Wave nextwave;
+	public int nowaveindex,tobugs;
+	public Tower selectedTower;
 	public boolean lock=false,which=false;
 	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
 	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
@@ -99,22 +101,43 @@ public class Map
 				{
 					for(int t=0;t<waves.size();t++)
 					{
-						Wave w=waves.get(t);
+						nowaveindex=t;
+						final Wave w=waves.get(t);
 						nextwave=w;
-						Thread.sleep(w.sec*1000);
-						if(w.id!=-1)for(int i=0;i<w.c;i++)
+						int g=w.sec;
+						for(int u=0;u<g;u++)
+						{
+							Thread.sleep(1000);
+							w.sec--;
+						}
+						if(t+1<waves.size())nextwave=waves.get(t+1);
+						else nextwave=null;
+						new Thread(new Runnable(){
+							@Override
+							public void run()
 							{
-								if(lives<=0)break;
-								bugs.add(new Bug(w.id,wpindex));
-								Thread.sleep(700);
+								if(w.id!=-1)for(int i=0;i<w.c;i++)
+									{
+										if(lives<=0)break;
+										bugs.add(new Bug(w.id,wpindex));
+										try
+										{
+											Thread.sleep(700);
+										}
+										catch (InterruptedException e)
+										{}
+									}
 							}
+						}).start();
+
 						if(++wpindex>=wpmap.size())wpindex=0;
 					}
+					nowaveindex=waves.size();
 					nextwave=null;
 				}
 				catch(Throwable e)
 				{}
-				
+
 			}
 		}).start();
 
@@ -122,7 +145,7 @@ public class Map
 	}
 	public boolean findWayPoint()
 	{
-	ArrayList<ArrayList<AstarPoint>> wpwaypointt=new ArrayList<ArrayList<AstarPoint>>();
+		ArrayList<ArrayList<AstarPoint>> wpwaypointt=new ArrayList<ArrayList<AstarPoint>>();
 		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
 			AstarPoint start=asp[0];
@@ -211,13 +234,14 @@ public class Map
 	}
 	boolean containBug(int x,int y)
 	{
-		for(Bug t:bugs){
+		for(Bug t:bugs)
+		{
 			if(x<=Math.ceil(t.x)&&x>=Math.floor(t.x)&&
 			y<=Math.ceil(t.y)&&y>=Math.floor(t.y))return true;
 		}
-			return false;
+		return false;
 	}
-	
+
 	boolean reachable(AstarPoint a,AstarPoint b)
 	{
 		//if(a==null||b==null)return true;

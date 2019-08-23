@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Ui loadcode;
 	//uimainmenu=1
 	private Ui buttonmainmenu,mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout,mainmenuyzr;
-	public ArrayList<Bug> mainmenubug=new ArrayList<Bug>();
+	public CopyOnWriteArrayList<Bug> mainmenubug=new CopyOnWriteArrayList<Bug>();
 	//uiselectlevel=2
 	private Ui levelselectmyjb,levelselectlist,levelselectmap,levelselectplayer;
 	private List levelselectllist;
@@ -67,7 +67,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiganemain=4
 	static Map map=null;
 	private Ui gamerightmenu;
-	private Tower selTower;
 	//private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	//private boolean moved=false;
 	//private float ddx,ddy;
@@ -139,30 +138,30 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			int mx=(int) Math.floor((x-Shape.p(100))*map.size/Shape.p(900));
 			int my=(int) Math.floor(y*map.size/Shape.p(900));
 			if(a==MotionEvent.ACTION_UP&&
-			selTower!=null&&
-			!map.towers.contains(selTower)&&
+			map.selectedTower!=null&&
+			!map.towers.contains(map.selectedTower)&&
 			x>Shape.p(100)&&x<Shape.p(1000)&&
 			!map.isWall(mx,my)&&
 			!map.containBug(mx,my)&&
-			map.money-selTower.money>=0)
+			map.money-map.selectedTower.money>=0)
 			{
-				selTower.x=mx;
-				selTower.y=my;
-				map.towers.add(selTower);
+				map.selectedTower.x=mx;
+				map.selectedTower.y=my;
+				map.towers.add(map.selectedTower);
 				if(!map.findWayPoint())
 				{
-					map.towers.remove(selTower);
-					selTower=null;
+					map.towers.remove(map.selectedTower);
+					map.selectedTower=null;
 				}
-				else map.money-=selTower.money;
+				else map.money-=map.selectedTower.money;
 			}
 			if(a==MotionEvent.ACTION_UP)
 			{
-				selTower=null;
+				map.selectedTower=null;
 				for(Tower t:map.towers)
 					if(t.x==mx&&t.y==my)
 					{
-						selTower=t;
+						map.selectedTower=t;
 						break;
 					}
 			}
@@ -368,11 +367,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									}
 
 									//c.drawLine(0,0,-deltax*scale,-deltay*scale,p);
-									p.setColor(0xffffffff);
+									p.setColor(0xbb000000);
 									//c.drawPoint(-deltax,-deltay,p);
 									p.setTextAlign(Paint.Align.LEFT);
 									p.setTextSize(Shape.p(40));
-									p.setColor(0xff22ff22);
+									//p.setColor(0xff22ff22);
 									c.drawText(String.format("分数:%d",map.score),0,Shape.p(40),p);
 									c.drawText(String.format("等级:%d",plevel),0,Shape.p(885),p);
 									p.setTextAlign(Paint.Align.CENTER);
@@ -410,7 +409,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(showfps)
 							{
 								if(dt==0)dt=1;
-								p.setStyle(Paint.Style.FILL);
+								p.setTextAlign(Paint.Align.LEFT);
 								lt++;
 								if(lt<=10)avgfps+=1000000000l/dt;
 								else
@@ -508,6 +507,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								continue;
 							}
 							float dty=dt/1000000000f;
+							if(map.lives<=0)
+							{
+								pscore+=map.score;
+								pmoney+=map.money;
+								pbugs+=map.tobugs;
+								map=null;
+								uiSelLevel();
+								continue;
+							}
+							if((map.nowaveindex==map.waves.size())&&(map.bugs.size()==0))
+							{
+								pscore+=map.score;
+								pmoney+=map.money;
+								pbugs+=map.tobugs;
+								map=null;
+								uiSelLevel();
+								continue;
+							}
 							for(Bug b:map.bugs)b.compute(dty);
 							for(Tower t:map.towers)t.compute(dty);
 							for(Bullet t:map.bullets)t.compute(dty);
@@ -519,7 +536,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						catch(Throwable e)
 						{
 							toast(e);
-							break;
+							continue;
 						}
 				}
 			}).start();
@@ -564,7 +581,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						catch(Exception e)
 						{
 							toast(e);
-							break;
+							continue;
 						}
 				}
 			}).start();
@@ -990,12 +1007,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							{
 								p.setTextSize(p(70));
 								p.setColor(0xffffffff);
-								c.drawText(String.format("关卡 %d%s",yt,unlockulevel>=yt-1?"":"👏"),x+p(100),y+p(100),p);
+								c.drawText(String.format("关卡 %d%s",yt,levelunlock>=yt-1?"":"👏"),x+p(100),y+p(100),p);
 							}
 						}
 						@Override public void onClick(MotionEvent e)
 						{
-							if(unlockulevel>=yt-1)uiGameMain(true,"maps/"+c);
+							if(levelunlock>=yt-1)uiGameMain(true,"maps/"+c);
 						}
 					});
 					u++;
@@ -1030,34 +1047,100 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		curui=4;
 		try
 		{
+			final Bitmap[]icos=new Bitmap[10];
+			final Bitmap[] bcos=new Bitmap[2];
+			if(icos[0]==null)
+			{
+				for(int i=0;i<icos.length;i++)
+					icos[i]=VECfile.createBitmap(ctx,"towers/"+i,Shape.pi(100),Shape.pi(100));
+				for(int i=0;i<bcos.length;i++)
+					bcos[i]=VECfile.createBitmap(ctx,"bugs/"+i,Shape.pi(80),Shape.pi(80));
+			}
 			if(!ui.contains(gamerightmenu))
 			{
 				gamerightmenu=new Ui("gamerightmenu",1100,0,500,900){
-					Bitmap[]icos=new Bitmap[10];
 					@Override public void onDraw(Canvas c)
 					{
 						super.onDraw(c);
+						if(!visible)return;
+						p.setColor(0xffffffff);
+						if(map==null)return;
 						try
 						{
-							if(icos[0]==null)
-								for(int i=0;i<icos.length;i++)
-									icos[i]=VECfile.createBitmap(ctx,"towers/"+i,pi(100),pi(100));
+							if(map.selectedTower!=null)
+							{
+								if(map.towers.contains(map.selectedTower)){
+								ui.get(ui.indexOf(this)+1).setVisable(true);
+								ui.get(ui.indexOf(this)+2).setVisable(true);
+								}
+								p.setTextSize(p(30));
+								c.drawBitmap(icos[map.selectedTower.id],x+p(25),y+p(25),p);
+								c.drawText(String.format("伤害:%d",(int)(map.selectedTower.dmg*Math.pow(1.25,map.selectedTower.level))),x+p(150),y+p(40),p);
+								c.drawText(String.format("攻速:%d",(int)(1f/(map.selectedTower.dtime*Math.pow(1.25,-map.selectedTower.level)))),x+p(150),y+p(90),p);
+								c.drawText(String.format("范围:%d",(int)(map.selectedTower.r*Math.pow(1.25,map.selectedTower.level))),x+p(150),y+p(140),p);
+							}
 						}
-						catch (Exception e)
+						catch(Throwable e)
 						{}
-						p.setColor(0xffffffff);
-						p.setTextSize(p(30));
-						try{
-						if(selTower!=null)
+						if(map.nextwave!=null)
 						{
-							c.drawBitmap(icos[selTower.id],x+p(25),y+p(25),p);
-							c.drawText(String.format("伤害:%d",(int)selTower.dmg),x+p(150),y+p(40),p);
-							c.drawText(String.format("攻速:%d",(int)(1f/selTower.dtime)),x+p(150),y+p(90),p);
-							c.drawText(String.format("范围:%d",(int)selTower.r),x+p(150),y+p(140),p);
+							p.setTextSize(p(30));
+							c.drawBitmap(bcos[map.nextwave.id],x+p(25),y+p(725),p);
+							c.drawText(String.format("x%d",map.nextwave.c),x+p(185),p(760),p);
+							c.drawText(String.format("%d秒后",map.nextwave.sec),x+p(185),p(790),p);
 						}
-						}catch(Throwable e){}
+						p.setTextSize(p(70));
+						c.drawText(String.format("%d/%d",map.nowaveindex,map.waves.size()),x+p(350),p(790),p);
+
+
 					}
 				};
+				new Ui("gameupgrade",1350,0,250,75){
+					@Override public void onDraw(Canvas c)
+					{
+						super.onDraw(c);
+						if(map==null||!visible)return;
+						if(map.selectedTower!=null)
+						{
+							//visible=true;
+							p.setColor(0xffffffff);
+							p.setTextSize(p(35));
+							c.drawText(map.selectedTower.level<unlockulevel?String.format("升级:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1))):"(最高等级)",x+p(40),y+p(50),p);
+						}
+						else visible=false;
+					}
+					@Override public void onClick(MotionEvent e)
+					{
+						int m=(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1));
+						if(map.money-m>=0&&map.selectedTower.level<unlockulevel)
+						{
+							map.selectedTower.level++;
+							map.money-=m;
+						}
+					}
+				}.setVisable(false);
+				new Ui("gamesell",1350,75,250,75){
+					@Override public void onDraw(Canvas c)
+					{
+						super.onDraw(c);
+						if(map==null||!visible)return;
+						if(map.selectedTower!=null)
+						{
+							//visible=true;
+							p.setColor(0xffffffff);
+							p.setTextSize(p(35));
+							c.drawText(String.format("出售:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5)),x+p(40),y+p(50),p);
+						}
+						else visible=false;
+					}
+					@Override public void onClick(MotionEvent e)
+					{
+						int m=(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5);
+						map.money+=m;
+						map.towers.remove(map.selectedTower);
+						map.selectedTower=null;
+					}
+				}.setVisable(false);
 				for(int i=0;i<10;i++)
 				{
 					final int yy=i;
@@ -1065,15 +1148,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						Tower d;
 						@Override public void onClick(MotionEvent e)
 						{
-							selTower=new Tower(yy,-1,-1);
+							map.selectedTower=new Tower(yy,-1,-1);
 						}
 						@Override public void onDown(MotionEvent e)
 						{
-							selTower=new Tower(yy,-1,-1);
+							map.selectedTower=new Tower(yy,-1,-1);
 						}
 						@Override public void onDraw(Canvas c)
 						{
 							super.onDraw(c);
+							if(!visible)return;
 							if(d==null&&map!=null&&map.tilew!=0)d=new Tower(yy,-1,-1);
 							p.setTextSize(p(50));
 							p.setColor(0xffffffff);
@@ -1084,10 +1168,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				}
 			}
 			gamerightmenu.visible=true;
-			/*scale=1;
-			 lscale=1;
-			 deltax=Shape.p(100);
-			 deltay=0*/;
+			int in=ui.indexOf(gamerightmenu);
+			for(int i=0;i<10;i++)
+				ui.get(i+in+1).visible=true;
 			if(isAsset)map=Map.loadMap(getAssets().open(path));
 			else map=Map.loadMap(new FileInputStream(path));
 			map.loadTiles(1);
@@ -1139,7 +1222,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					uisetting.tScTo(350,-800,900,800,200).alphaTo(50,200);
 					uisettclose.tScTo(1100,-800,80,80,200).alphaTo(50,200);
 					uisetshadow.alphaTo(50,200);
-					if(pres!=resolution)
+					if(pres!=resolution&&curui==1)
 					{
 						Shape.scale=sv.getHeight()*((float)resolution/100f)/900f;
 						//sh.clear();
