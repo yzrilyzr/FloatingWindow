@@ -972,7 +972,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					{
 						p.setColor(0xffffffff);
 						p.setStyle(Paint.Style.FILL);
-						p.setTextSize(p(40));
+						p.setTextSize(p(30));
 						p.setStrokeWidth(p(4));
 						p.setTextAlign(Paint.Align.LEFT);
 						c.drawText(String.format("等级:%d",plevel),x+p(35),y+p(78),p);
@@ -1074,10 +1074,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								ui.get(ui.indexOf(this)+2).setVisable(true);
 								}
 								p.setTextSize(p(30));
-								c.drawBitmap(icos[map.selectedTower.id],x+p(25),y+p(25),p);
-								c.drawText(String.format("伤害:%d",(int)(map.selectedTower.dmg*Math.pow(1.25,map.selectedTower.level))),x+p(150),y+p(40),p);
-								c.drawText(String.format("攻速:%d",(int)(1f/(map.selectedTower.dtime*Math.pow(1.25,-map.selectedTower.level)))),x+p(150),y+p(90),p);
-								c.drawText(String.format("范围:%d",(int)(map.selectedTower.r*Math.pow(1.25,map.selectedTower.level))),x+p(150),y+p(140),p);
+								c.drawBitmap(icos[map.selectedTower.id],x+p(12),y+p(25),p);
+								c.drawText(String.format("伤害:%.1f",(float)(map.selectedTower.dmg*Math.pow(1.25,map.selectedTower.level))),x+p(125),y+p(35),p);
+								c.drawText(String.format("攻速:%.1f",(float)(1f/(map.selectedTower.dtime*Math.pow(1.25,-map.selectedTower.level)))),x+p(125),y+p(85),p);
+								c.drawText(String.format("范围:%.1f",(float)(map.selectedTower.r*Math.pow(1.25,map.selectedTower.level))),x+p(125),y+p(135),p);
 							}
 						}
 						catch(Throwable e)
@@ -1086,16 +1086,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						{
 							p.setTextSize(p(30));
 							c.drawBitmap(bcos[map.nextwave.id],x+p(25),y+p(725),p);
-							c.drawText(String.format("x%d",map.nextwave.c),x+p(185),p(760),p);
-							c.drawText(String.format("%d秒后",map.nextwave.sec),x+p(185),p(790),p);
+							c.drawText(String.format("x%d",map.nextwave.c),x+p(135),p(760),p);
+							c.drawText(String.format("%d秒后",map.nextwave.sec),x+p(135),p(790),p);
 						}
 						p.setTextSize(p(70));
-						c.drawText(String.format("%d/%d",map.nowaveindex,map.waves.size()),x+p(350),p(790),p);
-
+						p.setTextAlign(Paint.Align.CENTER);
+						c.drawText(String.format("%d/%d",map.nowaveindex,map.waves.size()),x+p(375),p(790),p);
+						p.setTextAlign(Paint.Align.LEFT);
+						
 
 					}
 				};
-				new Ui("gameupgrade",1350,0,250,75){
+				new Ui("gameupgrade",1400,0,200,75){
 					@Override public void onDraw(Canvas c)
 					{
 						super.onDraw(c);
@@ -1105,7 +1107,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							//visible=true;
 							p.setColor(0xffffffff);
 							p.setTextSize(p(35));
-							c.drawText(map.selectedTower.level<unlockulevel?String.format("升级:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1))):"(最高等级)",x+p(40),y+p(50),p);
+							p.setTextAlign(Paint.Align.CENTER);
+							c.drawText(map.selectedTower.level<unlockulevel?String.format("升级:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1))):"(最高等级)",x+p(100),y+p(50),p);
 						}
 						else visible=false;
 					}
@@ -1119,7 +1122,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						}
 					}
 				}.setVisable(false);
-				new Ui("gamesell",1350,75,250,75){
+				new Ui("gamesell",1400,75,200,75){
 					@Override public void onDraw(Canvas c)
 					{
 						super.onDraw(c);
@@ -1129,7 +1132,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							//visible=true;
 							p.setColor(0xffffffff);
 							p.setTextSize(p(35));
-							c.drawText(String.format("出售:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5)),x+p(40),y+p(50),p);
+							p.setTextAlign(Paint.Align.CENTER);
+							c.drawText(String.format("出售:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5)),x+p(100),y+p(50),p);
 						}
 						else visible=false;
 					}

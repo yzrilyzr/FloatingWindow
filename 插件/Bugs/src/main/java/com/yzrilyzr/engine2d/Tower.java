@@ -122,7 +122,7 @@ public class Tower extends Shape
 			c.drawBitmap(bico,ma,p);
 			p.setTextSize(tilew/2);
 			p.setTextAlign(Paint.Align.CENTER);
-			p.setColor(0xff000000);
+			p.setColor(0xffffffff);
 			c.drawText(String.format("LV:%d",level+1),x*tilew+tilew/2,y*tilew-tilew/8,p);
 			
 			if(this==map.selectedTower)
