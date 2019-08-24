@@ -23,13 +23,15 @@ public class Map
 	public float mscale=1,tilew;
 	public Canvas[] mapcanvas;
 	public ArrayList<Wave> waves=new ArrayList<Wave>();
+	public ArrayList<Wave> curwaves=new ArrayList<Wave>();
 	public ArrayList<AstarPoint[]> wpmap=new ArrayList<AstarPoint[]>();
 	public ArrayList<ArrayList<AstarPoint>> wpwaypoint=new ArrayList<ArrayList<AstarPoint>>();
 	public int wpindex=0;
 	public int lives,money,score;
 	public Wave nextwave;
-	public int nowaveindex,tobugs;
+	public int curwaveindex=-1,tobugs;
 	public Tower selectedTower;
+	public float sendnowcd;
 	public boolean lock=false,which=false;
 	public CopyOnWriteArrayList<Bug> bugs=new CopyOnWriteArrayList<Bug>();
 	public CopyOnWriteArrayList<Tower> towers=new CopyOnWriteArrayList<Tower>();
@@ -91,57 +93,59 @@ public class Map
 		}
 		return tmp;
 	}
-	public void setUpBugs()
+	public void setUpBugs(float dt)
 	{
-		new Thread(new Runnable(){
-			@Override
-			public void run()
+		if(sendnowcd>0)sendnowcd-=dt;
+		if(nextwave!=null&&bugs.size()+nextwave.c>25)sendnowcd=3;
+		if(curwaveindex<waves.size())
+		{
+			if(nextwave==null||nextwave.sec<=0)
 			{
-				try
+				curwaveindex++;
+				if(curwaveindex<waves.size())
 				{
-					for(int t=0;t<waves.size();t++)
-					{
-						nowaveindex=t;
-						final Wave w=waves.get(t);
-						nextwave=w;
-						int g=w.sec;
-						for(int u=0;u<g;u++)
-						{
-							Thread.sleep(1000);
-							w.sec--;
-						}
-						if(t+1<waves.size())nextwave=waves.get(t+1);
-						else nextwave=null;
-						new Thread(new Runnable(){
-							@Override
-							public void run()
-							{
-								if(w.id!=-1)for(int i=0;i<w.c;i++)
-									{
-										if(lives<=0||MainActivity.map==null)break;
-										bugs.add(new Bug(w.id,wpindex));
-										try
-										{
-											Thread.sleep(700);
-										}
-										catch (InterruptedException e)
-										{}
-									}
-							}
-						}).start();
-
-						if(++wpindex>=wpmap.size())wpindex=0;
-					}
-					nowaveindex=waves.size();
-					nextwave=null;
+					nextwave=waves.get(curwaveindex);
+					nextwave.wpi=wpindex;
+					curwaves.add(nextwave);
+					if(++wpindex>=wpmap.size())wpindex=0;
 				}
-				catch(Throwable e)
-				{}
-
 			}
-		}).start();
-
-
+			else if(nextwave!=null)
+			{
+				nextwave.sec-=dt;
+			}
+		}
+		else
+		{
+			nextwave=null;
+			sendnowcd=3;
+		}
+		for(int t=0;t<curwaves.size();t++)
+		{
+			final Wave w=curwaves.get(t);
+			if(w.sec<=0)
+			{
+				if(w.cd<=0)
+				{
+					if(w.c>0)
+					{
+						bugs.add(new Bug(w.id,wpindex));
+						w.c--;
+						w.cd=0.7f;
+					}
+					else curwaves.remove(w);
+				}
+				else w.cd-=dt;
+			}
+		}
+	}
+	public void sendnow()
+	{
+		if(nextwave!=null&&sendnowcd<=0)
+		{
+			nextwave.sec=0;
+			sendnowcd=3;
+		}
 	}
 	public boolean findWayPoint()
 	{
@@ -325,7 +329,9 @@ public class Map
 
 	public static class Wave
 	{
-		int id,c,sec;
+		int id,c,wpi;
+		float sec;
+		float cd;
 		public Wave(String pas)
 		{
 			String[] f=pas.split(" ");
