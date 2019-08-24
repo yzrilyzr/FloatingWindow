@@ -29,6 +29,8 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import android.graphics.RectF;
 import java.io.FileInputStream;
+import android.graphics.Typeface;
+import java.io.IOException;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -49,6 +51,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
 	private int curui=0;
 	private int ppx,ppy;
+	float lxx,lyy;
 	//data
 	public static int plevel=0,exp=0,pscore=0,pbugs=0,pmoney=0,levelunlock=0,unlocktower=1,unlockulevel=0;//解锁至
 	public static int musicv=70,musiceffv=80,fpslimit=30;
@@ -67,9 +70,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	//uiganemain=4
 	static Map map=null;
 	private Ui gamerightmenu;
+	private static Ui uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup;
 	private int nowplevel=0;
 	private float gamespeed=1;
 	private Ui gamepause,gamesetting,gamex2,gamesendnow;
+
 	//private float deltax=0,deltay=0,scale=1,lscale=1,lpointLen;
 	//private boolean moved=false;
 	//private float ddx,ddy;
@@ -99,6 +104,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(sv=new SurfaceView(this));
+		sv.setLongClickable(true);
 		hd=sv.getHolder();
 		sv.setOnTouchListener(this);
 		hd.addCallback(this);
@@ -114,6 +120,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			Ui s=ui.get(i);
 			if(s.isAlphaFrom||s.isAlphaTo||s.isFrom||s.isTo)continue;
 			if(Shape.down(event))
+			{
+				lxx=event.getX();
+				lyy=event.getY();
 				if(s.contains(event.getX(),event.getY())&&(s).visible)
 				{
 					tui=s;
@@ -121,7 +130,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					break;
 				}
 				else tui=null;
-			else if(Shape.move(event)&&tui!=null)
+			}
+			else if(Shape.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Shape.p(10)&&Math.abs(event.getY()-lyy)>Shape.p(10))
 			{
 				tui.onMove(event);
 				return true;
@@ -293,6 +303,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 					p.setColor(0xffff0000);
+					p.setTypeface(VECfile.VTypeface.DEFAULT);
 					//p.setFilterBitmap(true);
 					long ns=System.nanoTime(),dt=0;
 					//Matrix m=new Matrix();
@@ -390,7 +401,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										p.setStyle(Paint.Style.FILL);
 										rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
 										c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
-										/*if(map.lives<=0)
+										if(exp>100*Math.pow(1.1,plevel))
+										{
+											plevel++;
+											exp=0;
+											uiLevelUp();
+										}
+										if(map.lives<=0)
 										{
 											new Thread(new Runnable(){
 												@Override
@@ -416,7 +433,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											map=null;
 											continue;
 										}
-										if((map.curwaveindex==map.waves.size())&&(map.bugs.size()==0))
+										else if((map.curwaveindex==map.waves.size())&&(map.bugs.size()==0))
 										{
 											new Thread(new Runnable(){
 												@Override
@@ -442,7 +459,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											map=null;
 											if(nowplevel==levelunlock)levelunlock++;
 											continue;
-										}*/
+										}
 
 									}
 								}
@@ -516,8 +533,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					catch (Exception e)
 					{}
 					Matrix m=new Matrix();
+					m.postTranslate(-banner.getWidth()/2,-banner.getHeight()/2);
 					m.postRotate(270);
-					m.postTranslate(sv.getHeight()*16/9,sv.getHeight());
+					m.postTranslate(banner.getHeight()/2,banner.getWidth()/2);
+					m.postTranslate(Shape.p(1600),0);
 					Matrix m2=new Matrix();
 					int lres=0;
 					Paint p=new Paint();
@@ -583,7 +602,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						}
 						catch(Throwable e)
 						{
-							toast(e);
+							//toast(e);
 							continue;
 						}
 				}
@@ -629,7 +648,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						}
 						catch(Exception e)
 						{
-							toast(e);
+							//toast(e);
 							continue;
 						}
 				}
@@ -756,15 +775,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		super.onResume();
 		pause=false;
 	}
-	static void canLevepUp()
-	{
-		if(exp>100*Math.pow(1.1,plevel))
-		{
-			plevel++;
-			exp=0;
-		}
-	}
-	void upui(Ui... uis)
+	static void upui(Ui... uis)
 	{
 		for(Ui u:uis)
 		{
@@ -772,15 +783,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			ui.add(u);
 		}
 	}
-	void show(Ui... uis)
+	static void show(Ui... uis)
 	{
 		for(Ui u:uis)u.visible=true;
 	}
-	void showTA(float x,float y,float w,float h,float a,float m,Ui... uis)
+	static void showTA(float x,float y,float w,float h,float a,float m,Ui... uis)
 	{
 		for(Ui u:uis)u.tScFrom(x,y,w,h,m).alphaFrom(a,m);
 	}
-	void dismissTA(float x,float y,float w,float h,float a,float m,Ui... uis)
+	static void dismissTA(float x,float y,float w,float h,float a,float m,Ui... uis)
 	{
 		for(Ui u:uis)u.tScTo(x,y,w,h,m).alphaTo(a,m);
 	}
@@ -1022,6 +1033,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				@Override public void onClick(MotionEvent e)
 				{
 					mainmenu();
+					map=null;
 				}
 			}.alphaFrom(0,200).tScFrom(1200,900,400,114,200);
 			levelselectlist=new Ui("levelselectlist",750,0,800,750).alphaFrom(0,200).tScFrom(750,-900,800,750,200);
@@ -1052,7 +1064,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 				}
 			}.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
-			levelselectllist=(List) new List(750,100,800,650).alphaFrom(0,200).tScFrom(750,-900,800,750,200);
+			levelselectllist=(List) new List(770,110,770,630).alphaFrom(0,200).tScFrom(770,-900,770,630,200);
 			try
 			{
 				levelselectllist.views.clear();
@@ -1062,7 +1074,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					final String c=ms[i];
 					if(c.contains(".vec"))continue;
 					final int yt=u+1;
-					levelselectllist.addView(new Ui(null,750+u%2*400,(u/2)*200,400,200){
+					levelselectllist.addView(new Ui(null,770+u%2*335,(u/2)*200,335,200){
 						int ind=yt;
 						@Override public void onDraw(Canvas c)
 						{
@@ -1070,7 +1082,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							{
 								p.setTextSize(p(70));
 								p.setColor(0xffffffff);
-								c.drawText(String.format("关卡 %d%s",yt,levelunlock>=yt-1?"":"👏"),x+p(100),y+p(100),p);
+								c.drawText(String.format("关卡 %d%s",yt,levelunlock>=yt-1?"":"?"),x+p(100),y+p(100),p);
 							}
 						}
 						@Override public void onClick(MotionEvent e)
@@ -1251,7 +1263,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					float gs=gamespeed;
 					@Override public void onClick(MotionEvent e)
 					{
-						if(gamespeed>0){
+						if(gamespeed>0)
+						{
 							gs=gamespeed;
 							gamespeed=0;
 						}
@@ -1278,15 +1291,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						gamespeed=0;
 					}
 				};
-				gamesendnow=new Ui("gamesendnowavail","gamesendnowunav",1125,800,450,90){
+				gamesendnow=new Ui("gamesendnowavail","gamesendnowunav",1125,805,450,90){
 					@Override public void onClick(MotionEvent e)
 					{
 						if(toggle)map.sendnow();
 						toggle=false;
 					}
-					@Override public void onDraw(Canvas c){
+					@Override public void onDraw(Canvas c)
+					{
 						super.onDraw(c);
-						if(map.sendnowcd>0)toggle=false;
+						if(map!=null&&map.sendnowcd>0)toggle=false;
 						else toggle=true;
 					}
 				};
@@ -1433,10 +1447,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		uishowfps.isOn=showfps;
 		uibackrun.isOn=backgrun;
 		uishowgrid.isOn=showgrid;
-		if(curui!=1){
+		if(curui!=1)
+		{
 			upui(buttonmainmenu);
 			buttonmainmenu.alphaFrom(0,200).tScFrom(1200,900,400,114,200);
-			}
+		}
 	}
 
 	void uiabout()
@@ -1483,5 +1498,75 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			.alphaFrom(50,200);
 			shadowcover2.alphaFrom(0,200);
 		}
+	}
+	void uiLevelUp()
+	{		
+		final float gs=gamespeed;
+		gamespeed=0;
+		if(!ui.contains(uilevelup))
+		{
+			final Bitmap[]icos=new Bitmap[10];
+			final String[] des=new String[]{
+			"原谅塔",
+			"突突塔\n可以最高的速度\n突突这些Bugs\n100一下听个响",
+			"果鸟塔\n向Bugs喷射鸟果\n造成滞留伤害\n(鸟果好吃\n但不要贪狼哦～)",
+			"帮帮投资者\n扔出一个点燃的帮帮\n然后嘭",
+			"电塔\n不能用来发电\n电起来挺疼的\n与羊教授的有的一拼",
+			"黑科技塔\n此塔乃塔中之上品\n可遇不可求\nyzrilyzr:多用这个塔\n秒速通关",
+			"红红塔\n最炽热的塔\n最炽热的心\n(据说是核聚变的能量)\n别跟我杠\n为什么不是红色的",
+			"火帮帮投资者\n我们的小帮帮带火\n(≧◇≦)",
+			"紫气东来塔\n管他紫气是哪里来的\n是四面八方来的",
+			"牛泪塔\n使周围的万有引力常数\n提高10^3"};
+			if(icos[0]==null)
+			{
+				try
+				{
+					for(int i=0;i<icos.length;i++)
+						icos[i]=VECfile.createBitmap(ctx,"towers/"+i,Shape.pi(200),Shape.pi(200));
+				}
+				catch (Exception e)
+				{}
+			}
+			uilevelup=new Ui("uilevelup",200,50,1200,800);
+			uilevelupmoney=new Ui("uilevelupmoney",290,200,300,510){
+				@Override public void onClick(MotionEvent e){
+					if(map!=null)map.money+=500;
+					dismissTA(800,900,0,0,0,200,uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup);
+					gamespeed=gs;
+				}
+			};
+			uileveluptower=new Ui("uileveluptower","uilevelupmoney",650,200,300,510){
+				@Override public void onClick(MotionEvent e){
+					if(map!=null&&!toggle)map.money+=500;
+					else unlocktower++;
+					dismissTA(800,900,0,0,0,200,uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup);
+					gamespeed=gs;
+				}
+				@Override public void onDraw(Canvas c){
+					super.onDraw(c);
+					if(toggle&&!isAnim()&&visible&&unlocktower<10){
+						c.drawBitmap(icos[unlocktower],p(800-100),p(330-100),p);
+						String[] bb=des[unlocktower].split("\n");
+						p.setTextSize(p(25));
+						for(int i=0;i<bb.length;i++)c.drawText(bb[i],p(680),p(530)+i*p(25),p);
+					}
+				}
+			};
+			uileveluptoerup=new Ui("uileveluptowerup","uilevelupmoney",1010,200,300,510){
+				@Override public void onClick(MotionEvent e){
+					if(map!=null&&!toggle)map.money+=500;
+					else unlockulevel++;
+					gamespeed=gs;
+					dismissTA(800,900,0,0,0,200,uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup);
+				}
+			};
+		}
+		else
+		{
+			upui(uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup);
+		}
+		uileveluptower.toggle=unlocktower<10;
+		uileveluptoerup.toggle=unlockulevel<4;
+		showTA(800,900,0,0,0,200,uilevelup,uilevelupmoney,uileveluptower,uileveluptoerup);
 	}
 }

@@ -7,6 +7,7 @@ import com.yzrilyzr.engine2d.MainActivity;
 import java.util.List;
 import android.content.res.Resources;
 import java.util.Random;
+import com.yzrilyzr.icondesigner.VECfile;
 
 public class Shape
 {
@@ -21,8 +22,11 @@ public class Shape
 		this.w = w;
 		this.h = h;
 		this.r = r;
+		p.setTypeface(VECfile.VTypeface.DEFAULT);
 	}
-	public Shape(){}
+	public Shape(){
+		p.setTypeface(VECfile.VTypeface.DEFAULT);
+	}
 	public void onDraw(Canvas c){}
 	public void onClick(MotionEvent e){}
 	public void onMove(MotionEvent e){}

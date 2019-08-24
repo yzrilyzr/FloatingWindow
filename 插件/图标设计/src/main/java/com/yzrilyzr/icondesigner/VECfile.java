@@ -27,6 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.Attributes;
 import android.graphics.Color;
 import java.math.BigInteger;
+import android.graphics.Typeface;
 
 public class VECfile
 {
@@ -42,6 +43,14 @@ public class VECfile
 	Shape tmpShape;
 	byte version=3;
 	boolean MD=false;
+	public static class VTypeface
+	{
+		public static Typeface DEFAULT_BOLD=Typeface.DEFAULT_BOLD;
+		public static Typeface MONOSPACE=Typeface.MONOSPACE;
+		public static Typeface SANS_SERIF=Typeface.SANS_SERIF;
+		public static Typeface SERIF=Typeface.SERIF;
+		public static Typeface DEFAULT=Typeface.DEFAULT;
+	}
 	public VECfile(int width,int height,float dp,String b)
 	{
 		bgpath=b;
@@ -213,32 +222,32 @@ public class VECfile
 		StringBuilder b=new StringBuilder();
 		String[] t=Long.toBinaryString(s.flag).split("");
 		String[] n=new String[]{
-			"左对齐","居中","右对齐","默认","粗体",
-			"MONOSPACE","SANS_SERIF","SERIF",
-			"无线帽","圆帽","方帽","圆拐角","锐角",
-			"直线","填充","描线","填充描线","描线填充",
-			"CLEAR",
-			"DARKEN",
-			"DST",
-			"DST_ATOP",
-			"DST_IN",
-			"DST_OUT",
-			"DST_OVER",
-			"LIGHTEN",
-			"MULTIPLY",
-			"OVERLAY",
-			"SCREEN",
-			"SRC",
-			"SRC_ATOP",
-			"SRC_IN",
-			"SRC_OUT",
-			"SRC_OVER",
-			"XOR",
-			"ADD",
-			"新图层","回图层","中心","封闭","扫描",
-			"辐射","线性","虚线","离散","圆角","组合",
-			"矩形","圆形","椭圆","弧","圆角矩形","路径",
-			"点","直线","文本"};
+		"左对齐","居中","右对齐","默认","粗体",
+		"MONOSPACE","SANS_SERIF","SERIF",
+		"无线帽","圆帽","方帽","圆拐角","锐角",
+		"直线","填充","描线","填充描线","描线填充",
+		"CLEAR",
+		"DARKEN",
+		"DST",
+		"DST_ATOP",
+		"DST_IN",
+		"DST_OUT",
+		"DST_OVER",
+		"LIGHTEN",
+		"MULTIPLY",
+		"OVERLAY",
+		"SCREEN",
+		"SRC",
+		"SRC_ATOP",
+		"SRC_IN",
+		"SRC_OUT",
+		"SRC_OVER",
+		"XOR",
+		"ADD",
+		"新图层","回图层","中心","封闭","扫描",
+		"辐射","线性","虚线","离散","圆角","组合",
+		"矩形","圆形","椭圆","弧","圆角矩形","路径",
+		"点","直线","文本"};
 		for(int i=t.length-1;i>=0;i--)
 			if("1".equals(t[i]))
 			{
@@ -331,10 +340,11 @@ public class VECfile
 		checkIfNull();
 		return which?front2:front;
 	}
-	public void checkIfNull(){
+	public void checkIfNull()
+	{
 		if(front==null||front2==null||back==null||
 		front.isRecycled()||front2.isRecycled()||back.isRecycled())
-		createBackground();
+			createBackground();
 	}
 	public void unlock()
 	{

@@ -729,7 +729,7 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 										final EditText edit=new EditText(ctx);
 										edit.setText(tmpShape.txt);
 										new AlertDialog.Builder(ctx)
-											.setTitle("设置文本(不支持换行)")
+											.setTitle("设置文本")
 											.setView(edit)
 											.setPositiveButton("确定",new DialogInterface.OnClickListener(){
 												@Override
@@ -1634,12 +1634,14 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 		{
 			if (event.getAction() == KeyEvent.ACTION_DOWN&&curView!=null&&curView instanceof Edit)
 			{
-				if (event.getKeyCode() == KeyEvent.KEYCODE_DEL)
+				int ck=event.getKeyCode();
+				if (ck == KeyEvent.KEYCODE_DEL)
 				{
 					String t=((Edit)curView).txt;
 					if(t.length()>0)t=t.substring(0,t.length()-1);
 					((Edit)curView).txt=t;
 				}
+				else if(ck>6&&ck<17)commitText(Integer.toString(ck-7),0);
 			}
 			return true;
 		}

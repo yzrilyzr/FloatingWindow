@@ -9,18 +9,18 @@ public final class Shape
 {
 	public ArrayList<Point> pts=new ArrayList<Point>();
 	public int[] par=new int[]{
-		0xffff0000,
-		0xff000000,
-		0,
-		100,
-		0,
-		0,
-		0,
-		0xff000000,
-		0,
-		0,
-		0,
-		0
+	0xffff0000,
+	0xff000000,
+	0,
+	100,
+	0,
+	0,
+	0,
+	0xff000000,
+	0,
+	0,
+	0,
+	0
 	};
 	//0:color,1:strokecolor,2:miter,3:strokewidth
 	//4:shadowD.x,5:.y,6:shadowR,7:shadowcolor
@@ -393,26 +393,35 @@ public final class Shape
 			Point r=pts.get(0);
 			Point t=pts.get(1);
 			sp.setTextSize(t.x*dp*sc/100f);
-			Typeface typefac=Typeface.DEFAULT;
-			if(hasFlag(TEXT.DEFAULT_TYPE))typefac=Typeface.DEFAULT;
-			else if(hasFlag(TEXT.BOLD_TYPE))typefac=Typeface.DEFAULT_BOLD;
-			else if(hasFlag(TEXT.MONOSPACE))typefac=Typeface.MONOSPACE;
-			else if(hasFlag(TEXT.SANS_SERIF))typefac=Typeface.SANS_SERIF;
-			else if(hasFlag(TEXT.SERIF))typefac=Typeface.SERIF;
+			Typeface typefac=VECfile.VTypeface.DEFAULT;
+			if(hasFlag(TEXT.DEFAULT_TYPE))typefac=VECfile.VTypeface.DEFAULT;
+			else if(hasFlag(TEXT.BOLD_TYPE))typefac=VECfile.VTypeface.DEFAULT_BOLD;
+			else if(hasFlag(TEXT.MONOSPACE))typefac=VECfile.VTypeface.MONOSPACE;
+			else if(hasFlag(TEXT.SANS_SERIF))typefac=VECfile.VTypeface.SANS_SERIF;
+			else if(hasFlag(TEXT.SERIF))typefac=VECfile.VTypeface.SERIF;
 			sp.setTypeface(typefac);
 			Paint.Align align=Paint.Align.LEFT;
 			if(hasFlag(TEXT.LEFT))align=Paint.Align.LEFT;
 			else if(hasFlag(TEXT.RIGHT))align=Paint.Align.RIGHT;
 			else if(hasFlag(TEXT.CENTER))align=Paint.Align.CENTER;
 			sp.setTextAlign(align);
+			String[] tx=txt.split("\n");
+			float yyy=(r.y*dp+yy)*sc;
 			if(st())fill(sp);
-			else
+			else for(String ss:tx)
+				{
+
+					sf(sp);
+					c.drawText(ss,(r.x*dp+xx)*sc,yyy,sp);
+					fs(sp);
+					yyy+=sp.getTextSize();
+				}
+			yyy=(r.y*dp+yy)*sc;
+			for(String ss:tx)
 			{
-				sf(sp);
-				c.drawText(txt,(r.x*dp+xx)*sc,(r.y*dp+yy)*sc,sp);
-				fs(sp);
+				c.drawText(ss,(r.x*dp+xx)*sc,yyy,sp);
+				yyy+=sp.getTextSize();
 			}
-			c.drawText(txt,(r.x*dp+xx)*sc,(r.y*dp+yy)*sc,sp);
 		}
 		if(hasFlag(SHAPEPAR.RESTORELAYER))c.restore();
 	}
@@ -524,8 +533,8 @@ public final class Shape
 		else
 		if(s==null)eff=new ComposePathEffect(l,r);
 		else eff=new ComposePathEffect(
-				new ComposePathEffect(l,r)
-				,s);
+			new ComposePathEffect(l,r)
+			,s);
 		return eff;
 	}
 	private Shader createShader(float xx,float yy,float dp,float sc)
@@ -593,8 +602,8 @@ public final class Shape
 		else
 		if(s==null)shader=new ComposeShader(l,r,PorterDuff.Mode.ADD);
 		else shader=new ComposeShader(
-				new ComposeShader(l,r,PorterDuff.Mode.ADD)
-				,s,PorterDuff.Mode.ADD);
+			new ComposeShader(l,r,PorterDuff.Mode.ADD)
+			,s,PorterDuff.Mode.ADD);
 		return shader;
 	}
 	public static final void Catmull_Rom(ArrayList<PointF> point, int cha,Path path)

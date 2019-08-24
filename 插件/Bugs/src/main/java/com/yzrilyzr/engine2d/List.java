@@ -97,7 +97,7 @@ public class List extends Ui
 		ypos=lastypos+py-lasty;
 		ypos=limit(ypos,-totalH+h,0);
 		if(ypos>0)ypos=0;
-		if(Math.abs(lastdy)>p(5))isScroll=true;
+		if(Math.abs(lastdy)>p(10))isScroll=true;
 	}
 
 	@Override

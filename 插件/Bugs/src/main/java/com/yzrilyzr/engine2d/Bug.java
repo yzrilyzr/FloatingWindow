@@ -95,7 +95,6 @@ public class Bug extends Shape
 			map.score+=score;
 			map.tobugs++;
 			MainActivity.exp+=exp;
-			MainActivity.canLevepUp();
 			Canvas c=new Canvas(map.background);
 			c.drawBitmap(bugdicon,x*tilew,y*tilew,p);
 		}
