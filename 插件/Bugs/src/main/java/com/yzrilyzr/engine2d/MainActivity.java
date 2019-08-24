@@ -455,9 +455,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											pscore+=map.score;
 											pmoney+=map.money;
 											pbugs+=map.tobugs;
+											if(nowplevel==levelunlock)levelunlock++;
 											saveData();
 											map=null;
-											if(nowplevel==levelunlock)levelunlock++;
 											continue;
 										}
 
@@ -1263,7 +1263,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					float gs=gamespeed;
 					@Override public void onClick(MotionEvent e)
 					{
-						if(gamespeed>0)
+						if(toggle)
 						{
 							gs=gamespeed;
 							gamespeed=0;
@@ -1273,13 +1273,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 				};
 				gamex2=new Ui("gamex1","gamex2",1460,650,70,70){
-					float gs=gamespeed;
 					@Override public void onClick(MotionEvent e)
 					{
-						if(gs==2)gs=1;
-						else gs=2;
-						if(gamespeed==0)gamepause.onClick(e);
-						gamespeed=gs;
+						if(toggle)gamespeed=2;
+						else gamespeed=1;
+						gamepause.toggle=true;
 						toggle();
 					}
 				};
@@ -1310,6 +1308,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			else map=Map.loadMap(new FileInputStream(path));
 			map.loadTiles(1);
 			gamespeed=1;
+			gamex2.toggle=true;
+			gamepause.toggle=true;
 			if(!map.findWayPoint())toast("地图载入错误:无法寻找路点");
 		}
 		catch (Exception e)

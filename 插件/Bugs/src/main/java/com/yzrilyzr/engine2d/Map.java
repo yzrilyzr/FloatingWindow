@@ -96,7 +96,6 @@ public class Map
 	public void setUpBugs(float dt)
 	{
 		if(sendnowcd>0)sendnowcd-=dt;
-		if(nextwave!=null&&bugs.size()+nextwave.c>25)sendnowcd=3;
 		if(curwaveindex<waves.size())
 		{
 			if(nextwave==null||nextwave.sec<=0)
