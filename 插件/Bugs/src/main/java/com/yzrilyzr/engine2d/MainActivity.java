@@ -154,19 +154,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			map.selectedTower!=null&&
 			!map.towers.contains(map.selectedTower)&&
 			x>Shape.p(100)&&x<Shape.p(1000)&&
-			!map.isWall(mx,my)&&
-			!map.containBug(mx,my)&&
 			map.money-map.selectedTower.money>=0)
 			{
-				map.selectedTower.x=mx;
-				map.selectedTower.y=my;
-				map.towers.add(map.selectedTower);
-				if(!map.findWayPoint())
+				if(map.isWall(mx,my)||map.containBug(mx,my))
 				{
-					map.towers.remove(map.selectedTower);
-					map.selectedTower=null;
+					toast("不能放于此处");
 				}
-				else map.money-=map.selectedTower.money;
+				else{
+					map.selectedTower.x=mx;
+					map.selectedTower.y=my;
+					map.towers.add(map.selectedTower);
+					if(!map.findWayPoint())
+					{
+						map.towers.remove(map.selectedTower);
+						map.selectedTower=null;
+						toast("不能放于此处");
+					}
+					else map.money-=map.selectedTower.money;
+				}
 			}
 			if(a==MotionEvent.ACTION_UP)
 			{
@@ -422,7 +427,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 													{}
 													uiSelLevel();
 													ui.remove(u);
-
+													map=null;
+													
 												}
 											}).start();
 
@@ -430,7 +436,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											pmoney+=map.money;
 											pbugs+=map.tobugs;
 											saveData();
-											map=null;
 											continue;
 										}
 										else if((map.curwaveindex==map.waves.size())&&(map.bugs.size()==0))
@@ -448,7 +453,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 													{}
 													uiSelLevel();
 													ui.remove(u);
-
+													map=null;
+													
 												}
 											}).start();
 
@@ -457,7 +463,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 											pbugs+=map.tobugs;
 											if(nowplevel==levelunlock)levelunlock++;
 											saveData();
-											map=null;
 											continue;
 										}
 
@@ -528,7 +533,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					try
 					{
 						Thread.sleep(300);
-						banner=VECfile.createBitmap(ctx,"banner",Shape.pi(900),Shape.pi(200));
+						banner=VECfile.createBitmap(ctx,"banner",sv.getHeight(),2*sv.getHeight()/9);
 					}
 					catch (Exception e)
 					{}
@@ -536,7 +541,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					m.postTranslate(-banner.getWidth()/2,-banner.getHeight()/2);
 					m.postRotate(270);
 					m.postTranslate(banner.getHeight()/2,banner.getWidth()/2);
-					m.postTranslate(Shape.p(1600),0);
+					m.postTranslate(16*sv.getHeight()/9,0);
 					Matrix m2=new Matrix();
 					int lres=0;
 					Paint p=new Paint();
@@ -1069,20 +1074,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			{
 				levelselectllist.views.clear();
 				String[] ms=getAssets().list("maps");
+				final Bitmap lo=VECfile.createBitmap(this,"lock",Shape.pi(100),Shape.pi(100));
 				for(int i=0,u=0;i<ms.length;i++)
 				{
 					final String c=ms[i];
 					if(c.contains(".vec"))continue;
 					final int yt=u+1;
-					levelselectllist.addView(new Ui(null,770+u%2*335,(u/2)*200,335,200){
+					levelselectllist.addView(new Ui(null,770+u%2*380,(u/2)*200,380,200){
 						int ind=yt;
 						@Override public void onDraw(Canvas c)
 						{
 							if(!isAnim()&&visible)
 							{
-								p.setTextSize(p(70));
+								c.drawLine(x,y+h,x+w,y+h,p);
+								p.setTextSize(p(60));
 								p.setColor(0xffffffff);
-								c.drawText(String.format("关卡 %d%s",yt,levelunlock>=yt-1?"":"?"),x+p(100),y+p(100),p);
+								c.drawText(String.format("关卡 %d",yt),x+p(50),y+p(100),p);
+								if(levelunlock<yt-1)c.drawBitmap(lo,x+p(250),y+p(50),p);
 							}
 						}
 						@Override public void onClick(MotionEvent e)

@@ -24,7 +24,7 @@ public class Tower extends Shape
 	CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
 	float[] moneys=new float[]{50,80,170,200,100,300,350,400,350,350};
-	float[] dmgs=new float[]{20,7,36,50,30,200,35,50,40,40};
+	float[] dmgs=new float[]{20,7,36,50,30,200,15,50,40,40};
 	float[] rs=new float[]{1.5f,1.5f,1.9f,2.5f,1,2.2f,1,2.5f,1.1f,1.1f};
 	float[] dts=new float[]{0.9f,0.4f,0.8f,1.1f,0.5f,0.7f,0.3f,1.1f,1,1};
 	public Tower(int id,float x,float y)

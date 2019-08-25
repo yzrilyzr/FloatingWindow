@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import com.yzrilyzr.engine2d.Map.AstarPoint;
 import android.graphics.Matrix;
 import android.content.Context;
+import java.util.Random;
 
 public class Bug extends Shape
 {
@@ -29,7 +30,7 @@ public class Bug extends Shape
 		try
 		{
 			int s=Shape.pi(size);
-			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+Math.round(Math.random()*1),s,s);
+			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+new Random().nextInt(13),s,s);
 			this.x=x;
 			this.y=y;
 			vel=p(1000);
@@ -168,7 +169,7 @@ public class Bug extends Shape
 		}
 		else
 		{
-			dir=(float)(getArc(vx,vy,vel)*180f/Math.PI)+90f;
+			dir=(float)(getArc(vx,vy,vel/3f)*180f/Math.PI)+90f;
 			ma.reset();
 			ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
 			ma.postRotate(dir);
@@ -176,7 +177,7 @@ public class Bug extends Shape
 			ma.postTranslate((int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2));
 			c.drawBitmap(bugicon,ma,p);
 			
-			c.drawBitmap(bugicon,ma,p);
+			//c.drawBitmap(bugicon,ma,p);
 		}
 	}
 
