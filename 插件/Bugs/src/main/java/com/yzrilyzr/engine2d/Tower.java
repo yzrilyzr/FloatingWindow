@@ -67,14 +67,14 @@ public class Tower extends Shape
 		}
 		if(cdtime<=0&&target!=null)
 		{
-			cdtime=dtime*(float)Math.pow(1.25,-level);
+			cdtime=dtime*(float)Math.pow(1.1,-level);
 			attack();
 		}
 	}
 	public void attack()
 	{
-		target.hp-=dmg*Math.pow(1.25,level);
-		for(Bug rg:inRbugs)rg.hp-=dmg/6*Math.pow(1.25,level);
+		target.hp-=dmg*Math.pow(1.1,level);
+		for(Bug rg:inRbugs)rg.hp-=dmg/6*Math.pow(1.1,level);
 		//if(target==s)
 		{//单一目标
 			//直接或范围
@@ -90,7 +90,7 @@ public class Tower extends Shape
 	public boolean inRange(Bug b)
 	{
 		float dx=b.x-x,dy=b.y-y;
-		return dx*dx+dy*dy<r*r*Math.pow(1.25,level)*Math.pow(1.25,level);
+		return dx*dx+dy*dy<r*r*Math.pow(1.1,level)*Math.pow(1.1,level);
 	}
 	@Override
 	public void onDraw(Canvas c)
@@ -119,7 +119,7 @@ public class Tower extends Shape
 				p.setColor(0xffffffff);
 				p.setStrokeWidth(tilew/10);
 				p.setPathEffect(new DashPathEffect(new float[]{tilew/4,tilew/4},0));
-				c.drawCircle(x*tilew+tilew/2,y*tilew+tilew/2,(float)(r*tilew*Math.pow(1.25,level)),p);
+				c.drawCircle(x*tilew+tilew/2,y*tilew+tilew/2,(float)(r*tilew*Math.pow(1.1,level)),p);
 				p.setStyle(Paint.Style.FILL);
 			}
 		}

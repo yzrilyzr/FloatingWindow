@@ -1170,9 +1170,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								}
 								p.setTextSize(p(30));
 								c.drawBitmap(icos[map.selectedTower.id],x+p(12),y+p(25),p);
-								c.drawText(String.format("伤害:%.1f",(float)(map.selectedTower.dmg*Math.pow(1.25,map.selectedTower.level))),x+p(125),y+p(35),p);
-								c.drawText(String.format("攻速:%.1f",(float)(1f/(map.selectedTower.dtime*Math.pow(1.25,-map.selectedTower.level)))),x+p(125),y+p(85),p);
-								c.drawText(String.format("范围:%.1f",(float)(map.selectedTower.r*Math.pow(1.25,map.selectedTower.level))),x+p(125),y+p(135),p);
+								c.drawText(String.format("伤害:%.1f",(float)(map.selectedTower.dmg*Math.pow(1.1,map.selectedTower.level))),x+p(125),y+p(35),p);
+								c.drawText(String.format("攻速:%.1f",(float)(1f/(map.selectedTower.dtime*Math.pow(1.1,-map.selectedTower.level)))),x+p(125),y+p(85),p);
+								c.drawText(String.format("范围:%.1f",(float)(map.selectedTower.r*Math.pow(1.1,map.selectedTower.level))),x+p(125),y+p(135),p);
 							}
 						}
 						catch(Throwable e)
@@ -1204,13 +1204,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							p.setColor(0xffffffff);
 							p.setTextSize(p(35));
 							p.setTextAlign(Paint.Align.CENTER);
-							c.drawText(map.selectedTower.level<unlockulevel?String.format("升级:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1)-map.selectedTower.money)):"(最高等级)",x+p(100),y+p(50),p);
+							c.drawText(map.selectedTower.level<unlockulevel?String.format("升级:%d",(int)(map.selectedTower.money*Math.pow(1.1,map.selectedTower.level+1)-map.selectedTower.money)):"(最高等级)",x+p(100),y+p(50),p);
 						}
 						else visible=false;
 					}
 					@Override public void onClick(MotionEvent e)
 					{
-						int m=(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level+1)-map.selectedTower.money);
+						int m=(int)(map.selectedTower.money*Math.pow(1.1,map.selectedTower.level+1)-map.selectedTower.money);
 						if(map.money-m>=0&&map.selectedTower.level<unlockulevel)
 						{
 							map.selectedTower.level++;
@@ -1230,13 +1230,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 
 							p.setTextSize(p(35));
 							p.setTextAlign(Paint.Align.CENTER);
-							c.drawText(String.format("出售:%d",(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5)),x+p(100),y+p(50),p);
+							c.drawText(String.format("出售:%d",(int)(map.selectedTower.money*Math.pow(1.1,map.selectedTower.level)*0.5)),x+p(100),y+p(50),p);
 						}
 						else visible=false;
 					}
 					@Override public void onClick(MotionEvent e)
 					{
-						int m=(int)(map.selectedTower.money*Math.pow(1.25,map.selectedTower.level)*0.5);
+						int m=(int)(map.selectedTower.money*Math.pow(1.1,map.selectedTower.level)*0.5);
 						map.money+=m;
 						map.towers.remove(map.selectedTower);
 						map.selectedTower=null;
