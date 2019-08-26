@@ -31,6 +31,7 @@ import android.graphics.RectF;
 import java.io.FileInputStream;
 import android.graphics.Typeface;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
 {
@@ -171,6 +172,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						toast("不能放于此处");
 					}
 					else map.money-=map.selectedTower.money;
+					
 				}
 			}
 			if(a==MotionEvent.ACTION_UP)
@@ -404,68 +406,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 										p.setStyle(Paint.Style.STROKE);
 										c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
 										p.setStyle(Paint.Style.FILL);
-										rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(100f*Math.pow(1.1,plevel)),Shape.p(890));
+										rf.set(Shape.p(150),Shape.p(860),Shape.p(150)+Shape.p(900)*exp/(float)(200f*Math.pow(1.25,plevel)),Shape.p(890));
 										c.drawRoundRect(rf,Shape.p(3),Shape.p(3),p);
-										if(exp>100*Math.pow(1.1,plevel))
+										if(exp>200*Math.pow(1.25,plevel))
 										{
 											plevel++;
 											exp=0;
 											uiLevelUp();
 										}
-										if(map.lives<=0)
-										{
-											new Thread(new Runnable(){
-												@Override
-												public void run()
-												{
-													Ui u=new Ui("blackcover",0,0,1600,900).alphaFrom(0,2000);
-													try
-													{
-														Thread.sleep(2000);
-													}
-													catch (InterruptedException e)
-													{}
-													uiSelLevel();
-													ui.remove(u);
-													map=null;
-													
-												}
-											}).start();
-
-											pscore+=map.score;
-											pmoney+=map.money;
-											pbugs+=map.tobugs;
-											saveData();
-											continue;
-										}
-										else if((map.curwaveindex==map.waves.size())&&(map.bugs.size()==0))
-										{
-											new Thread(new Runnable(){
-												@Override
-												public void run()
-												{
-													Ui u=new Ui("blackcover",0,0,1600,900).alphaFrom(0,2000);
-													try
-													{
-														Thread.sleep(2000);
-													}
-													catch (InterruptedException e)
-													{}
-													uiSelLevel();
-													ui.remove(u);
-													map=null;
-													
-												}
-											}).start();
-
-											pscore+=map.score;
-											pmoney+=map.money;
-											pbugs+=map.tobugs;
-											if(nowplevel==levelunlock)levelunlock++;
-											saveData();
-											continue;
-										}
-
 									}
 								}
 								catch(Throwable e)
@@ -595,6 +543,47 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								ns=System.nanoTime();
 								continue;
 							}
+							if(map.lives<=0)
+							{
+
+								Ui u=new Ui("blackcover",0,0,1600,900).alphaFrom(0,2000);
+								try
+								{
+									Thread.sleep(2000);
+								}
+								catch (InterruptedException e)
+								{}
+								uiSelLevel();
+								ui.remove(u);
+								pscore+=map.score;
+								pmoney+=map.money;
+								pbugs+=map.tobugs;
+								saveData();
+								map=null;
+
+								continue;
+							}
+							else if((map.curwaveindex==map.waves.size())&&(map.bugs.size()==0))
+							{
+								Ui u=new Ui("blackcover",0,0,1600,900).alphaFrom(0,2000);
+								try
+								{
+									Thread.sleep(2000);
+								}
+								catch (InterruptedException e)
+								{}
+								uiSelLevel();
+								ui.remove(u);
+								pscore+=map.score;
+								pmoney+=map.money;
+								pbugs+=map.tobugs;
+								if(nowplevel==levelunlock)levelunlock++;
+								saveData();
+								map=null;
+
+
+								continue;
+							}
 							float dty=dt*gamespeed/1000000000f;
 							map.setUpBugs(dty);
 							for(Bug b:map.bugs)b.compute(dty);
@@ -649,7 +638,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								}
 								for(Bullet b:map.bullets)if(Math.floor(b.y)==y)b.onDraw(c);
 							}
+							for(Map.AstarPoint al:map.wpwaypoint.get(0)){
+									Bitmap b=map.tiles[5];
 
+									c.drawBitmap(b,al.x*map.tilew-(b.getWidth()-map.tilew)/2,al.y*map.tilew-b.getHeight()+map.tilew,p);
+									
+							}
 						}
 						catch(Exception e)
 						{
@@ -1064,7 +1058,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						p.setStyle(Paint.Style.STROKE);
 						c.drawRoundRect(rf,p(3),p(3),p);
 						p.setStyle(Paint.Style.FILL);
-						rf.set(x+p(180),y+p(50),x+p(180)+p(420)*exp/(float)(100f*Math.pow(1.1,plevel)),y+p(80));
+						rf.set(x+p(180),y+p(50),x+p(180)+p(420)*exp/(float)(200f*Math.pow(1.25,plevel)),y+p(80));
 						c.drawRoundRect(rf,p(3),p(3),p);
 					}
 				}
@@ -1074,6 +1068,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			{
 				levelselectllist.views.clear();
 				String[] ms=getAssets().list("maps");
+				Arrays.sort(ms,String.CASE_INSENSITIVE_ORDER);
 				final Bitmap lo=VECfile.createBitmap(this,"lock",Shape.pi(100),Shape.pi(100));
 				for(int i=0,u=0;i<ms.length;i++)
 				{
@@ -1135,7 +1130,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		try
 		{
 			final Bitmap[]icos=new Bitmap[10];
-			final Bitmap[] bcos=new Bitmap[2];
+			final Bitmap[] bcos=new Bitmap[20];
 			if(icos[0]==null)
 			{
 				for(int i=0;i<icos.length;i++)
@@ -1236,10 +1231,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					}
 					@Override public void onClick(MotionEvent e)
 					{
+						if(map.findWayPoint()){
 						int m=(int)(map.selectedTower.money*Math.pow(1.1,map.selectedTower.level)*0.5);
 						map.money+=m;
 						map.towers.remove(map.selectedTower);
 						map.selectedTower=null;
+						}
 					}
 				}.setVisable(false);
 				for(int i=0;i<10;i++)

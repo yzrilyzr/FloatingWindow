@@ -25,11 +25,11 @@ public class Bug extends Shape
 	int wayIndex;
 	int score,money,exp;
 	Matrix ma=new Matrix();
-	static final float[] hps=new float[]{50,100,400,200,800,210,420,340,230,250,1024,512,768,384,256,448,256,832,512,8192};
+	static final float[] hps=new float[]{50,100,400,200,800,210,420,340,230,250,1024,512,768,384,256,448,256,832,512,65535};
 	static final int[] moneys=new int[]{12,23,35,25,78,41,45,33,28,36,124,68,94,52,41,69,47,97,81,500};
 	static final int[] exps=new int[]{1,2,4,6,10,3,8,6,3,7,15,8,9,7,5,6,4,12,9,23};
 	static final int[] scores=new int[]{6,12,23,28,46,28,35,27,24,26,56,42,49,34,29,42,25,50,37,95};
-	static final float[] vels=new float[]{5,5,6,8,3,9,5,6,5,8,5,5,5,5,5,6,5,6,5,3};
+	static final float[] vels=new float[]{5,5,5,8,3,9,5,6,5,9,5,5,5,5,5,6,5,6,5,3};
 	public Bug(float x,float y,int size)
 	{
 		try

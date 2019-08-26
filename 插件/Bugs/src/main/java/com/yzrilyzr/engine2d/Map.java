@@ -205,21 +205,27 @@ public class Map
 			AstarPoint a=new AstarPoint(start.x,start.y),d=null;
 			u.clear();
 			u.add(a);
-			for(int i=0;i<c.size();i++)
+			for(int i=c.size()-1;i>=0;i--)
 			{
 				AstarPoint b=c.get(i);
-				if(reachable(a,b))d=b;
-				else
+				if(a==b)break;
+				if(reachable(a,b))
 				{
-					if(d==null)
-					{
-						//MainActivity.toast(i+"");
-						break;
-					}
-					a=d;
-					u.add(a);
-					i--;
+					u.add(b);
+					i=c.size()-1;
+					a=b;
 				}
+				/*else
+				 {
+				 if(d==null)
+				 {
+				 //MainActivity.toast(i+"");
+				 break;
+				 }
+				 a=d;
+				 u.add(a);
+				 i--;
+				 }*/
 			}
 			u.add(new AstarPoint(finish.x,finish.y));
 			wpwaypointt.add(u);
@@ -252,10 +258,14 @@ public class Map
 		int x2=Math.max(a.x,b.x);
 		int y1=Math.min(a.y,b.y);
 		int y2=Math.max(a.y,b.y);
-		for(int i=x1;i<=x2;i++)if(isWall(i,y1))return false;
-		for(int i=x1;i<=x2;i++)if(isWall(i,y2))return false;
-		for(int i=y1;i<=y2;i++)if(isWall(x1,i))return false;
-		for(int i=y1;i<=y2;i++)if(isWall(x2,i))return false;
+		for(int x=x1;x<=x2;x++)
+			for(int y=y1;y<=y2;y++)
+				if(isWall(x,y))return false;
+		/*for(int i=x1;i<=x2;i++)if(isWall(i,y1))return false;
+		 for(int i=x1;i<=x2;i++)if(isWall(i,y2))return false;
+		 for(int i=y1;i<=y2;i++)if(isWall(x1,i))return false;
+		 for(int i=y1;i<=y2;i++)if(isWall(x2,i))return false;
+		 */
 		return true;
 	}
 	int distancePoint(int x,int y,AstarPoint w)
