@@ -25,12 +25,17 @@ public class Bug extends Shape
 	int wayIndex;
 	int score,money,exp;
 	Matrix ma=new Matrix();
+	static final float[] hps=new float[]{50,100,400,200,800,210,420,340,230,250,1024,512,768,384,256,448,256,832,512,8192};
+	static final int[] moneys=new int[]{12,23,35,25,78,41,45,33,28,36,124,68,94,52,41,69,47,97,81,500};
+	static final int[] exps=new int[]{1,2,4,6,10,3,8,6,3,7,15,8,9,7,5,6,4,12,9,23};
+	static final int[] scores=new int[]{6,12,23,28,46,28,35,27,24,26,56,42,49,34,29,42,25,50,37,95};
+	static final float[] vels=new float[]{5,5,6,8,3,9,5,6,5,8,5,5,5,5,5,6,5,6,5,3};
 	public Bug(float x,float y,int size)
 	{
 		try
 		{
 			int s=Shape.pi(size);
-			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+new Random().nextInt(13),s,s);
+			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+new Random().nextInt(20),s,s);
 			this.x=x;
 			this.y=y;
 			vel=p(1000);
@@ -69,21 +74,12 @@ public class Bug extends Shape
 		}
 		bugicon=VECfile.createBitmap(ico,s,s);
 		bugdicon=VECfile.createBitmap(dico,s,s);
-		if(id==0)
-		{
-			maxhp=100;hp=100;vel=5f;
-			money=12;
-			score=6;
-			exp=2;
-		}
-		if(id==1)
-		{
-			maxhp=200;hp=200;vel=5f;
-			money=25;
-			score=15;
-			exp=3;
-		}
-
+		maxhp=hps[id];
+		hp=maxhp;
+		vel=vels[id];
+		money=moneys[id];
+		score=scores[id];
+		exp=exps[id];
 	}
 	public void compute(float dt)
 	{
