@@ -74,7 +74,7 @@ public class Tower extends Shape
 	public void attack()
 	{
 		target.hp-=dmg*Math.pow(1.1,level);
-		for(Bug rg:inRbugs)rg.hp-=dmg/6*Math.pow(1.1,level);
+		//for(Bug rg:inRbugs)rg.hp-=dmg/6*Math.pow(1.1,level);
 		//if(target==s)
 		{//单一目标
 			//直接或范围

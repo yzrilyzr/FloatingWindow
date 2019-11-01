@@ -194,7 +194,7 @@ public class PluginPicker implements AdapterView.OnItemClickListener,Window.OnSi
 					}
 					catch(Throwable ep)
 					{
-						util.toast("读取插件信息错误:"+appInfo.loadLabel(pm)+"\n详情查看控制台");
+						//util.toast("读取插件信息错误:"+appInfo.loadLabel(pm)+"\n详情查看控制台");
 						ep.printStackTrace();
 					}
 				}

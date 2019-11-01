@@ -765,7 +765,7 @@ public class LongTextView extends View
 					VECfile vec=menuIcon.get(s.substring(0,1));
 					if(vec!=null)
 						for(com.yzrilyzr.icondesigner.Shape sh:vec.shapes)
-							sh.onDraw(canvas,vec.antialias,vec.dither,0,(starty-hA)/hA*(float)vec.width,hA/(float)vec.width,vec.dp,vec.sp);
+							sh.onDraw(canvas,true,vec.antialias,vec.dither,0,(starty-hA)/hA*(float)vec.width,hA/(float)vec.width,vec.dp,vec.sp);
 					canvas.drawText(s.substring(1),vec==null?0:hA,starty-hA/2f,menuPaint);
 					menuPaint.setColor(suggLineColor);
 					canvas.drawLine(0,starty,w,starty,menuPaint);

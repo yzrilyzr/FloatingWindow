@@ -175,7 +175,7 @@ public class Map
 						if(x<0||x>=size||y<0||y>=size)continue;
 						if(isWall(x,y))continue;
 						if(containPoint(c,x,y)/*||containPoint(u,x,y)*/)continue;
-						AstarPoint tmp=new AstarPoint(x,y,distancePoint(x,y,np),distancePoint(x,y,finish),np);
+						AstarPoint tmp=new AstarPoint(x,y,distancePoint(x,y,np),/*(distancePoint(x,y,finish))/4*/0,np);
 						if(fmin==null||tmp.g+tmp.h<fmin.g+fmin.h)fmin=tmp;
 						//if(tmp==null)MainActivity.toast(tmp+"");
 					}
@@ -215,17 +215,6 @@ public class Map
 					i=c.size()-1;
 					a=b;
 				}
-				/*else
-				 {
-				 if(d==null)
-				 {
-				 //MainActivity.toast(i+"");
-				 break;
-				 }
-				 a=d;
-				 u.add(a);
-				 i--;
-				 }*/
 			}
 			u.add(new AstarPoint(finish.x,finish.y));
 			wpwaypointt.add(u);

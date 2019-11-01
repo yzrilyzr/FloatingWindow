@@ -325,6 +325,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 							if(pause)
 							{
 								Thread.sleep(20);
+								ns=System.nanoTime();
 								continue;
 							}
 							if(map!=null)map.lock=true;
@@ -854,7 +855,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 				{
 					loadcode=new Ui("loadcode",0,0,1600,900);
 					Thread.sleep(500);
-					new Ui("bugs/bug",1000,500,250,250).alphaFrom(0,100).tScFrom(1125,625,0,0,100);
+					new Ui("bugs/0",1000,500,250,250).alphaFrom(0,100).tScFrom(1125,625,0,0,100);
 					Thread.sleep(500);
 					Ui u=new Ui("loadpp",900,400,400,400).setVisable(false);
 					new Ui("loadp",900,400,700,700).tScFrom(1600,900,0,0,50);
@@ -865,7 +866,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					for(int i=0;i<20;i++)
 					{
 						int x=r.nextInt(1600),y=r.nextInt(900);
-						Ui o=new Ui("bugs/bug",x,y,250,250).alphaFrom(0,20).tScFrom(x+125,y+125,0,0,20);
+						Ui o=new Ui("bugs/"+i,x,y,250,250).alphaFrom(0,20).tScFrom(x+125,y+125,0,0,20);
+						
 						ui.remove(o);
 						ui.add(3,o);
 						Thread.sleep(50);

@@ -1611,7 +1611,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 					else if(sorttype==5)return -(getFileExt(p1).compareToIgnoreCase(getFileExt(p2)));
 					else if(sorttype==6)return p1.length()<p2.length()?1:-1;
 					else if(sorttype==7)return p1.lastModified()<p2.lastModified()?1:-1;
-					return 0;
+					return 1;
 				}
 			};
 			Collections.sort(files,cp2);

@@ -289,7 +289,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	public void onClick(View p1)
 	{
 		if(p1==b1)osc.setHold(((CompoundButton)p1).isChecked());
-		else if(p1==b2)osc.setft();
+		//else if(p1==b2)osc.setft();
 		else if(p1==b3)osc.lx();
 		else if(p1==b4)osc.rx();
 	}
