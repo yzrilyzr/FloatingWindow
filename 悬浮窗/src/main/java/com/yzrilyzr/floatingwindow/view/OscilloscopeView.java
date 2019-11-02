@@ -8,17 +8,22 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import com.yzrilyzr.myclass.util;
+import android.graphics.DashPathEffect;
+import java.util.ArrayList;
+import com.yzrilyzr.ui.uidata;
 
 public class OscilloscopeView extends View
 {
 	int[][] data=new int[][]{
-	new int[1000],
+	new int[3000],
 	new int[1000],
 	new int[1000],
 	new int[1000],
 	new int[1000],
 	new int[1000]
 	};
+	int[] inbuf=new int[192000*3];
+	int inndex=0;
 	Path path=new Path();
 	Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
 	boolean hold=false;
@@ -31,7 +36,14 @@ public class OscilloscopeView extends View
 	float timebase=1/*ms*/,gain=1;
 	int cachecount=1;
 	float sr=48000;
+	boolean tdown=false;
+	float xstart=0;
 	Path xop=new Path(),yop=new Path(),trigp=new Path();
+	float vmax,vmin,v2a,va;
+	boolean grid=false;
+	boolean more=false;
+	ArrayList<Float> tind1=new ArrayList<Float>();
+	ArrayList<Float> tind2=new ArrayList<Float>();
 	public OscilloscopeView(Context c)
 	{
 		this(c,null);
@@ -44,11 +56,46 @@ public class OscilloscopeView extends View
 		p.setStrokeJoin(Paint.Join.ROUND);
 	}
 
+	public void setMore(boolean more)
+	{
+		this.more = more;
+	}
+
+	public boolean isMore()
+	{
+		return more;
+	}
+
+	public void setTdown(boolean tdown)
+	{
+		this.tdown = tdown;
+	}
+
+	public boolean isTdown()
+	{
+		return tdown;
+	}
+
 	public void setHold(boolean hold)
 	{
-		this.hold=hold;
+		this.hold = hold;
 	}
-	/*public void setft()
+
+	public boolean isHold()
+	{
+		return hold;
+	}
+
+	public void setGrid(boolean grid)
+	{
+		this.grid = grid;
+	}
+
+	public boolean isGrid()
+	{
+		return grid;
+	}
+		/*public void setft()
 	 {
 	 if(run!=null)run=null;
 	 else
@@ -90,8 +137,25 @@ public class OscilloscopeView extends View
 	 }).start();
 	 }
 	 }*/
-	public void append(int[] x)
+	public void append(int[] x,float sr)
 	{
+		if(hold)return;
+		int reql=(int)(sr*timebase*3f*8f/1000f);
+		if(x.length<reql)
+		{
+			System.arraycopy(x,0,inbuf,inndex,util.limit(Math.min(x.length,reql-inndex-1),0,reql));
+			inndex+=x.length;
+			if(reql<=inndex)
+			{
+				reSample(reql);
+				inndex=0;
+			}
+		}
+		else
+		{
+			System.arraycopy(x,0,inbuf,0,reql);
+			reSample(reql);
+		}
 		/*if(!hold)
 		 for(int i=0;i<cachecount;i++)
 		 for(int u=0;u<data[i].length;i++)
@@ -99,12 +163,18 @@ public class OscilloscopeView extends View
 		 data[i][u]=x[u];
 		 }*/
 	}
+	public void reSample(int reql)
+	{
+		for(int i=0;i<data[0].length;i++)
+			data[0][i]=inbuf[reql*i/data[0].length];
+	}
 	public void setSr(int x)
 	{
 		sr=x;
 	}
 	public void setScan(float freq)
 	{
+		timebase=freq;
 		/* sfreq=freq;
 		 if(sfreq<1)sfreq=1;
 		 x1=data.length/3;
@@ -162,7 +232,7 @@ public class OscilloscopeView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		canvas.drawColor(0xff000000);
-		float s=util.px(8),w=getWidth(),hh=getHeight()/2;
+		float s=util.px(8),w=getWidth(),h=getHeight(),hh=getHeight()/2;
 		Path t=yop;
 		t.reset();
 		t.moveTo(0,s+yoff+hh);
@@ -189,26 +259,120 @@ public class OscilloscopeView extends View
 		t.lineTo(xoff-s,s);
 		t.lineTo(xoff-s,0);
 		t.close();
+		p.setStyle(Paint.Style.STROKE);
+		if(grid){
 		path.reset();
+		for(int i=(int)w/2;i<w;i+=data[0].length/3/8)
+		{
+			path.moveTo(i,0);
+			path.lineTo(i,h);
+		}
+			for(int i=(int)w/2;i>=0;i-=data[0].length/3/8)
+			{
+				path.moveTo(i,0);
+				path.lineTo(i,h);
+			}for(int i=(int)hh;i<h;i+=data[0].length/3/8)
+		{
+			path.moveTo(0,i);
+			path.lineTo(w,i);
+		}
+			for(int i=(int)hh;i>0;i-=data[0].length/3/8)
+		{
+			path.moveTo(0,i);
+			path.lineTo(w,i);
+		}
+		}
+		p.setColor(0xaaffffff);
+		//p.setPathEffect(new DashPathEffect(new float[]{}));
+		canvas.drawPath(path,p);
 		p.setColor(0xffffff00);
+		vmax=0;vmin=0;v2a=0;va=0;
+		tind1.clear();tind2.clear();
+		boolean isxs=false;
+		xstart=data[0].length/3;
+		path.reset();
 		for(int i=0;i<cachecount;i++)
 		{
+			for(int u=data[i].length/3;u<data[i].length-1;u++)
+			{
+				float y=-(data[i][u]*gain*hh/32767f-yoff);
+				float y1=-(data[i][u+1]*gain*hh/32767f-yoff);
+				if(y<trig&&y1>trig)
+				{
+					if(tdown&&!isxs){
+						xstart=u+0.5f;
+						isxs=true;
+					}
+					tind1.add((float)u);
+					if(tind2.size()%2==1)tind2.add((float)u);
+				}
+				else if(y>trig&&y1<trig)
+				{
+					if(!tdown&&!isxs){
+						xstart=u+0.5f;
+						isxs=true;
+					}
+					if(tind2.size()%2==0)tind2.add((float)u);
+					
+				}
+
+			}
+
 			for(int u=0;u<data[i].length;u++)
 			{
-				float x=getWidth()*u/data[i].length;
-				float y=data[i][u]*gain+yoff+hh;
-				if(u==0)path.moveTo(x,y);
-				else path.lineTo(x,y);
+				float yo=data[i][u];
+				vmax=Math.max(vmax,yo);
+				vmin=Math.min(vmin,yo);
+				v2a+=yo*yo;
+				va+=yo;
+				float x=xoff-xstart+u;//getWidth()*u/data[i].length;
+				float y=h-(yo*gain*hh/32767f-yoff+hh);
+				if(x>=0&&x<=w)
+				{
+					if(u==0)path.moveTo(x,y);
+					else path.lineTo(x,y);
+				}
 			}
 		}
-		p.setStyle(Paint.Style.STROKE);
 		canvas.drawPath(path,p);
-		
+
 		p.setStyle(Paint.Style.FILL);
 		canvas.drawPath(yop,p);
 		canvas.drawPath(xop,p);
 		p.setColor(0xff00ffff);
 		canvas.drawPath(trigp,p);
+		p.setColor(0xffffffff);
+		float vrms=(float)Math.sqrt(v2a/(float)cachecount/(float)data[0].length);
+		canvas.drawText(String.format("Vpp %.1f",Math.abs(vmax-vmin)),0,h-p.getTextSize()*1.2f,p);
+		canvas.drawText(String.format("Vrms %.1f",vrms),w/3,h-p.getTextSize()*1.2f,p);
+		canvas.drawRect(0,h-util.px(10),(float)Math.log10(vrms)/4.5f*w,h,p);
+		if(tind1.size()%2==1&&tind1.size()>0)tind1.remove(0);
+		if(tind2.size()%2==1&&tind2.size()>0)tind2.remove(0);
+		float T0=0,Tup=0;
+		if(tind1.size()>=2){
+			for(int i=0;i<tind1.size();i++){
+				if(i%2==0)T0-=tind1.get(i);
+				else T0+=tind1.get(i);
+			}
+		}
+		if(tind2.size()>=2){
+			for(int i=0;i<tind2.size();i++){
+				if(i%2==0)Tup-=tind2.get(i);
+				else Tup+=tind2.get(i);
+			}
+		}
+		float tt=(timebase*(T0*2/tind1.size())/(data[0].length/3f/8f));
+		canvas.drawText(String.format("Freq %.1fHz",T0==0?0:1000f/tt),w*2/3,h-p.getTextSize()*1.2f,p);
+		if(more){
+			float tr=(timebase*(Tup*2/tind2.size())/(data[0].length/3f/8f));
+			canvas.drawText(String.format("Vmax %.1f",vmax),0,h-p.getTextSize()*2.4f,p);
+			canvas.drawText(String.format("Vmin %.1f",vmin),w/3,h-p.getTextSize()*2.4f,p);
+			canvas.drawText(String.format("Vavg %.1f",va/(float)cachecount/(float)data[0].length),w*2/3,h-p.getTextSize()*2.4f,p);
+			canvas.drawText(String.format("Duty %.1f%s",100f*tr/tt,"%"),0,h-p.getTextSize()*3.6f,p);
+			canvas.drawText(String.format("Time %.1fms",tt),w/3,h-p.getTextSize()*3.6f,p);
+			canvas.drawText(String.format("Time+ %.1fms",tr),w*2/3,h-p.getTextSize()*3.6f,p);
+			
+		}
 		/*if(run!=null&&bmp!=null)
 		 {
 		 p.setColor(0xffffffff);

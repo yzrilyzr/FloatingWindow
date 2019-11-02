@@ -80,29 +80,50 @@
 		android:orientation="horizontal"
 		android:gravity="center">
 
-		<com.yzrilyzr.ui.myButton
-			android:layout_height="wrap_content"
+		<LinearLayout
+			android:layout_weight="1.0"
 			android:layout_width="wrap_content"
-			android:text="←"
-			android:id="@+id/windowoscilloscopemyButton3"/>
+			android:layout_height="match_parent"/>
 
-		<com.yzrilyzr.ui.myToggleButton
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:textOff="保持"
-			android:id="@+id/windowoscilloscopeButton1"/>
+		<com.yzrilyzr.ui.myImageButton
+			android:layout_height="40dp"
+			android:layout_width="40dp"
+			vec="pause"/>
 
-		<com.yzrilyzr.ui.myToggleButton
-			android:layout_height="wrap_content"
+		<LinearLayout
+			android:layout_weight="1.0"
 			android:layout_width="wrap_content"
-			android:textOff="分析频谱"
-			android:id="@+id/windowoscilloscopeButton2"/>
+			android:layout_height="match_parent"/>
 
-		<com.yzrilyzr.ui.myButton
-			android:layout_height="wrap_content"
+		<com.yzrilyzr.ui.myImageButton
+			android:layout_height="40dp"
+			android:layout_width="40dp"
+			vec="risetrig"/>
+
+		<LinearLayout
+			android:layout_weight="1.0"
 			android:layout_width="wrap_content"
-			android:text="→"
-			android:id="@+id/windowoscilloscopemyButton4"/>
+			android:layout_height="match_parent"/>
+
+		<com.yzrilyzr.ui.myImageButton
+			android:layout_height="40dp"
+			android:layout_width="40dp"
+			vec="grid"/>
+
+		<LinearLayout
+			android:layout_weight="1.0"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"/>
+
+		<com.yzrilyzr.ui.myImageButton
+			android:layout_height="40dp"
+			android:layout_width="40dp"
+			vec="more"/>
+
+		<LinearLayout
+			android:layout_weight="1.0"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"/>
 
 	</LinearLayout>
 

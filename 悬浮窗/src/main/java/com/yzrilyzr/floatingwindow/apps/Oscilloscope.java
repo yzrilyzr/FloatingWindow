@@ -31,6 +31,8 @@ import com.yzrilyzr.ui.mySpinnerAdapter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import android.widget.CompoundButton;
+import com.yzrilyzr.ui.myImageButton;
+import com.yzrilyzr.ui.uidata;
 
 public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Window.OnButtonDown,OnClickListener
 {
@@ -57,12 +59,13 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		pb=(FloatPicker) vg.findViewById(R.id.windowoscilloscopeFloatPicker2);
 		pa.setListener(this);
 		pb.setListener(this);
-		b1=vg.findViewById(R.id.windowoscilloscopeButton1);
-		b2=vg.findViewById(R.id.windowoscilloscopeButton2);
+		ViewGroup gg=(ViewGroup) vg.getChildAt(3);
+		b1=gg.getChildAt(1);
+		b2=gg.getChildAt(3);
 		b1.setOnClickListener(this);
 		b2.setOnClickListener(this);
-		b3=vg.findViewById(R.id.windowoscilloscopemyButton3);
-		b4=vg.findViewById(R.id.windowoscilloscopemyButton4);
+		b3=gg.getChildAt(5);
+		b4=gg.getChildAt(7);
 		b3.setOnClickListener(this);
 		b4.setOnClickListener(this);
 		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -288,10 +291,23 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	@Override
 	public void onClick(View p1)
 	{
-		if(p1==b1)osc.setHold(((CompoundButton)p1).isChecked());
-		//else if(p1==b2)osc.setft();
-		else if(p1==b3)osc.lx();
-		else if(p1==b4)osc.rx();
+		if(p1==b1){
+			osc.setHold(!osc.isHold());
+			((myImageButton)p1).setImageVec(osc.isHold()?"play":"pause");
+		}
+		else if(p1==b2){
+			osc.setTdown(!osc.isTdown());
+			((myImageButton)p1).setImageVec(osc.isTdown()?"falltrig":"risetrig");
+		}
+		else if(p1==b3){
+			osc.setGrid(!osc.isGrid());
+			((myImageButton)p1).setColor(osc.isGrid()?uidata.MAIN:0);
+		}
+		else if(p1==b4){
+			osc.setMore(!osc.isMore());
+			((myImageButton)p1).setColor(osc.isMore()?uidata.MAIN:0);
+		}
+		
 	}
 	@Override
 	public void onButtonDown(int code)
@@ -336,7 +352,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 
 	public void append(int[] data)
 	{
-		osc.append(data);
+		osc.append(data,48000);
 	}
 	@Override
 	public void onChange(FloatPicker p, float f)

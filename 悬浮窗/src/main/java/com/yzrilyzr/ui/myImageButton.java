@@ -1,10 +1,14 @@
 package com.yzrilyzr.ui;
-import android.widget.*;
-import android.content.*;
-import android.util.*;
-import android.view.*;
-import android.graphics.*;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import com.yzrilyzr.icondesigner.Shape;
+import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.myclass.util;
+import com.yzrilyzr.ui.uidata;
 
 public class myImageButton extends ImageButton implements myTouchProcessor.Event
 {
@@ -29,6 +33,10 @@ public class myImageButton extends ImageButton implements myTouchProcessor.Event
 	public myImageButton(Context c){
 		this(c,null);
 	}
+	public void setColor(int i){
+		mrd.setColor(i);
+		if(i==0)mrd.setColor(uidata.BUTTON);
+	}
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
@@ -43,6 +51,21 @@ public class myImageButton extends ImageButton implements myTouchProcessor.Event
 		super.setEnabled(enabled);
 		mrd.setLayer(enabled?this:null);
 		mrd.setColor(enabled?uidata.BUTTON:uidata.getBFColor());
+	}
+	public void setImageVec(String asset){
+		try
+		{
+			VECfile vec=VECfile.readFileFromIs(getContext().getAssets().open(asset+".vec"));
+			for(Shape s:vec.shapes){
+				//s.setColor(uidata.TEXTMAIN);
+				s.setStrokeColor(uidata.TEXTMAIN);
+			}
+			setImageBitmap(VECfile.createBitmap(vec,getWidth(),getHeight()));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
     @Override
 	public boolean onTouchEvent(MotionEvent event)
