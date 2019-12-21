@@ -301,11 +301,11 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		}
 		else if(p1==b3){
 			osc.setGrid(!osc.isGrid());
-			((myImageButton)p1).setColor(osc.isGrid()?uidata.MAIN:0);
+			((myImageButton)p1).setColor(osc.isGrid()?uidata.ACCENT:0);
 		}
 		else if(p1==b4){
 			osc.setMore(!osc.isMore());
-			((myImageButton)p1).setColor(osc.isMore()?uidata.MAIN:0);
+			((myImageButton)p1).setColor(osc.isMore()?uidata.ACCENT:0);
 		}
 		
 	}

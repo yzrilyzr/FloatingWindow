@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
 
 public class RenderThread implements InputConnection,Thread.UncaughtExceptionHandler
 {
@@ -263,9 +264,11 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 		for(MView b:mview)b.onDraw(canvas);
 		paint.setStyle(Paint.Style.FILL);
 		paint.setTextAlign(Paint.Align.LEFT);
+		paint.setTextSize(MView.px(12));
 		canvas.drawText(String.format("x:%d,y:%d;cx:%d,cy:%d;dcx:%d,dcy:%d",cx,cy,(int)(cx-vec.width/2/vec.dp),(int)(cy-vec.height/2/vec.dp),cx-dcx,cy-dcy),0,paint.getTextSize()*3.2f,paint);
 		canvas.drawText(String.format("图形数:%d;RAM:%d%s;FPS:%d;Ver:%d",vec.shapes.size(),ram,"%",fps,vec.version),0,paint.getTextSize()*4.4f,paint);
 		paint.setTextAlign(Paint.Align.CENTER);
+		paint.setTextSize(MView.px(18));
 		String txt=info.toString();
 		if(!"".equals(txt)){
 			float w=paint.measureText(txt),cx=surface.getWidth()/2,cy=surface.getHeight()/2;
@@ -330,6 +333,8 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 					else if(MODE==8)MODE=0;
 					else if(MODE==9)MODE=10;
 					else if(MODE==10)MODE=0;
+					else if(MODE==11)MODE=12;
+					else if(MODE==12)MODE=0;
 					if(tmpPoint!=null)tmpPoint2=new Point(tmpPoint);
 					else tmpPoint2=null;
 					for(int i=mview.size()-1;i!=-1;i--)
@@ -393,7 +398,7 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 							tmpPoint3.y=cy;
 						}
 					}
-					else if(MODE==10)
+					else if(MODE==10){
 						if(a==MotionEvent.ACTION_DOWN)tmpPoint3=new Point(cx,cy);
 						else if(tmpShape!=null)
 						{
@@ -405,6 +410,44 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 							}
 							if(!tmpPoint3.equals(cx,cy))MODE=0;
 						}
+					}
+					else if(MODE==12&&a==MotionEvent.ACTION_UP){
+						toast("描线开始");
+						int xx=Math.round(x/scale-deltax);
+						int yy=Math.round(y/scale-deltay);
+						int color=vec.front.getPixel(xx,yy);
+						float q=0.15f;
+						int r=Color.red(color);
+						int g=Color.green(color);
+						int b=Color.blue(color);
+						ArrayList<Shape.PathPoint> pts=new ArrayList<Shape.PathPoint>();
+						boolean end=false;
+						while(!end){
+							for(int ii=-1;ii<=1;ii++)
+								for(int jj=-1;jj<=1;jj++)
+								{
+									if(pts.contains(new Shape.PathPoint(xx+ii,yy+jj))){
+										end=true;
+										continue;
+									}
+									int rou=vec.front.getPixel(xx+ii,yy+jj);
+									int rw=Color.red(rou);
+									int gw=Color.green(rou);
+									int bw=Color.blue(rou);
+									if(rw<r*(1f+q)&&rw>r*(1f-q)&&
+									gw<g*(1f+q)&&gw>g*(1f-q)&&
+									bw<b*(1f+q)&&bw>b*(1f-q)){
+										pts.add(new Shape.PathPoint(xx+ii,yy+jj));
+										xx=xx+ii;
+										yy=yy+jj;
+										end=false;
+									}
+									else end=true;
+								}
+						}
+						tmpShape.pts.addAll(pts);
+						toast("描线结束");
+					}
 					if(tmpPoint!=null)
 					{
 						tmpPoint.x=cx;
@@ -787,6 +830,7 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 									else if(i==9)((Shape.PathPoint)tmpShape.pts.get(pointIndex)).type=0;
 									else if(i==10)((Shape.PathPoint)tmpShape.pts.get(pointIndex)).type=1;
 									else if(i==11)((Shape.PathPoint)tmpShape.pts.get(pointIndex)).type=2;
+									else if(i==12)MODE=11;
 									if(pointIndex<0)pointIndex=0;
 									if(pointIndex>tmpShape.pts.size()-1)pointIndex=tmpShape.pts.size()-1;
 									if(pointIndex<tmpShape.pts.size()&&pointIndex>0)
@@ -1245,8 +1289,9 @@ public class RenderThread implements InputConnection,Thread.UncaughtExceptionHan
 					 new FloatPicker(bs*4,bs*11,bs*4,fpe),
 					 new Button(bs,bs*13,bs,bs,"普通点",sv),
 					 new Button(bs*2,bs*13,bs,bs,"拐点",sv),
-					 new Button(bs*3,bs*13,bs,bs,"起点",sv)
-					 ),
+					 new Button(bs*3,bs*13,bs,bs,"起点",sv),
+					 new Button(bs*3,bs*14,bs,bs,"描线器",sv)
+		),
 			new Menu(bs,bs*14,bs*2,bs*1,
 					 new Button(bs,bs*14,bs,bs,"点",sv),
 					 new Button(bs*2,bs*14,bs,bs,"确定",sv)),
