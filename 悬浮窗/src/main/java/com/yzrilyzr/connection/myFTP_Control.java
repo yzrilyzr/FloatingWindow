@@ -46,6 +46,7 @@ public class myFTP_Control
 		myFTP_Server.upath=sp.getString("upath",util.sdcard);
 		myFTP_Server.enableU=sp.getBoolean("uenabled",false);
 		myFTP_Server.maxthread=sp.getInt("maxthread",10);
+		myFTP_Server.loadUser();
 		ViewGroup vg=(ViewGroup) w.addView(R.layout.myftp_control);
 		editport=(EditText) vg.findViewById(R.id.myftpcontrolEditText1);
 		editu=(EditText) vg.findViewById(R.id.myftpcontrolEditText2);

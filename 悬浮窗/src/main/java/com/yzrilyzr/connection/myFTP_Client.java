@@ -11,11 +11,14 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.net.Socket;
+import java.util.concurrent.TimeoutException;
+import java.util.Random;
 
 public class myFTP_Client
 {
 	//Socket client;
 	InetSocketAddress serveraddr;
+	long CID=0;
 	//boolean running=false;
 	Receive rec=new Receive(){
 		@Override
@@ -31,6 +34,7 @@ public class myFTP_Client
 		try
 		{
 			serveraddr=new InetSocketAddress(ip,port);
+			do CID=new Random().nextLong();while(CID==0);
 			//client=new Socket();
 			//client.setSoTimeout(5000);
 			//client.connect(serveraddr);
@@ -58,6 +62,7 @@ public class myFTP_Client
 					client.connect(serveraddr);
 					DataOutputStream o=new DataOutputStream(client.getOutputStream());
 					o.writeByte(C.GETFILE);
+					o.writeLong(CID);
 					o.writeUTF(path);
 					o.flush();
 					DataInputStream d=new DataInputStream(client.getInputStream());
@@ -142,6 +147,7 @@ public class myFTP_Client
 					client.connect(serveraddr);
 					DataOutputStream o=new DataOutputStream(client.getOutputStream());
 					o.writeByte(C.LIST);
+					o.writeLong(CID);
 					o.writeUTF(path);
 					o.flush();
 					DataInputStream d=new DataInputStream(client.getInputStream());
@@ -170,7 +176,7 @@ public class myFTP_Client
 				catch(Throwable e)
 				{
 					e.printStackTrace();
-					util.toast("ftp连接失败");
+					rec(C.TIMEOUT);
 				}
 			}
 		}).start();
@@ -207,9 +213,11 @@ public class myFTP_Client
 				try
 				{
 					Socket client=new Socket();
+					client.setSoTimeout(1000);
 					client.connect(serveraddr);
 					DataOutputStream o=new DataOutputStream(client.getOutputStream());
 					o.writeByte(C.LOGIN);
+					o.writeLong(CID);
 					o.writeUTF(usr);
 					o.writeUTF(pwd);
 					o.flush();
@@ -221,7 +229,7 @@ public class myFTP_Client
 				catch(Throwable e)
 				{
 					e.printStackTrace();
-					util.toast("ftp连接失败");
+					rec(C.TIMEOUT);
 				}
 			}
 		}).start();

@@ -926,6 +926,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 					myftp.setReceive(Explorer.this);
 					if(f.length==1)myftp.login("","");
 					else myftp.login(f[f.length-2],f[f.length-1]);
+					searching.setVisibility(0);
 				}catch(Throwable e){
 					util.toast("路径不合法");
 					e.printStackTrace();
@@ -940,13 +941,24 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 	@Override
 	public void onReceive(byte c)
 	{
-		if(c==C.LOGINFAIL)
+		if(c==C.LOGINFAIL||c==C.TIMEOUT)
 		{
-			util.toast("登录失败");
+			util.toast(c==C.LOGINFAIL?"登录失败":"连接超时");
+			searching.setVisibility(8);
+			if(myftp!=null){
+				//myftp.removeCallBack(this);
+				myftp.stop();
+				myftp=null;
+			}
+			setSearchMode(false);
+			path=null;
+			search.clear();
+			list();
 		}
 		else if(c==C.LOGINSUC)
 		{
 			util.toast("登录成功");
+			searching.setVisibility(8);
 			list();
 		}
 	}

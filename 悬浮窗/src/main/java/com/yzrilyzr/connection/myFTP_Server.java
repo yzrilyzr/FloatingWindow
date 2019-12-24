@@ -128,7 +128,8 @@ public class myFTP_Server
 				DataInputStream i=new DataInputStream(p.getInputStream());
 				DataOutputStream o=new DataOutputStream(p.getOutputStream());
 				byte c=i.readByte();
-				User user=loginuser.get(p.getInetAddress().getHostAddress()+p.getPort());
+				long cid=i.readLong();
+				User user=loginuser.get(cid+":"+p.getInetAddress().getHostAddress());
 				boolean login=user!=null;
 				print("ip:%s port:%d user:%s",p.getInetAddress().getHostAddress(),p.getPort(),user==null?"未登录":user.usr);
 				if(c==C.LOGIN)
@@ -136,10 +137,10 @@ public class myFTP_Server
 					String usr=i.readUTF();
 					String pwd=i.readUTF();
 					print("用户%s登录",usr);
-					if(enableU||pwd.equals(users.get(usr).pwd))
+					if(enableU||(usr!=null&&users.get(usr)!=null&&pwd.equals(users.get(usr).pwd)))
 					{
 						o.writeByte(C.LOGINSUC);
-						loginuser.put(p.getInetAddress().getHostAddress()+p.getPort(),users.get(usr));
+						loginuser.put(cid+":"+p.getInetAddress().getHostAddress(),users.get(usr));
 					}
 					else o.writeByte(C.LOGINFAIL);
 				}
@@ -153,8 +154,8 @@ public class myFTP_Server
 						rpath=rpath.substring(aa.length());
 						if("".equals(path)||path==null)
 						{
-							if(enableU)path=upath;
-							else if("".equals(user.path)){
+							if(!login)path=upath;
+							else if(login&&"".equals(user.path)){
 								path=util.mainDir+"myFtp/"+user.usr;
 								File cu=new File(path);
 								if(!cu.exists())cu.mkdirs();
@@ -196,7 +197,7 @@ public class myFTP_Server
 						rpath=rpath.substring(aa.length());
 						if("".equals(path)||path==null)
 						{
-							if(enableU)path=upath;
+							if(enableU&&!login)path=upath;
 							else if("".equals(user.path)){
 								path=util.mainDir+"myFtp/"+user.usr;
 								File cu=new File(path);
