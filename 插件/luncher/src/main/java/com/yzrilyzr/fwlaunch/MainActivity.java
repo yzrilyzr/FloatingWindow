@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.content.Intent;
+import android.view.View;
 
 public class MainActivity extends Activity 
 {
@@ -35,21 +36,25 @@ public class MainActivity extends Activity
 				t.append("无法找到主程序");
 				return;
 			}
-			if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)t.append("不支持当前系统");
-			{
-				Intent intent=new Intent();
-				intent.setAction("com.yzrilyzr.Service");
-				intent.setPackage("com.yzrilyzr.floatingwindow");
-				intent.putExtra("pkg",getPackageName());
-				intent.putExtra("class",getPackageName()+".Main");
-				startService(intent);
-				t.append("(?_?)");
-			}
 		}
 		catch(Throwable e)
 		{
 			t.append(e+"");
 		}
     }
-
+public void start(View v){
+	Intent intent=new Intent();
+	intent.setAction("com.yzrilyzr.Service");
+	intent.setPackage("com.yzrilyzr.floatingwindow");
+	intent.putExtra("pkg",getPackageName());
+	intent.putExtra("class",getPackageName()+".Main");
+	startService(intent);
+}
+public void stop(View v){
+	Intent intent=new Intent();
+	intent.setAction("com.yzrilyzr.Service");
+	intent.setPackage("com.yzrilyzr.floatingwindow");
+	intent.putExtra("APP_STOP",true);
+	startService(intent);
+}
 }

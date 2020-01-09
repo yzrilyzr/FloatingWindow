@@ -11,6 +11,25 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"/>
 
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:orientation="horizontal">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="启动"
+			android:onClick="start"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="停止"
+			android:onClick="stop"/>
+
+	</LinearLayout>
+
 	<TextView
 		android:text="检测结果:"
 		android:layout_height="wrap_content"

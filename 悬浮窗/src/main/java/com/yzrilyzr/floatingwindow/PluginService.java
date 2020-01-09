@@ -1,6 +1,7 @@
 package com.yzrilyzr.floatingwindow;
 import java.io.*;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -112,6 +113,10 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
     private final void loadPlugin(final Context ctx,final Intent intent)
     {
         String pkg="",clazz="";
+		if(intent.getBooleanExtra("APP_STOP",false)){
+			fstop(ctx);
+			return;
+		}
         PackageManager PackageManager=ctx.getPackageManager();
         try
         {

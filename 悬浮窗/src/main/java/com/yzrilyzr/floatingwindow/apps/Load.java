@@ -34,7 +34,6 @@ public class Load implements Runnable,OnClickListener
 	public Load(Context ct,Intent e)
 	{
 		if(once)return;
-		once=true;
 		this.c=ct;
         w=new Window(c,util.px(210),util.px(275))
 		.show()
@@ -102,6 +101,7 @@ public class Load implements Runnable,OnClickListener
 				new Handler(c.getMainLooper()).postDelayed(Load.this,m<1000l&&m>0?1000l-m:0);
 			}
 		}.start();
+		once=true;
     }
 	@Override
 	public void onClick(View p1)

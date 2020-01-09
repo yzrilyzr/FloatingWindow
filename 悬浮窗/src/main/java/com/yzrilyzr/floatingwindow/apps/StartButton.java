@@ -20,21 +20,20 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 	Context ctx;
 	int code=-1;
 	StarterView cv;
-	private static boolean once=false;
 	boolean moved=false;
+	static boolean once=false;
 	public StartButton(Context ctx,Intent e)
 	{
-		if(once)return;
-		once=true;
 		this.ctx=ctx;
 		//button
+		if(once)return;
 		int dd=util.px(25);
         button=new Window(ctx,dd,dd);
 		button.getLayoutParams().type=WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 		button.setPosition((util.getScreenWidth()-dd)/2,(util.getScreenHeight()-dd)/2)
-			.setCanResize(false)
-			.setCanFocus(false)
-			.show();
+		.setCanResize(false)
+		.setCanFocus(false)
+		.show();
 		Window.windowList.remove(button);
         LinearLayout a =(LinearLayout)button.getMainView();
         a.setBackgroundDrawable(null);
@@ -58,6 +57,7 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 		i.setOnTouchListener(this);
         i.setOnClickListener(this);
 		i.setOnLongClickListener(this);
+		once=true;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 		return true;
 	}
 
-	
+
 	@Override
 	public void onClick(View p1)
 	{
@@ -88,7 +88,7 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 	public void onItemClick(int which)
 	{
 		code=which;
-		
+
 	}
 	@Override
 	public void onAnimEnd()
@@ -106,11 +106,11 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 				,cls.PLUGINPICKER);
 			else
 				API.startService(ctx,new Intent(),cv.getPkg(code),cv.getClass(code));
-				//.putExtra("pkg",cv.getPkg(code))
-				//.putExtra("class",cv.getClass(code)),cv.getClass(code));
-				/*PluginService.loadPlugin(ctx,new Intent()
-				.putExtra("pkg",cv.getPkg(code))
-				.putExtra("class",cv.getClass(code)));*/
+			//.putExtra("pkg",cv.getPkg(code))
+			//.putExtra("class",cv.getClass(code)),cv.getClass(code));
+			/*PluginService.loadPlugin(ctx,new Intent()
+			 .putExtra("pkg",cv.getPkg(code))
+			 .putExtra("class",cv.getClass(code)));*/
 		}
 		if(code==5)
 		{
