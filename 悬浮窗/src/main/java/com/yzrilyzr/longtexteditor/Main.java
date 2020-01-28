@@ -80,20 +80,20 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 		 */
 		v=(ViewGroup) w.addView(R.layout.window_longtexteditor);
 		l=(LongTextView)v.findViewById(R.id.mainLongTextView1);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView1)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView2)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView3)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView4)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView5)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView6)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView7)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView8)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView9)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView10)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView11)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView12)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView13)).setOnClickListener(this);
-		((View)v.findViewById(R.id.windowlongtexteditorVecView14)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView1)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView2)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView3)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView4)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView5)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView6)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView7)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView8)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView9)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView10)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView11)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView12)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView13)).setOnClickListener(this);
+		(v.findViewById(R.id.windowlongtexteditorVecView14)).setOnClickListener(this);
 		boolean crash=e.getBooleanExtra("crash",false);
 		try
         {
@@ -125,7 +125,18 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 				l.setText(p);
 			}
 			w.setTitle(title+(crash?"(从崩溃中恢复)":""));
-			((View)v.findViewById(R.id.windowlongtexteditorVecView14)).setVisibility(file.toLowerCase().endsWith(".js")?0:8);
+			VecView pl=(VecView) v.findViewById(R.id.windowlongtexteditorVecView14);
+			if(file.toLowerCase().endsWith(".js"))
+			{
+				pl.setVisibility(0);
+				pl.setImageVec("play");
+			}
+			else if(file.toLowerCase().endsWith(".xml"))
+			{
+				pl.setVisibility(0);
+				pl.setImageVec("image");
+			}
+			else pl.setVisibility(8);
         }
         catch(Exception ex)
         {
@@ -305,7 +316,18 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 							while((b=read.readLine())!=null)l.addText(b);
 							read.close();
 							w.setTitle(new File(file).getName());
-							((View)v.findViewById(R.id.windowlongtexteditorVecView14)).setVisibility(file.toLowerCase().endsWith(".js")?0:8);
+							VecView pl=(VecView) v.findViewById(R.id.windowlongtexteditorVecView14);
+							if(file.toLowerCase().endsWith(".js"))
+							{
+								pl.setVisibility(0);
+								pl.setImageVec("play");
+							}
+							else if(file.toLowerCase().endsWith(".xml"))
+							{
+								pl.setVisibility(0);
+								pl.setImageVec("image");
+							}
+							else pl.setVisibility(8);
 						}
 						catch(Exception ex)
 						{
@@ -406,7 +428,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 
 				break;
 			case R.id.windowlongtexteditorVecView9:
-				API.startService(ctx,"com.yzrilyzr.longtexteditor.Settings");
+				API.startServiceForResult(ctx,w,null,"com.yzrilyzr.longtexteditor.Settings");
 				break;
 			case R.id.windowlongtexteditorVecView10:
 				l.findUp(((EditText)v.findViewById(R.id.mainEditText1)).getText().toString());
@@ -429,10 +451,25 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 				l.setText(gg);
 				break;
 			case R.id.windowlongtexteditorVecView14:
-				String pp=file;
-				int c=pp.lastIndexOf("/");
-				if(c!=-1)pp=pp.substring(0,c);
-				API.startService(ctx,new Intent().putExtra("jstext",l.getText()).putExtra("path",pp),cls.CONSOLE);
+				VecView pl=(VecView) v.findViewById(R.id.windowlongtexteditorVecView14);
+				if(file.toLowerCase().endsWith(".js"))
+				{
+					String pp=file;
+					int c=pp.lastIndexOf("/");
+					if(c!=-1)pp=pp.substring(0,c);
+					API.startService(ctx,new Intent().putExtra("jstext",l.getText()).putExtra("path",pp),cls.CONSOLE);
+				}
+				else if(file.toLowerCase().endsWith(".xml"))
+				{
+					API.startServiceForResult(ctx,new Intent().putExtra("xml",l.getText()),w,new BroadcastReceiver(){
+						@Override
+						public void onReceive(Context c,Intent e)
+						{
+							
+						}
+					},"com.yzrilyzr.longtexteditor.XmlEditor");
+				}
+				else pl.setVisibility(8);
 				break;
 
 		}
