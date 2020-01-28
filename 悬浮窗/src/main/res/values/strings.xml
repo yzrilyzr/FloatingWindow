@@ -10,13 +10,13 @@
 		文件管理:.apps.Explorer@Vexplorer;
 		文件改动校验:.apps.FileCheckChanged@Vfilechanged;
 		性能测试:.apps.PerformanceTest@Vperformance;
-		文件同步:.apps.FileSync@Vsync;
 		JS加密器:.apps.JsEncode@Vjsencode;
 		速拍:.apps.FastCam@Vfastcam;
 		示波器:.apps.Oscilloscope@Vsignal;
 		简单数据库:.apps.SimpleDatabase@Vdatabase;
 		准星:.apps.FrontSight@Vfrontsight;
-		myFTP:com.yzrilyzr.connection.myFTP_Control@Vftp;
+		屋里云-客户端:com.yzrilyzr.homecloud.Client@Vhomecloud;
+		屋里云-服务器:com.yzrilyzr.homecloud.Control@Vhcserver;
 		画板:.apps.DrawingBoard@Vdrawingboard;
 		窗口管理器:.apps.Manager@Vmanager;
 		内置图标字段查看:.apps.InnerVecList@Vclass;

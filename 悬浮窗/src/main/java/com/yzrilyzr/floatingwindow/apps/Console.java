@@ -240,14 +240,40 @@ public class Console extends PluginContext implements Window.OnButtonDown,OnChec
 		}
 		else if(code==Window.ButtonCode.ADD)
 		{
-			myImageView i=new myImageView(ctx);
-			i.setImageResource(R.drawable.sugar);
-			new myDialog.Builder(ctx)
-			.setTitle("JavaScript语法糖")
-			.setView(i)
-			.setPositiveButton("了解！",null)
-			.show();
-		}
+			print("###JavaScript语法糖###");
+			String[] d=new String[]{
+				"typeof NaN",
+				"9999999999999999",
+				"0.5+0.1==0.6",
+				"0.1+0.2==0.3",
+				"Math.max()",
+				"Math.min()",
+				"[]+[]",
+				"[]+{}",
+				"{}+[]",
+				"true+true+true===3",
+				"true-true",
+				"true==1",
+				"true===1",
+				"(!+[]+[]+![]).length",
+				"9+\"1\"",
+				"91-\"1\"",
+				"[]==0"
+			};
+			try
+			{
+				for(int i=0;i<d.length;i++){
+					print(">"+d[i]);
+					env.eval("print("+d[i]+")");
+					print("");
+					}
+			}
+			catch(Throwable e)
+			{
+				print("执行出错:"+util.getStackTrace(e));
+			}
+			
+			}
 	}
 	protected static final class OS extends OutputStream
 	{

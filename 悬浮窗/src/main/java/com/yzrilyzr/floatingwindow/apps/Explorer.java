@@ -26,8 +26,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import com.yzrilyzr.connection.C;
-import com.yzrilyzr.connection.myFTP_Client;
 import com.yzrilyzr.floatingwindow.API;
 import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
@@ -42,11 +40,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.yzrilyzr.connection.FtpFile;
 
 public class Explorer implements AdapterView.OnItemClickListener,
 AdapterView.OnItemLongClickListener,View.OnClickListener,
-Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
+Window.OnButtonDown,Window.OnSizeChanged
 {
 	Context ctx;
 	int rescode=0;
@@ -74,7 +71,6 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 	static ConcurrentHashMap<String,Long> ico2=new ConcurrentHashMap<String,Long>();
 	IcoTask icotask;
 	protected static ArrayList<Explorer> exinst=new ArrayList<Explorer>();
-	private myFTP_Client myftp;
 	public Explorer(final Context c,Intent e)
 	{
 		exinst.add(this);
@@ -222,9 +218,9 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 				{
 					String f=(String)o;
 					name=f;
-					if(f.contains("ftp://"))vec=ftp;
+					/*if(f.contains("ftp://"))vec=ftp;
 					//else if(f.contains("sync:"))vec=sync;
-					else if(f.contains("http://")||f.contains("https://"))vec=internet;
+					else */if(f.contains("http://")||f.contains("https://"))vec=internet;
 					((View)holder.icon.getParent()).setBackgroundColor(selected.contains(f)?uidata.ACCENT:0);
 				}
                 holder.text1.setText(name);
@@ -335,7 +331,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		if(code==Window.ButtonCode.CLOSE){
 			exinst.remove(this);
 			if(searchThread!=null)searchThread.cancel(true);
-			if(myftp!=null)myftp.stop();
+			
 		}
 	}
 	@Override
@@ -908,7 +904,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		}
 		else if(o instanceof String){
 			String s=(String)o;
-			if(s.contains("ftp://")){
+			/*if(s.contains("ftp://")){
 				try{
 					String[] f=s.split("\n");
 					Matcher m=Pattern.compile("ftp://.*?:[0-9]*").matcher(s);
@@ -932,13 +928,13 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 					e.printStackTrace();
 				}
 			}
-			else if(s.contains("https://")||s.contains("http://"))
+			else */if(s.contains("https://")||s.contains("http://"))
 				API.startService(ctx,new Intent().putExtra("url",s),cls.WEBVIEWER);
 			//else if(s.contains("sync:"));
 		}
 		setSearchMode(false);
 	}
-	@Override
+	/*@Override
 	public void onReceive(byte c)
 	{
 		if(c==C.LOGINFAIL||c==C.TIMEOUT)
@@ -962,7 +958,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 			list();
 		}
 	}
-	
+	*/
 	@Override
 	public boolean onItemLongClick(AdapterView<?> p1, View p2, int p3, long p4)
 	{
@@ -1799,69 +1795,69 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 
 	public class mFile extends File{
 		String path;
-		FtpFile ftp=null;
+		//FtpFile ftp=null;
 		public mFile(String f){
 			super(f);
 			path=f;
-			if(isFTP()){
+			/*if(isFTP()){
 				if(myftp!=null)ftp=myftp.getFile(path);
 				if(ftp==null)ftp=new FtpFile(f);
-			}
+			}*/
 		}
-		public mFile(FtpFile f){
+		/*public mFile(FtpFile f){
 			super(f.getPath());
 			path=f.getPath();
 			ftp=f;
-		}
+		}*/
 		public mFile(File f){
 			this(f.getAbsolutePath());
 		}
-		public boolean isFTP(){
+		/*public boolean isFTP(){
 			return ftp!=null||path.contains("ftp://");
-		}
+		}*/
 		@Override
 		public String getPath()
 		{
-			if(isFTP())return ftp.getPath();
+			//if(isFTP())return ftp.getPath();
 			return path;
 		}
 		@Override
 		public boolean canRead()
 		{
-			if(isFTP())return ftp.canRead();
+			//if(isFTP())return ftp.canRead();
 			return super.canRead();
 		}
 
 		@Override
 		public boolean renameTo(File newPath)
 		{
-			if(isFTP())return myftp.renameTo(ftp,newPath.getName());
+			//if(isFTP())return myftp.renameTo(ftp,newPath.getName());
 			return super.renameTo(newPath);
 		}
 		@Override
 		public long length()
 		{
-			if(isFTP())return ftp.length();
+			//if(isFTP())return ftp.length();
 			return super.length();
 		}
 		@Override
 		public boolean mkdirs()
 		{
-			if(isFTP())return myftp.mkdirs(ftp.getPath());
+			//if(isFTP())return myftp.mkdirs(ftp.getPath());
 			return super.mkdirs();
 		}
 
 		@Override
 		public boolean delete()
 		{
-			if(isFTP())return myftp.delete(ftp.getPath());
+			//if(isFTP())return myftp.delete(ftp.getPath());
 			return super.delete();
 		}
 
 		@Override
 		public boolean canWrite()
 		{
-			if(isFTP())return ftp.canWrite();
+			//if(isFTP())return ftp.canWrite();
 			return super.canWrite();
 		}
 
@@ -1869,27 +1865,27 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public boolean createNewFile() throws IOException
 		{
-			if(isFTP())return myftp.createNewFile(ftp.getPath());
+			//if(isFTP())return myftp.createNewFile(ftp.getPath());
 			return super.createNewFile();
 		}
 
 		@Override
 		public String getParent()
 		{
-			if(isFTP())return ftp.getParent();
+			//if(isFTP())return ftp.getParent();
 			return super.getParent();
 		}
 
 		@Override
 		public long lastModified()
 		{
-			if(isFTP())return ftp.lastModified();
+			//if(isFTP())return ftp.lastModified();
 			return super.lastModified();
 		}
 		@Override
 		public mFile[] listFiles()
 		{
-			if(isFTP()){
+			/*if(isFTP()){
 				FtpFile[] fg=myftp.list(ftp.getPath());
 				if(fg==null){
 					util.toast("访问出错");
@@ -1898,7 +1894,7 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 				mFile[] m=new mFile[fg.length];
 				for(int i=0;i<fg.length;i++)m[i]=new mFile(fg[i]);
 				return m;
-			}
+			}*/
 			File[] sr=new File(path).listFiles();
 			mFile[] src=null;
 			if(sr==null)
@@ -1936,40 +1932,40 @@ Window.OnButtonDown,Window.OnSizeChanged,myFTP_Client.Receive
 		@Override
 		public File getParentFile()
 		{
-			if(isFTP())return ftp.getParentFile();
+			//if(isFTP())return ftp.getParentFile();
 			return super.getParentFile();
 		}
 
 		@Override
 		public String getAbsolutePath()
 		{
-			if(isFTP())return ftp.getAbsolutePath();
+			//if(isFTP())return ftp.getAbsolutePath();
 			return super.getAbsolutePath();
 		}
 
 		@Override
 		public boolean exists()
 		{
-			if(isFTP())return myftp.exists(ftp.getPath());
+			//if(isFTP())return myftp.exists(ftp.getPath());
 			return super.exists();
 		}
 
 		@Override
 		public boolean isDirectory()
 		{
-			if(isFTP())return ftp.isDirectory();
+			//if(isFTP())return ftp.isDirectory();
 			return super.isDirectory();
 		}
 
 		@Override
 		public boolean isFile()
 		{
-			if(isFTP())return ftp.isFile();
+			//if(isFTP())return ftp.isFile();
 			return super.isFile();
 		}
 		@Override
 		public String getName(){
-			if(isFTP())return ftp.getName();
+			//if(isFTP())return ftp.getName();
 			int c=path.lastIndexOf("/");
 			return path.substring(c+1);
 		}

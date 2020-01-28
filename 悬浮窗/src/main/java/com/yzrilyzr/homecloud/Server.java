@@ -1,4 +1,4 @@
-package com.yzrilyzr.connection;
+package com.yzrilyzr.homecloud;
 import java.net.*;
 
 import android.content.SharedPreferences;
@@ -17,7 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-public class myFTP_Server
+public class Server
 {
 	static boolean serverrun=false;
 	static Thread serverthread=null;
@@ -46,7 +46,7 @@ public class myFTP_Server
 					server=new ServerSocket(port);
 					//server=new DatagramSocket(port);
 					//server.setSoTimeout(1000);
-					util.toast("myFTP服务器已启动");
+					util.toast("屋里云服务器已启动");
 					while(serverrun)
 					{
 						try
@@ -61,13 +61,13 @@ public class myFTP_Server
 					exec.shutdown();
 					server.close();
 					serverthread=null;
-					util.toast("myFTP服务器已停止");
+					util.toast("屋里云服务器已停止");
 				}
 				catch(Throwable e)
 				{
 					e.printStackTrace();
 					serverthread=null;
-					util.toast("myFTP服务器已停止");
+					util.toast("屋里云服务器已停止");
 				}
 			}
 		});
@@ -109,7 +109,7 @@ public class myFTP_Server
 	}
 	public static void print(Object o,Object... p)
 	{
-		System.out.printf("<FTPSERVER>"+o,p);
+		System.out.printf("<HCSERVER>"+o,p);
 		System.out.println();
 	}
 	static class Process implements Runnable
@@ -156,7 +156,7 @@ public class myFTP_Server
 						{
 							if(!login)path=upath;
 							else if(login&&"".equals(user.path)){
-								path=util.mainDir+"myFtp/"+user.usr;
+								path=util.mainDir+"屋里云/"+user.usr;
 								File cu=new File(path);
 								if(!cu.exists())cu.mkdirs();
 							}
@@ -199,7 +199,7 @@ public class myFTP_Server
 						{
 							if(enableU&&!login)path=upath;
 							else if("".equals(user.path)){
-								path=util.mainDir+"myFtp/"+user.usr;
+								path=util.mainDir+"屋里云/"+user.usr;
 								File cu=new File(path);
 								if(!cu.exists())cu.mkdirs();
 							}
@@ -237,7 +237,7 @@ public class myFTP_Server
 	{
 		try
 		{
-			File f=new File(util.ctx.getDir("myFtp",util.ctx.MODE_PRIVATE).getAbsolutePath()+"/users");
+			File f=new File(util.ctx.getDir("屋里云",util.ctx.MODE_PRIVATE).getAbsolutePath()+"/users");
 			if(!f.exists())return;
 			DataInputStream d=new DataInputStream(new FileInputStream(f));
 			int c=d.readInt();
@@ -261,7 +261,7 @@ public class myFTP_Server
 	{
 		try
 		{
-			File f=new File(util.ctx.getDir("myFtp",util.ctx.MODE_PRIVATE).getAbsolutePath()+"/users");
+			File f=new File(util.ctx.getDir("屋里云",util.ctx.MODE_PRIVATE).getAbsolutePath()+"/users");
 			if(!f.exists())f.createNewFile();
 			DataOutputStream d=new DataOutputStream(new FileOutputStream(f));
 			d.writeInt(users.size());

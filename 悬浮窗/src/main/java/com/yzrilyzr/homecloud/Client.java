@@ -1,25 +1,25 @@
-package com.yzrilyzr.connection;
+package com.yzrilyzr.homecloud;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.view.ViewGroup;
+import com.yzrilyzr.floatingwindow.R;
+import com.yzrilyzr.floatingwindow.Window;
 import com.yzrilyzr.myclass.util;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.net.Socket;
-import java.util.concurrent.TimeoutException;
 import java.util.Random;
 
-public class myFTP_Client
+public class Client
 {
 	//Socket client;
 	InetSocketAddress serveraddr;
 	long CID=0;
 	//boolean running=false;
+	Context ctx;
+	Window w;
 	Receive rec=new Receive(){
 		@Override
 		public void onReceive(byte c)
@@ -27,8 +27,17 @@ public class myFTP_Client
 			// TODO: Implement this method
 		}
 	};
-
-	public myFTP_Client(final String ip,final int port)
+	public Client(Context c,Intent e)
+	{
+		ctx=c;
+		w=new Window(c,util.px(230),util.px(280))
+		.setTitle("屋里云-客户端")
+		.setIcon("homecloud")
+		.show();
+		ViewGroup vg=(ViewGroup) w.addView(R.layout.homecloud_client_main);
+		
+	}
+	public Client(final String ip,final int port)
 	{
 
 		try

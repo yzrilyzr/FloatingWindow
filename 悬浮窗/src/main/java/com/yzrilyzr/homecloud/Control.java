@@ -1,4 +1,4 @@
-package com.yzrilyzr.connection;
+package com.yzrilyzr.homecloud;
 import android.widget.*;
 
 import android.content.Context;
@@ -26,28 +26,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
-import com.yzrilyzr.connection.myFTP_Server.User;
 
-public class myFTP_Control
+public class Control
 {
 	Window w;
 	EditText editport,editu,thr;
 	Button b1,b2;
 	Switch sw;
 	myLoadingView lo;
-	public myFTP_Control(final Context c,Intent e)
+	public Control(final Context c,Intent e)
 	{
 		SharedPreferences sp=util.getSPRead("myFtp");
 		w=new Window(c,util.px(230),util.px(250))
-		.setTitle("myFTP-服务器已关闭")
-		.setIcon("ftp")
+		.setTitle("屋里云-服务器已关闭")
+		.setIcon("hcserver")
 		.show();
-		myFTP_Server.port=sp.getInt("port",3721);
-		myFTP_Server.upath=sp.getString("upath",util.sdcard);
-		myFTP_Server.enableU=sp.getBoolean("uenabled",false);
-		myFTP_Server.maxthread=sp.getInt("maxthread",10);
-		myFTP_Server.loadUser();
-		ViewGroup vg=(ViewGroup) w.addView(R.layout.myftp_control);
+		Server.port=sp.getInt("port",3721);
+		Server.upath=sp.getString("upath",util.sdcard);
+		Server.enableU=sp.getBoolean("uenabled",false);
+		Server.maxthread=sp.getInt("maxthread",10);
+		Server.loadUser();
+		ViewGroup vg=(ViewGroup) w.addView(R.layout.homecloud_control);
 		editport=(EditText) vg.findViewById(R.id.myftpcontrolEditText1);
 		editu=(EditText) vg.findViewById(R.id.myftpcontrolEditText2);
 		thr=(EditText) vg.findViewById(R.id.myftpcontrolEditText3);
@@ -55,21 +54,21 @@ public class myFTP_Control
 		b1=(Button)vg.findViewById(R.id.myftpcontrolButton1);
 		b2=(Button)vg.findViewById(R.id.myftpcontrolButton2);
 		lo=(myLoadingView)vg.findViewById(R.id.myftpcontrolProgressBar1);
-		editport.setText(myFTP_Server.port+"");
-		thr.setText(myFTP_Server.maxthread+"");
-		editu.setText(myFTP_Server.upath);
-		editu.setEnabled(myFTP_Server.enableU);
-		sw.setChecked(myFTP_Server.enableU);
+		editport.setText(Server.port+"");
+		thr.setText(Server.maxthread+"");
+		editu.setText(Server.upath);
+		editu.setEnabled(Server.enableU);
+		sw.setChecked(Server.enableU);
 		sw.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton p1, boolean p2)
 			{
-				myFTP_Server.enableU=p2;
+				Server.enableU=p2;
 				editu.setEnabled(p2);
 				save();
 			}
 		});
-		if(myFTP_Server.serverrun&&myFTP_Server.serverthread!=null)
+		if(Server.serverrun&&Server.serverthread!=null)
 		{
 			new Thread(new Runnable(){
 
@@ -78,7 +77,7 @@ public class myFTP_Control
 				{
 					try
 					{
-						w.setTitle("myFTP-服务器已启动@"+InetAddress.getLocalHost().getHostName());
+						w.setTitle("屋里云-服务器已启动@"+InetAddress.getLocalHost().getHostName());
 					}
 					catch(Throwable e)
 					{
@@ -90,17 +89,17 @@ public class myFTP_Control
 		}
 		else
 		{
-			w.setTitle("myFTP-服务器已关闭");
+			w.setTitle("屋里云-服务器已关闭");
 			b1.setText("启动服务器");
 		}
 		b1.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View p1)
 			{
-				if(!myFTP_Server.serverrun&&myFTP_Server.serverthread==null)
+				if(!Server.serverrun&&Server.serverthread==null)
 				{
 					lo.setVisibility(0);
-					myFTP_Server.startServer();
+					Server.startServer();
 					lo.setVisibility(8);
 					new Thread(new Runnable(){
 
@@ -109,7 +108,7 @@ public class myFTP_Control
 						{
 							try
 							{
-								w.setTitle("myFTP-服务器已启动@"+InetAddress.getLocalHost().getHostAddress());
+								w.setTitle("屋里云-服务器已启动@"+InetAddress.getLocalHost().getHostAddress());
 							}
 							catch(Throwable e)
 							{}
@@ -121,14 +120,14 @@ public class myFTP_Control
 				else
 				{
 					//lo.setVisibility(0);
-					myFTP_Server.serverrun=false;
+					Server.serverrun=false;
 					try
 					{
-						myFTP_Server.server.close();
+						Server.server.close();
 					}
 					catch(Throwable e)
 					{}
-					w.setTitle("myFTP-服务器已关闭");
+					w.setTitle("屋里云-服务器已关闭");
 					b1.setText("启动服务器");
 				}
 			}
@@ -139,7 +138,7 @@ public class myFTP_Control
 			{
 				final myListView list=new myListView(c);
 				final myEditText edit=new myEditText(c);
-				final ArrayList<myFTP_Server.User> us=new ArrayList<myFTP_Server.User>();
+				final ArrayList<Server.User> us=new ArrayList<Server.User>();
 				edit.setHint("搜索用户…");
 				new Window(c,util.px(235),util.px(352))
 				.setTitle("用户管理")
@@ -191,13 +190,13 @@ public class myFTP_Control
 					public void notifyDataSetChanged()
 					{
 						us.clear();
-						Map<String,myFTP_Server.User> m=myFTP_Server.users;
+						Map<String,Server.User> m=Server.users;
 						String ek=edit.getText().toString().toLowerCase();
-						if("".equals(ek))for(myFTP_Server.User d:m.values())us.add(d);
-						else for(myFTP_Server.User d:m.values())if(d.usr.toLowerCase().contains(ek))us.add(d);
-						Collections.sort(us,new Comparator<myFTP_Server.User>(){
+						if("".equals(ek))for(Server.User d:m.values())us.add(d);
+						else for(Server.User d:m.values())if(d.usr.toLowerCase().contains(ek))us.add(d);
+						Collections.sort(us,new Comparator<Server.User>(){
 							@Override
-							public int compare(myFTP_Server.User p1, myFTP_Server.User p2)
+							public int compare(Server.User p1, Server.User p2)
 							{
 								// TODO: Implement this method
 								return p1.usr.compareToIgnoreCase(p2.usr);
@@ -212,10 +211,10 @@ public class myFTP_Control
 					@Override
 					public void onItemClick(AdapterView<?> p1, View p2, final int p3, long p4)
 					{
-						myFTP_Server.User iu=null;
-						if(p3==0)iu=new myFTP_Server.User("","","");
+						Server.User iu=null;
+						if(p3==0)iu=new Server.User("","","");
 						else iu=us.get(p3-1);
-						final myFTP_Server.User u=iu;
+						final Server.User u=iu;
 						myDialog.Builder builder = new myDialog.Builder(c);
 						builder.setTitle("修改用户:"+u.usr);
 						final myEditText edi=new myEditText(c);
@@ -244,11 +243,11 @@ public class myFTP_Control
 								String b=edi2.getText().toString();
 								String c=edi3.getText().toString();
 								u.usr=a;
-								u.pwd=myFTP_Server.hash(b);
+								u.pwd=Server.hash(b);
 								u.path=c;
-								myFTP_Server.users.put(a,u);
+								Server.users.put(a,u);
 								((BaseAdapter)list.getAdapter()).notifyDataSetChanged();
-								myFTP_Server.saveUser();
+								Server.saveUser();
 							}});
 						builder.setNegativeButton("取消",null);
 						builder.show();
@@ -256,9 +255,9 @@ public class myFTP_Control
 							@Override
 							public void onClick(DialogInterface p1, int p2)
 							{
-								myFTP_Server.users.remove(u.usr);
+								Server.users.remove(u.usr);
 								((BaseAdapter)list.getAdapter()).notifyDataSetChanged();
-								myFTP_Server.saveUser();
+								Server.saveUser();
 							}
 						});
 					}
@@ -278,7 +277,7 @@ public class myFTP_Control
 			{
 				try
 				{
-					myFTP_Server.port=Integer.parseInt(editport.getText()+"");
+					Server.port=Integer.parseInt(editport.getText()+"");
 					save();
 				}
 				catch(Throwable e)
@@ -303,7 +302,7 @@ public class myFTP_Control
 			public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
 			{
 				// TODO: Implement this method
-				myFTP_Server.upath=editu.getText()+"";
+				Server.upath=editu.getText()+"";
 				save();
 			}
 
@@ -327,7 +326,7 @@ public class myFTP_Control
 				// TODO: Implement this method
 				try
 				{
-					myFTP_Server.maxthread=Integer.parseInt(thr.getText()+"");
+					Server.maxthread=Integer.parseInt(thr.getText()+"");
 					save();
 				}
 				catch(Throwable e)
@@ -344,10 +343,10 @@ public class myFTP_Control
 	private void save()
 	{
 		util.getSPWrite("myFtp")
-		.putBoolean("uenabled",myFTP_Server.enableU)
-		.putString("upath",myFTP_Server.upath)
-		.putInt("port",myFTP_Server.port)
-		.putInt("maxthread",myFTP_Server.maxthread)
+		.putBoolean("uenabled",Server.enableU)
+		.putString("upath",Server.upath)
+		.putInt("port",Server.port)
+		.putInt("maxthread",Server.maxthread)
 		.commit();
 	}
 }
