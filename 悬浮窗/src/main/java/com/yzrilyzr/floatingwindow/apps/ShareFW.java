@@ -22,7 +22,7 @@ public class ShareFW implements OnClickListener,Runnable
 	{
 		new Thread(this).start();
 		myTextView mtv=new myTextView(c);
-		mtv.setText("请打开手机蓝牙设置\n然后配对设备(对方需要打开可见性)\n之后点击下方的分享发送");
+		mtv.setText("1.请打开手机蓝牙设置\n2.配对设备(对方需要打开可见性)\n3.点击下方的分享发送");
 		myButton f=new myButton(c);
 		f.setText("分享");
 		f.setOnClickListener(this);
@@ -40,7 +40,8 @@ public class ShareFW implements OnClickListener,Runnable
 		{
 			BluetoothManager b=(BluetoothManager) util.ctx.getSystemService(util.ctx.BLUETOOTH_SERVICE);
 			BluetoothAdapter a=b.getAdapter();
-			while(!a.isEnabled())a.enable();
+			if(!a.isEnabled())a.enable();
+			util.toast("请使用蓝牙分享");
 		}
 		catch(Throwable ex)
 		{

@@ -180,11 +180,13 @@ public final class util
         }
         return sb.toString();
     }
-	public static boolean inSectionOpen(int x,int miu,int sigma){
+	public static boolean inSectionOpen(int x,int miu,int sigma)
+	{
 		if(x<miu+sigma&&x>miu-sigma)return true;
 		return false;
 	}
-	public static boolean inSectionOpen(float x,float miu,float sigma){
+	public static boolean inSectionOpen(float x,float miu,float sigma)
+	{
 		if(x<miu+sigma&&x>miu-sigma)return true;
 		return false;
 	}	public static double getArc(double x,double y,double r)
@@ -488,14 +490,12 @@ public final class util
 				}
 			}
 		}
-		else return type;
-		if(type.equals("*/*"))
-		{
+		else
 			try
 			{
 				if(file.isDirectory()||file.getName().contains("cnt"))return "";
 				FileInputStream is=new FileInputStream(file);
-				byte[] bf=new byte[64];
+				byte[] bf=new byte[256];
 				is.read(bf);
 				is.close();
 				String hewd=new String(bf).toLowerCase();
@@ -512,7 +512,6 @@ public final class util
 			{
 				e.printStackTrace();
 			}
-		}
 		return type;  
 	} 
 	private static final String[][] HEAD_MapTable={
@@ -546,6 +545,7 @@ public final class util
 	{".xls",    "application/vnd.ms-excel"},   
 	{".xlsx",   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},  
 	{".exe",    "application/octet-stream"},  
+	{".fsync",	"application/filesync-properties"},
 	{".gif",    "image/gif"},  
 	{".gtar",  	"application/x-gtar"},  
 	{".gz",		"application/x-gzip"},  
@@ -583,11 +583,11 @@ public final class util
 	{".ppt",    "application/vnd.ms-powerpoint"},  
 	{".pptx",   "application/vnd.openxmlformats-officedocument.presentationml.presentation"},  
 	{".prop",   "text/plain"},  
+	{".rar",	"application/x-compressed"},
 	{".rc", 	"text/plain"},  
 	{".rmvb",   "audio/x-pn-realaudio"},  
 	{".rtf",    "application/rtf"},  
 	{".sh", 	"text/plain"},  
-	{".fsync", 	"application/filesync"},
 	{".tar",    "application/x-tar"},     
 	{".tgz",    "application/x-compressed"},   
 	{".txt",    "text/plain"},

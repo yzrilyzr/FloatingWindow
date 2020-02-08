@@ -94,11 +94,11 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 	public void onAnimEnd()
 	{
 		menu.dismiss();
-		if(code==4)
+		if(code==7)
 		{
 			PluginService.fstop(ctx);
 		}
-		if(code>=0&&code<=3)
+		if(code>=0&&code<=6)
 		{
 			if(cv.getPkg(code)==null)
 				API.startService(ctx,new Intent()
@@ -112,7 +112,7 @@ public class StartButton implements StarterView.Listener,View.OnTouchListener,Vi
 			 .putExtra("pkg",cv.getPkg(code))
 			 .putExtra("class",cv.getClass(code)));*/
 		}
-		if(code==5)
+		if(code==8)
 		{
 			API.startService(ctx,cls.PLUGINPICKER);
 		}

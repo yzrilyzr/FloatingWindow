@@ -49,7 +49,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	static int curdraw=0,lock=0;
 	Shape tui;
 	static final String mainDir=Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/Bugs/";
-	private Ui exitdialog,buttoncancel,buttonok,shadowcover;
 	private int curui=0;
 	private int ppx,ppy;
 	float lxx,lyy;
@@ -58,6 +57,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	public static int musicv=70,musiceffv=80,fpslimit=30;
 	public static int resolution=50;
 	public static boolean backgrun=false,showfps=false,showgrid=false;
+	public static float shadowCoverIndex=-1,shadowCoverTime=0,shadowCoverMode=0,shadowLayers=0;
 	//uiload=0
 	private Ui loadcode;
 	//uimainmenu=1
@@ -93,8 +93,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Switch uishowfps,uibackrun,uishowgrid;
 	private SeekBar uisetmv,uisetmfv,uisetfps,uisetres;
 	//uiabout
-	private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr,shadowcover2;
-
+	//private Ui uiabout,uiaboutok,uiaboutbesto,uiaboutyzr,shadowcover2;
+	private UiGroup uiAbout;
+	private UiGroup uiExit;
 	//
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -118,6 +119,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		event.setLocation(Shape.p(1600)*event.getX()/sv.getWidth(),Shape.p(900)*event.getY()/sv.getHeight());
 		for(int i=ui.size()-1;i>=0;i--)
 		{
+			if(i==shadowCoverIndex)break;
 			Ui s=ui.get(i);
 			if(s.isAlphaFrom||s.isAlphaTo||s.isFrom||s.isTo)continue;
 			if(Shape.down(event))
@@ -303,9 +305,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						File f=new File(mainDir);
 						if(!f.exists())f.mkdirs();
 						//uiGameMain();
-						//load();
+						load();
 						//mainmenu();
-						uiSelLevel();
+						//uiSelLevel();
 						inited=true;
 					}
 					Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -423,7 +425,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 								}
 							}
 							//for(Shape s:sh)s.onDraw(c);
-							for(Shape s:ui)s.onDraw(c);
+							for(int i=0;i<ui.size();i++){
+								if(i==shadowCoverIndex){
+									c.drawARGB((int)(shadowLayers*100f*Ui.NonLinearFunc(shadowCoverTime/300f)),0,0,0);
+									shadowCoverTime+=shadowCoverMode*dt/1000000f;
+									if(shadowCoverTime<0)shadowCoverIndex=-1;
+									else if(shadowCoverTime>300)shadowCoverTime=300;
+								}
+								ui.get(i).onDraw(c);
+							}
 							if(showgrid)
 							{
 								p.setStrokeWidth(1);
@@ -783,6 +793,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			ui.add(u);
 		}
 	}
+	static void shadowIn(Ui u){
+		shadowCoverIndex=ui.indexOf(u);
+		shadowCoverTime=0;
+		shadowCoverMode=1;
+		shadowLayers++;
+	}
+	static void shadowOut(){
+		shadowCoverTime=300;
+		shadowCoverMode=-1;
+		shadowLayers--;
+	}
 	static void show(Ui... uis)
 	{
 		for(Ui u:uis)u.visible=true;
@@ -800,38 +821,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		if(keyCode==KeyEvent.KEYCODE_BACK&&event.getRepeatCount()==0&&curui!=0)
 		{
-			if(!ui.contains(exitdialog))
+			if(!ui.contains(uiExit))
 			{
 				int cx=800,cy=450;
-				shadowcover=new Ui("shadowcover",0,0,1600,900);
-				exitdialog=new Ui("exitdialog",cx-250,cy-150,500,300);
-				buttoncancel=new Ui("buttoncancel",cx-190,cy+20,150,90){
+				uiExit=new UiGroup(
+				new Ui("exitdialog",cx-250,cy-150,500,300,false),
+				new Ui("buttoncancel",cx-190,cy+20,150,90,false){
 					@Override
 					public void onClick(MotionEvent e)
 					{
-						shadowcover.visible=false;
-						exitdialog.visible=shadowcover.visible;
-						buttonok.visible=shadowcover.visible;
-						buttoncancel.visible=shadowcover.visible;
+						parent.alphaTo(0,300);
+						parent.visible=false;
+						shadowOut();
 					}
-				};
-				buttonok=new Ui("buttonok",cx+40,cy+20,150,90){
+				},
+				new Ui("buttonok",cx+40,cy+20,150,90){
 					@Override
 					public void onClick(MotionEvent e)
 					{
 						finish();
 						System.exit(0);
 					}
-				};
+				});
 			}
-			else
-			{
-				upui(shadowcover,exitdialog,buttoncancel,buttonok);
-				shadowcover.visible=!shadowcover.visible;
-				exitdialog.visible=shadowcover.visible;
-				buttonok.visible=shadowcover.visible;
-				buttoncancel.visible=shadowcover.visible;
-
+			else uiExit.upui();
+			if(!uiExit.visible){
+				uiExit.visible=true;
+				uiExit.alphaFrom(0,300);
+			shadowIn(uiExit);
 			}
 			return true;
 		}
@@ -864,11 +881,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 					Thread.sleep(200);
 					Random r=new Random();
 					for(int i=0;i<20;i++)
+					
 					{
 						int x=r.nextInt(1600),y=r.nextInt(900);
-						Ui o=new Ui("bugs/"+i,x,y,250,250).alphaFrom(0,20).tScFrom(x+125,y+125,0,0,20);
-						
-						ui.remove(o);
+						Ui o=new Ui("bugs/"+i,x,y,250,250,false).alphaFrom(0,20).tScFrom(x+125,y+125,0,0,20);
 						ui.add(3,o);
 						Thread.sleep(50);
 					}
@@ -1463,48 +1479,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 
 	void uiabout()
 	{
-		if(!ui.contains(uiabout))
+		if(!ui.contains(uiAbout))
 		{
-			shadowcover2=new Ui("shadowcover",0,0,1600,900).alphaFrom(0,200);
-			uiabout=new Ui("uiabout",400,100,800,700)
-			.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutok=new Ui("uiaboutok",725,670,150,90){
+			uiAbout=new UiGroup(
+			new Ui("uiabout",400,100,800,700,false),
+			new Ui("uiaboutok",725,670,150,90,false){
 				@Override
 				public void onClick(MotionEvent e)
 				{
-
-					uiabout.tScTo(1175,700,175,100,200)
-					.alphaTo(50,200);
-					uiaboutok.tScTo(1175,700,175,100,200)
-					.alphaTo(50,200);
-					uiaboutbesto.tScTo(1175,700,175,100,200)
-					.alphaTo(50,200);
-					uiaboutyzr.tScTo(1175,700,175,100,200)
-					.alphaTo(50,200);
-					shadowcover2.alphaTo(0,200);
+					parent.alphaTo(50,200).tScTo(1175,700,175,100,200);
+					shadowOut();
 				}
-			}.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutyzr=new Ui("yzrilyzr",850,500,100,46)
-			.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutbesto=new Ui("bestodesign",1000,500,150,150)
-			.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
+			},
+			new Ui("yzrilyzr",850,500,100,46,false),
+			new Ui("bestodesign",1000,500,150,150,false));
 		}
-		else
-		{
-			uiabout.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutok.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutbesto.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			uiaboutyzr.tScFrom(1175,700,175,100,200)
-			.alphaFrom(50,200);
-			shadowcover2.alphaFrom(0,200);
-		}
+		uiAbout.tScFrom(1175,700,175,100,200)
+		.alphaFrom(50,200);
+		shadowIn(uiAbout);
 	}
 	void uiLevelUp()
 	{		

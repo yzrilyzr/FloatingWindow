@@ -29,6 +29,7 @@ import com.yzrilyzr.ui.myEditText;
 import com.yzrilyzr.ui.myFab;
 import com.yzrilyzr.ui.myTextView;
 import java.io.File;
+import com.yzrilyzr.ui.myAnim;
 
 public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickListener,OnItemLongClickListener
 {
@@ -50,7 +51,9 @@ public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickLi
 		View v=w.addView(R.layout.window_simpledatabase);
 		list=(ListView) v.findViewById(R.id.windowsimpledatabaseListView1);
 		edit=(EditText)v.findViewById(R.id.windowsimpledatabasemyEditText1);
-		((View)v.findViewById(R.id.windowsimpledatabasemyFab1)).setOnClickListener(this);
+		myFab f1=(myFab)v.findViewById(R.id.windowsimpledatabasemyFab1);
+		f1.setOnClickListener(this);
+		new myAnim(f1,"tt:~,~,1000;");
 		up=(myFab) v.findViewById(R.id.windowsimpledatabasemyFab2);
 		up.setOnClickListener(this);
 		list.setAdapter(new BaseAdapter(){

@@ -193,7 +193,16 @@ Window.OnButtonDown,Window.OnSizeChanged
 								new IcoTask().execute(1,f);
 							}
 						}
-						else if(m.contains("vec"))vec=classz;
+						else if(m.contains("vec")){
+							Bitmap d=ico.get(f.getAbsolutePath());
+							Long c=ico2.get(f.getAbsolutePath());
+							vec=d==null?classz:d;
+							if(d==null||c==null||c.longValue()!=f.lastModified()){
+								ico.put(f.getAbsolutePath(),image);
+								ico2.put(f.getAbsolutePath(),new Long(f.lastModified()));
+								new IcoTask().execute(3,f);
+							}
+						}
 						else if(m.contains("filesync"))vec=sync;
 						else if(m.contains("audio"))vec=music;
 						else if(m.contains("video"))vec=video;
@@ -208,7 +217,16 @@ Window.OnButtonDown,Window.OnSizeChanged
 								new IcoTask().execute(2,f);
 							}
 						}
-						else if(m.contains("zip")||m.contains("tar"))vec=packagee;
+						else if(
+						m.contains("zip")||
+						m.contains("tar")||
+						m.contains("7z")||
+						m.contains("gz")||
+						m.contains("compress")||
+						m.contains("gtar")||
+						m.contains("tgz")
+						
+						)vec=packagee;
 						else vec=unknown;
 					}
 					else if(f.isDirectory())vec=folder;
@@ -297,7 +315,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 				}catch(Throwable e)
 				{
 				}
-			if(type==2)
+			else if(type==2)
 				try{
 					Bitmap z=Bitmap.createBitmap(d,d,Bitmap.Config.ARGB_8888);
 					Canvas android3=new Canvas(z);
@@ -314,6 +332,17 @@ Window.OnButtonDown,Window.OnSizeChanged
 						ico.put(absPath,z);
 					}
 				}catch(Throwable e){
+				}
+			else if(type==3)
+				try{
+					VECfile vf=VECfile.readFile(f.getAbsolutePath());
+					Bitmap b2=VECfile.createBitmap(vf,d,d);
+					Canvas android3=new Canvas(b2);
+					Bitmap clazz=VECfile.createBitmap(ctx,"class",d/4,d/4);
+					android3.drawBitmap(clazz,d-clazz.getWidth(),d-clazz.getHeight(),new Paint());
+					ico.put(f.getAbsolutePath(),b2);
+				}catch(Throwable e){
+					e.printStackTrace();
 				}
 			return null;
 		}
@@ -1373,7 +1402,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 				}.execute();
 			}
 		})
-		.setNeutralButton("防止再创建文件夹",new DialogInterface.OnClickListener(){
+		.setNeutralButton("防止创建文件夹",new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface p1, int p2)
 			{
@@ -1665,6 +1694,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 			unknown=VECfile.createBitmap(ctx,"unknownfile",d,d),
 			folder=VECfile.createBitmap(ctx,"folder",d,d),
 			packagee=VECfile.createBitmap(ctx,"package",d,d),
+			fsync=VECfile.createBitmap(ctx,"sync",d,d),
 			android=VECfile.createBitmap(ctx,"android",d,d);
 			Bitmap vec=unknown;
 			if(f.isFile())
@@ -1674,6 +1704,8 @@ Window.OnButtonDown,Window.OnSizeChanged
 				{vec=image;类型="图像";}
 				else if(m.contains("vec"))
 				{vec=classz;类型="图标设计 矢量图";}
+				else if(m.contains("filesync"))
+				{vec=fsync;类型="文件同步 配置文件";}
 				else if(m.contains("audio"))
 				{vec=music;类型="音频";}
 				else if(m.contains("video"))

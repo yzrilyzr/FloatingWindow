@@ -14,7 +14,8 @@ public class Ui extends Shape
 	long st,stalpha;
 	boolean toggle=true;
 	Matrix m=new Matrix();
-	public Ui(String v,float x,float y,int w,int h)
+	Ui parent;
+	public Ui(String v,float x,float y,int w,int h,boolean add)
 	{
 		this.x=p(x);
 		this.y=p(y);
@@ -30,8 +31,11 @@ public class Ui extends Shape
 			{
 				MainActivity.toast(e);
 			}
-		else b=Bitmap.createBitmap(pi(w),pi(h),Bitmap.Config.ARGB_8888);
-		MainActivity.ui.add(this);
+		else if(w!=0&&h!=0) b=Bitmap.createBitmap(pi(w),pi(h),Bitmap.Config.ARGB_8888);
+		if(add)MainActivity.ui.add(this);
+	}
+	public Ui(String v,float x,float y,int w,int h){
+		this(v,x,y,w,h,true);
 	}
 	public Ui(String v,String togg,float x,float y,int w,int h)
 	{
@@ -101,6 +105,17 @@ public class Ui extends Shape
 		alphamill=m;
 		return  this;
 	}
+	public static float getNLinearValueByTime(float time,float starttime,float endtime){
+		float sec=endtime-starttime;
+		if(sec<=0)sec=1;
+		float x=limit((time-starttime)/sec,0f,1f);
+		return NonLinearFunc(x);
+	}
+	public static float NonLinearFunc(float x){
+		x=limit(x,0,1);
+		float y=x<0.5?(float)Math.pow(x,2)*2f:-(float)Math.pow(x-1f,2)*2f+1f;
+		return limit(y,0,1);
+}
 	public Ui setVisable(boolean b)
 	{
 		visible=b;
@@ -114,15 +129,17 @@ public class Ui extends Shape
 		if(ta>1)
 		{
 			isAlphaFrom=false;
-			if(isAlphaTo)visible=false;
+			if(isAlphaTo)setVisable(false);
 			isAlphaTo=false;
 		}
 		if(tf>1)
 		{
 			isFrom=false;
-			if(isTo)visible=false;
+			if(isTo)setVisable(false);
 			isTo=false;
 		}
+		ta=NonLinearFunc(ta);
+		tf=NonLinearFunc(tf);
 		if(isAlphaFrom)p.setAlpha((int)(2.55f*((100f-alpha)*ta+alpha)));
 		else if(isAlphaTo)p.setAlpha((int)(2.55f*((alpha-100f)*ta+100f)));
 		else p.setAlpha(255);

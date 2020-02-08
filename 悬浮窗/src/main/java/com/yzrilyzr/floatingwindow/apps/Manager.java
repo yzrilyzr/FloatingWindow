@@ -567,7 +567,7 @@ public class Manager implements Runnable,Window.OnButtonDown
 			graph.setMax((int)(max/1048576l));
 			graph.addPoint((int)((total-free)/1048576l));
 			txt.setText(String.format(
-							"虚拟机最大内存:%dMB\n虚拟机可用内存:%dMB\n已分配内存:%dMB\n已分配内存中的剩余空间:%dMB\n可用的CPU个数:%d个\n",
+							"虚拟机最大内存:%dMB\n虚拟机可用内存:%dMB\n已分配内存:%dMB\n已分配内存中的剩余空间:%dMB\n可用的CPU核心数:%d个\n",
 							max/1048576l,usable/1048576l,total/1048576l,
 							free/1048576l,ru.availableProcessors()));
 			mpb.setSecondaryProgress((int)(total/1048576));
