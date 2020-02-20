@@ -13,7 +13,9 @@ public class UiGroup extends Ui
 		this.w=p(w);
 		this.h=p(h);
 		visible=false;
+		if(uiss!=null)
 		for(Ui ui:uiss){
+			if(ui==null)continue;
 			uis.add(ui);
 			ui.parent=this;
 			ui.setVisable(false);
@@ -94,5 +96,14 @@ public class UiGroup extends Ui
 		for(Ui u:uis)u.tScTo(x, y, w, h, millis);
 		return this;
 	}
-	
+	public UiGroup tScTo(float... p){
+		int i=0;
+		for(Ui u:uis)u.tScTo(p[i++],p[i++],p[i++],p[i++],p[i++]);
+		return this;
+	}
+	public UiGroup tScFrom(float... p){
+		int i=0;
+		for(Ui u:uis)u.tScFrom(p[i++],p[i++],p[i++],p[i++],p[i++]);
+		return this;
+	}
 }

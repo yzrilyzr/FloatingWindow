@@ -3,7 +3,7 @@ name:地图1
 money:300
 lives:25
 size:20
-background:@maps/map1.vec
+background:@maps/map0.vec
 map:
 11111111111111111111
 10000000000100000001

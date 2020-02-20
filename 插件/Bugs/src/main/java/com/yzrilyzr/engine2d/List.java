@@ -115,7 +115,8 @@ public class List extends Ui
 	public void onClick(MotionEvent e)
 	{
 		touch=false;
-		vy=dy/2;
+		//vy=dy/2;
+		vy=0;
 		//MainActivity.toast("u");
 		if(!isScroll)
 			for(Ui u:views){
@@ -135,7 +136,7 @@ public class List extends Ui
 				{
 					MainActivity.ui.remove(v);
 					views.add(v);
-					//v.parent=this;
+					v.parent=this;
 				}
 	}
 }

@@ -64,8 +64,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	private Ui buttonmainmenu,mainmenubuttback,mainmenutitle,mainmenustart,mainmenucustom,mainmenututorial,mainmenubugicon,mainmenusettings,mainmenuabout,mainmenuyzr;
 	public CopyOnWriteArrayList<Bug> mainmenubug=new CopyOnWriteArrayList<Bug>();
 	//uiselectlevel=2
-	private Ui levelselectmyjb,levelselectlist,levelselectmap,levelselectplayer;
-	private List levelselectllist;
+	private UiGroup uiLevelSelect;
+	//private Ui levelselectmyjb,levelselectlist,levelselectmap,levelselectplayer;
+	//private List levelselectllist;
 	//uimyjb=3
 
 	//uiganemain=4
@@ -1038,24 +1039,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 	{
 		hideAllUi();
 		curui=2;
-		if(!ui.contains(levelselectmyjb))
+		if(!ui.contains(uiLevelSelect))
 		{
-			levelselectmyjb=new Ui("levelselectmyjb",775,760,400,114){
+			uiLevelSelect=new UiGroup(new Ui("levelselectmyjb",775,760,400,114){
 				@Override public void onClick(MotionEvent e)
 				{
 
 				}
-			}.alphaFrom(0,200).tScFrom(800,900,400,114,200);
-			buttonmainmenu=new Ui("buttonmainmenu",1175,760,400,114){
+			}
+			,buttonmainmenu=new Ui("buttonmainmenu",1175,760,400,114){
 				@Override public void onClick(MotionEvent e)
 				{
 					mainmenu();
 					map=null;
 				}
-			}.alphaFrom(0,200).tScFrom(1200,900,400,114,200);
-			levelselectlist=new Ui("levelselectlist",750,0,800,750).alphaFrom(0,200).tScFrom(750,-900,800,750,200);
-			levelselectmap=new Ui("levelselectmap",75,50,600,600).alphaFrom(0,200).tScFrom(-600,50,600,600,200);
-			levelselectplayer=new Ui("levelselectplayer",50,675,650,200){
+			}
+			,new Ui("levelselectlist",750,0,800,750)
+			,new Ui("levelselectmap",75,50,600,600)
+			,new Ui("levelselectplayer",50,675,650,200){
 				RectF rf=new RectF();
 				@Override public void onDraw(Canvas c)
 				{
@@ -1080,44 +1081,74 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 						c.drawRoundRect(rf,p(3),p(3),p);
 					}
 				}
-			}.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
-			levelselectllist=(List) new List(770,110,770,630).alphaFrom(0,200).tScFrom(770,-900,770,630,200);
+			}
+			,new List(770,110,770,630));
 			try
 			{
-				levelselectllist.views.clear();
-				String[] ms=getAssets().list("maps");
-				Arrays.sort(ms,String.CASE_INSENSITIVE_ORDER);
+				((List)uiLevelSelect.uis.get(5)).views.clear();
 				final Bitmap lo=VECfile.createBitmap(this,"lock",Shape.pi(100),Shape.pi(100));
-				for(int i=0,u=0;i<ms.length;i++)
+				final Bitmap pl=VECfile.createBitmap(this,"play",Shape.pi(100),Shape.pi(100));
+				
+				for(int i=0;i<15;i++)
 				{
-					final String c=ms[i];
-					if(c.contains(".vec"))continue;
-					final int yt=u+1;
-					levelselectllist.addView(new Ui(null,770+u%2*380,(u/2)*200,380,200){
-						int ind=yt;
+					final int yt=i;
+					((List)uiLevelSelect.uis.get(5)).addView(new Ui(null,770+i%2*380,(i/2)*200,380,200){
 						@Override public void onDraw(Canvas c)
 						{
 							if(!isAnim()&&visible)
 							{
 								c.drawLine(x,y+h,x+w,y+h,p);
-								p.setTextSize(p(60));
+								p.setTextSize(p(50));
 								p.setColor(0xffffffff);
-								c.drawText(String.format("关卡 %d",yt),x+p(50),y+p(100),p);
-								if(levelunlock<yt-1)c.drawBitmap(lo,x+p(250),y+p(50),p);
+								if(levelunlock<yt)c.drawBitmap(lo,x+p(250),y+p(50),p);
+								else c.drawBitmap(pl,x+p(250),y+p(50),p);
+								c.drawText(String.format("关卡 %d",yt+1),x+p(50),y+p(100),p);
 							}
 						}
 						@Override public void onClick(MotionEvent e)
 						{
-							if(levelunlock>=yt-1)
+							try
 							{
-								uiGameMain(true,"maps/"+c);
-								nowplevel=yt-1;
+								if(levelunlock>=yt)
+								{
+									RectF re=new RectF(x+p(250),y+p(50),x+p(350),y+p(150));
+									if(re.contains(e.getX()-parent.x,e.getY()-parent.y)){
+										uiGameMain(true,"maps/map"+yt);
+										nowplevel=yt;
+									}
+									else{
+										Map tmap=Map.loadMap(getAssets().open("maps/map"+yt));
+										tmap.loadTiles(2f/3f);
+										Bitmap mmp=VECfile.createBitmap(ctx,"maps/map"+yt,pi(600),pi(600));
+										Canvas c=new Canvas(mmp);
+										for(int y=0;y<tmap.size;y++)
+										{
+											for(int x=0;x<tmap.size;x++)
+											{
+												int id=tmap.map[x][y];
+												if(id!=0)
+												{
+													Bitmap b=tmap.tiles[id];
+
+													c.drawBitmap(b,x*tmap.tilew-(b.getWidth()-tmap.tilew)/2,y*tmap.tilew-b.getHeight()+tmap.tilew,p);
+												}
+											}
+										}
+										uiLevelSelect.uis.get(3).b=mmp;
+										uiLevelSelect.uis.get(3).alphaFrom(0,500);
+									}
+								}
+								else{
+									uiLevelSelect.uis.get(3).b=VECfile.createBitmap(MainActivity.ctx,"levelselectmap",pi(600),pi(600));
+								uiLevelSelect.uis.get(3).alphaFrom(0,500);
+								}
 							}
+							catch (Exception ep)
+							{}
 						}
 					});
-					u++;
 				}
-				levelselectllist.measure();
+				((List)uiLevelSelect.uis.get(5)).measure();
 			}
 			catch(Throwable e)
 			{
@@ -1125,15 +1156,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			}
 
 		}
-		else
-		{
-			levelselectmyjb.alphaFrom(0,200).tScFrom(800,900,400,114,200);
-			buttonmainmenu.alphaFrom(0,200).tScFrom(1200,900,400,114,200);
-			levelselectlist.alphaFrom(0,200).tScFrom(750,-900,800,750,200);
-			levelselectmap.alphaFrom(0,200).tScFrom(-600,50,600,600,200);
-			levelselectplayer.alphaFrom(0,200).tScFrom(-650,1020,650,200,200);
-			levelselectllist.alphaFrom(0,200).tScFrom(750,-900,800,750,200);
-		}
+			uiLevelSelect.alphaFrom(0,200).tScFrom(
+			800,900,400,114,200,
+			1200,900,400,114,200,
+			750,-900,800,750,200,
+			-600,50,600,600,200,
+			-650,1020,650,200,200,
+			750,-900,800,750,200
+			);
+		
 
 	}
 	void uiMyJb()
