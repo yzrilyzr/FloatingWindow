@@ -35,10 +35,27 @@ public class Bug extends Shape
 		try
 		{
 			int s=Shape.pi(size);
-			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+new Random().nextInt(20),s,s);
+			int id=new Random().nextInt(20);
+			bugicon=VECfile.createBitmap(MainActivity.ctx,"bugs/"+id,s,s);
 			this.x=x;
 			this.y=y;
 			vel=p(1000);
+			r=s/2f;
+			hp=1;
+			try
+			{
+				bugdicon=VECfile.createBitmap(MainActivity.ctx,"bugs/d"+id,s,s);
+			}
+			catch (Exception e)
+			{
+				try
+				{
+					bugdicon=VECfile.createBitmap(MainActivity.ctx,"bugs/d0",s,s);
+				}
+				catch(Throwable pe)
+				{}
+			}
+
 		}
 		catch(Throwable e)
 		{
@@ -72,6 +89,7 @@ public class Bug extends Shape
 			catch(Throwable pe)
 			{}
 		}
+		r=s/2f;
 		bugicon=VECfile.createBitmap(ico,s,s);
 		bugdicon=VECfile.createBitmap(dico,s,s);
 		maxhp=hps[id];
@@ -115,14 +133,17 @@ public class Bug extends Shape
 				map.bugs.remove(this);
 				map.lives--;
 			}
-			else if(f==-1){
+			else if(f==-1)
+			{
 				int ind=0;
 				float mind=-1;
-				for(int i=0;i<u.size();i++){
+				for(int i=0;i<u.size();i++)
+				{
 					Map.AstarPoint a=u.get(i);
 					float dd=(float)Math.sqrt((a.x-x)*(a.x-x)+(a.y-y)*(a.y-y));
 					if(mind==-1)mind=dd;
-					if(dd<mind){
+					if(dd<mind)
+					{
 						ind=i;
 						mind=dd;
 					}
@@ -165,15 +186,32 @@ public class Bug extends Shape
 		}
 		else
 		{
-			dir=(float)(getArc(vx,vy,vel/3f)*180f/Math.PI)+90f;
-			ma.reset();
-			ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
-			ma.postRotate(dir);
-			ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
-			ma.postTranslate((int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2));
-			c.drawBitmap(bugicon,ma,p);
-			
-			//c.drawBitmap(bugicon,ma,p);
+			if(hp>0)
+			{
+				dir=(float)(getArc(vx,vy,vel/3f)*180f/Math.PI)+90f;
+				ma.reset();
+				ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
+				ma.postRotate(dir);
+				ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
+				ma.postTranslate((int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2));
+				c.drawBitmap(bugicon,ma,p);
+			}
+			else
+			{
+				ma.reset();
+				float sc=Ui.NonLinearFunc(-hp/200);
+				if(hp>-200){
+					ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
+					ma.postScale(sc,sc);
+					ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
+				}
+				else if(hp<-1500)p.setAlpha((int)(255f*Ui.NonLinearFunc((2000+hp)/500)));
+				ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
+				ma.postRotate(dir);
+				ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
+				ma.postTranslate((int)(x-bugicon.getWidth()/2),(int)(y-bugicon.getHeight()/2));
+				c.drawBitmap(bugdicon,ma,p);
+			}
 		}
 	}
 
