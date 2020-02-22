@@ -1017,7 +1017,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		{
 			mainmenubuttback.tScFrom(975,400,400,500,250).alphaFrom(0,500);
 			mainmenutitle.tScFrom(400,0,800,300,250).alphaFrom(0,500);
-			mainmenuyzr.alphaFrom(0,500);
+			mainmenuyzr.alphaFrom(0,250);
 			mainmenustart.tScFrom(975,400,400,500,250).alphaFrom(0,500);
 			mainmenuabout.tScFrom(975,400,400,500,250).alphaFrom(0,500);
 			mainmenusettings.tScFrom(975,400,400,500,250).alphaFrom(0,500);
