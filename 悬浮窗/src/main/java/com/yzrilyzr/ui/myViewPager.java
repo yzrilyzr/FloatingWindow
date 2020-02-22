@@ -5,8 +5,11 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.view.ViewGroup.LayoutParams;
+import com.yzrilyzr.myclass.util;
 
 public class myViewPager extends HorizontalScrollView
 {
@@ -45,8 +48,20 @@ public class myViewPager extends HorizontalScrollView
 		ll=new LinearLayout(getContext());
 		addView(ll);
 		setHorizontalScrollBarEnabled(false);
+		if(getParent() instanceof ViewGroup){
+			ViewGroup vg=(ViewGroup) getParent();
+			for(int i=0;i<vg.getChildCount();i++){
+				View n=vg.getChildAt(i);
+				if(n instanceof myViewPager&&i-1>=0){
+					View p=vg.getChildAt(i-1);
+					if(p instanceof myTabLayout)tab=(myTabLayout)p;
+					else break;
+				}
+			}
+		}
 	}
 	public void addPage(View v){
+		if(v==ll)return;
 		ll.addView(v);
 		LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(screenWidth,-1);
 		p.weight=1;
@@ -109,36 +124,52 @@ public class myViewPager extends HorizontalScrollView
 				},200);*/
 		}
 	}
+	public View getPageAt(int index)
+	{
+		// TODO: Implement this method
+		return ll.getChildAt(index);
+	}
 
-	/*@Override
+	public int getPageCount()
+	{
+		// TODO: Implement this method
+		return ll.getChildCount();
+	}
+
+	@Override
 	public void addView(View child, int index, android.view.ViewGroup.LayoutParams params)
 	{
-		if(child!=this)addPage(child);
+		if(child==ll)super.addView(child,index,params);
+		else addPage(child);
 	}
 
 	@Override
 	public void addView(View child)
 	{
-		if(child!=this)addPage(child);
+		if(child==ll)super.addView(child);
+		else addPage(child);
 	}
 
 	@Override
 	public void addView(View child, int width, int height)
 	{
-		if(child!=this)addPage(child);
+		if(child==ll)super.addView(child,width,height);
+		else addPage(child);
 	}
 
 	@Override
 	public void addView(View child, android.view.ViewGroup.LayoutParams params)
 	{
-		if(child!=this)addPage(child);
+		if(child==ll)super.addView(child,params);
+		else addPage(child);
 	}
 
 	@Override
 	public void addView(View child, int index)
 	{
-		if(child!=this)addPage(child);
-	}*/
+		if(child==ll)super.addView(child,index);
+		else addPage(child);
+	}
 	@Override
 	public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate)
 	{

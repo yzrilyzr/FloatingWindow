@@ -12,6 +12,7 @@
 		性能测试:.apps.PerformanceTest@Vperformance;
 		JS加密器:.apps.JsEncode@Vjsencode;
 		速拍:.apps.FastCam@Vfastcam;
+		VVVF音:.apps.VVVF@Vvvvf;
 		示波器:.apps.Oscilloscope@Vsignal;
 		简单数据库:.apps.SimpleDatabase@Vdatabase;
 		准星:.apps.FrontSight@Vfrontsight;
