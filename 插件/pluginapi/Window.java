@@ -66,60 +66,60 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
         return invoke("isShowing");
     }
 
-    public com.yzrilyzr.floatingwindow.Window setAddButton(android.graphics.drawable.Drawable p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setAddButton(android.graphics.drawable.Drawable p1)
     {
-        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton",new Class[]{android.graphics.drawable.Drawable.class},p1);
+        return (com.yzrilyzr.floatingwindow.pluginapi.Window)invoke("setAddButton",new Class[]{android.graphics.drawable.Drawable.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setAddButton(java.lang.String p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setAddButton(java.lang.String p1)
     {
-        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton",new Class[]{java.lang.String.class},p1);
+        return (com.yzrilyzr.floatingwindow.pluginapi.Window)invoke("setAddButton",new Class[]{java.lang.String.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setAddButton2(android.graphics.drawable.Drawable p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setAddButton2(android.graphics.drawable.Drawable p1)
     {
-        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton2",new Class[]{android.graphics.drawable.Drawable.class},p1);
+        return (com.yzrilyzr.floatingwindow.pluginapi.Window)invoke("setAddButton2",new Class[]{android.graphics.drawable.Drawable.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setAddButton2(java.lang.String p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setAddButton2(java.lang.String p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setAddButton2",new Class[]{java.lang.String.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setAddButton2",new Class[]{java.lang.String.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setBColor(int p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setBColor(int p1)
     {
-        return (com.yzrilyzr.floatingwindow.Window)invoke("setBColor",new Class[]{int.class},p1);
+        return (com.yzrilyzr.floatingwindow.pluginapi.Window)invoke("setBColor",new Class[]{int.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setBar(int p1,int p2,int p3)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setBar(int p1,int p2,int p3)
     {
-        return (com.yzrilyzr.floatingwindow.Window)invoke("setBar",new Class[]{int.class,int.class,int.class},p1,p2,p3);
+        return (com.yzrilyzr.floatingwindow.pluginapi.Window)invoke("setBar",new Class[]{int.class,int.class,int.class},p1,p2,p3);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setCanFocus(boolean p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setCanFocus(boolean p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setCanFocus",new Class[]{boolean.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setCanFocus",new Class[]{boolean.class},p1);
     }
 
 
-    public com.yzrilyzr.floatingwindow.Window setColor(int p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setColor(int p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setColor",new Class[]{int.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setColor",new Class[]{int.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setIcon(com.yzrilyzr.icondesigner.VECfile p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setIcon(com.yzrilyzr.icondesigner.VECfile p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setIcon",new Class[]{com.yzrilyzr.icondesigner.VECfile.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setIcon",new Class[]{com.yzrilyzr.icondesigner.VECfile.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setParent(android.content.Intent p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setParent(android.content.Intent p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setParent",new Class[]{android.content.Intent.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setParent",new Class[]{android.content.Intent.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window setParent(com.yzrilyzr.floatingwindow.Window p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window setParent(com.yzrilyzr.floatingwindow.pluginapi.Window p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("setParent",new Class[]{com.yzrilyzr.floatingwindow.Window.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("setParent",new Class[]{com.yzrilyzr.floatingwindow.pluginapi.Window.class},p1);
     }
 
     public void setResize(boolean p1)
@@ -132,19 +132,19 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
         invoke("setShowing",new Class[]{boolean.class},p1);
     }
 
-    public com.yzrilyzr.floatingwindow.Window show(boolean p1)
+    public com.yzrilyzr.floatingwindow.pluginapi.Window show(boolean p1)
     {
-        return(com.yzrilyzr.floatingwindow.Window) invoke("show",new Class[]{boolean.class},p1);
+        return(com.yzrilyzr.floatingwindow.pluginapi.Window) invoke("show",new Class[]{boolean.class},p1);
     }
 
     public static final void readData()
     {
-        com.yzrilyzr.floatingwindow.Window.readData();
+        com.yzrilyzr.floatingwindow.pluginapi.Window.readData();
     }
 
     public static final void saveData()
     {
-        com.yzrilyzr.floatingwindow.Window.saveData();
+        com.yzrilyzr.floatingwindow.pluginapi.Window.saveData();
     }
 
 	public static final class ButtonCode
@@ -402,7 +402,7 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
 
     public Window(android.content.Context p1,int p2,int p3)
     {
-        super("com.yzrilyzr.floatingwindow.Window",new Class[]{android.content.Context.class,int.class,int.class},p1,p2,p3);
+        super("com.yzrilyzr.floatingwindow.pluginapi.Window",new Class[]{android.content.Context.class,int.class,int.class},p1,p2,p3);
     }
 
 

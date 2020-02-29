@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yzrilyzr.plugin" >
+	<!--无显示模式-->
+	<application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoDisplay" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+		<meta-data
+            android:name="fwplugin"
+            android:value="true"/>
+		<!--格式如下-->
+		<!--应用名:类名@V或D图标路径-->
+		<!--类名支持 全类名 和 缩略类名(当前包)-->
+		<!--可以省略@图标，使用本程序图标-->
+		<!--多个app用‘;’隔开-->
+		<meta-data
+            android:name="fwpluginclasses"
+			android:value="Your app:.MainClass"/>
+    </application>
+
+</manifest>
