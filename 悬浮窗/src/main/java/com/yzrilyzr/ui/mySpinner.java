@@ -26,6 +26,18 @@ public class mySpinner extends Spinner
 		mrd=new myRippleDrawable(isEnabled()?uidata.BUTTON:uidata.getBFColor(),util.px(uidata.UI_RADIUS));
         mrd.setLayer(isEnabled()?this:null);
         setBackgroundDrawable(mrd);
+		try
+		{
+			String d=a.getAttributeValue(null,"items");
+			
+			if(d!=null)
+			{
+				setAdapter(new mySpinnerAdapter(d.split(",")));
+			}
+		}
+		catch(Throwable e)
+		{}
+		
 	}
 	@Override
 	public void setEnabled(boolean enabled)

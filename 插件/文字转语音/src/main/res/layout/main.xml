@@ -37,47 +37,58 @@
 			android:id="@+id/stop"
 			android:layout_weight="1.0"/>
 
-		<com.yzrilyzr.ui.myButton
-			android:layout_height="wrap_content"
-			android:text="释放"
-			android:layout_width="match_parent"
-			android:id="@+id/release"
-			android:layout_weight="1.0"/>
+		<com.yzrilyzr.ui.myLoadingView
+			android:layout_height="50dp"
+			android:layout_width="50dp"
+			android:id="@+id/mainmyLoadingView1"/>
 
 	</LinearLayout>
 
-	<com.yzrilyzr.ui.myTextView
+	<com.yzrilyzr.ui.mySpinner
 		android:layout_height="wrap_content"
-		android:text="说话人(0-4),音量,语速,音调"
-		android:layout_width="match_parent"/>
+		android:layout_width="wrap_content"
+		items="女声,男声,特别男声,情感男声,情感童声"
+		android:id="@+id/mainmySpinner1"/>
 
-	<com.yzrilyzr.ui.mySeekBar
+	<LinearLayout
 		android:layout_height="wrap_content"
-		android:max="4"
-		android:progress="0"
 		android:layout_width="match_parent"
-		android:id="@+id/mainmySeekBar1"/>
+		android:orientation="horizontal"
+		android:gravity="left|center">
 
-	<com.yzrilyzr.ui.mySeekBar
-		android:layout_height="wrap_content"
-		android:max="9"
-		android:progress="9"
-		android:layout_width="match_parent"
-		android:id="@+id/mainmySeekBar2"/>
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="语速"/>
 
-	<com.yzrilyzr.ui.mySeekBar
-		android:layout_height="wrap_content"
-		android:max="9"
-		android:progress="5"
-		android:layout_width="match_parent"
-		android:id="@+id/mainmySeekBar3"/>
+		<com.yzrilyzr.ui.mySeekBar
+			android:layout_height="wrap_content"
+			android:max="9"
+			android:progress="5"
+			android:layout_width="match_parent"
+			android:id="@+id/mainmySeekBar3"/>
 
-	<com.yzrilyzr.ui.mySeekBar
+	</LinearLayout>
+
+	<LinearLayout
 		android:layout_height="wrap_content"
-		android:max="9"
-		android:progress="5"
 		android:layout_width="match_parent"
-		android:id="@+id/mainmySeekBar4"/>
+		android:orientation="horizontal"
+		android:gravity="left|center">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="音调"/>
+
+		<com.yzrilyzr.ui.mySeekBar
+			android:layout_height="wrap_content"
+			android:max="9"
+			android:progress="5"
+			android:layout_width="match_parent"
+			android:id="@+id/mainmySeekBar4"/>
+
+	</LinearLayout>
 
 </LinearLayout>
 

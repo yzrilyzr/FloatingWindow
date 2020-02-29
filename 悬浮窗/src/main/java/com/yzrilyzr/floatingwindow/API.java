@@ -1,5 +1,4 @@
 package com.yzrilyzr.floatingwindow;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -11,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.xmlpull.v1.XmlPullParser;
@@ -19,7 +19,9 @@ public class API
 {
     public static final String WINDOW_CLASS="com.yzrilyzr.floatingwindow.Window";
     public static final float density=Resources.getSystem().getDisplayMetrics().density;
-    public static void startService(Context ctx,String targetClass)
+    public static final ArrayList<String> loadedLibrary=new ArrayList<String>();
+	public static final Runtime runtime=Runtime.getRuntime();
+	public static void startService(Context ctx,String targetClass)
     {
         startService(ctx,new Intent(),targetClass);
     }
@@ -39,7 +41,7 @@ public class API
 		startServiceForResult(ctx,new Intent(),null,h,null,targetClass);
 		//int ind=mBroadcastReceiver.index++;
 		//mBroadcastReceiver.cbk.put(ind,h);
-       // startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
+		// startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
     }
 	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetClass)
     {
@@ -75,7 +77,8 @@ public class API
     {
 		startService(ctx,intent,ctx.getPackageName(),targetClass);
     }
-	public static void callBack(Context ctx,Intent extra,int code){
+	public static void callBack(Context ctx,Intent extra,int code)
+	{
 		ctx.sendBroadcast(extra.setAction("com.yzrilyzr.callback")
 		.putExtra("rescode",code));
 	}
@@ -86,7 +89,8 @@ public class API
 		ZipEntry en=f.getEntry(file);
 		return f.getInputStream(en);
     }
-	public static View parseView(Context ctx,int id){
+	public static View parseView(Context ctx,int id)
+	{
 		return LayoutInflater.from(ctx).inflate(ctx.getResources().getLayout(id),null);
 	}
     public static void exPkgFile(Context ctx,String pkgName,String file,String to) throws Throwable
@@ -103,6 +107,15 @@ public class API
 		o.close();
 		f.close();
     }
+	public static void loadLibrary(String path)
+	{
+		if(!loadedLibrary.contains(path))
+		{
+			System.out.println("lib loaded:"+path);
+			runtime.load(path);
+			loadedLibrary.add(path);
+		}
+	}
 	public static View parseXmlViewFromFile(Context ctx,String pkgName,String file) 
     {
         try

@@ -43,7 +43,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListener
 {
-	int index=0,mode=1;//0播放列表后停止，1播放列表后循环，2单曲循环,3随机
+	int index=0,mode=1;//0播放列表后停止，1播放列表后循环，2单曲循环,3随机,4单曲播放
 	VecView p3;
 	boolean isListOpen=false,refseek=true;
 	MediaPlayer mp;
@@ -96,11 +96,13 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 		((View)view.findViewById(R.id.musicplayerImageButton1))
 		.setOnClickListener(new OnClickListener(){@Override public void onClick(View v)
 			{
-				if(++mode>3)mode=0;
+				if(++mode>4)mode=0;
 				if(mode==0)((VecView)v).setImageVec("round0");
 				else if(mode==1)((VecView)v).setImageVec("round");
 				else if(mode==2)((VecView)v).setImageVec("round1");
 				else if(mode==3)((VecView)v).setImageVec("random");
+				else if(mode==4)((VecView)v).setImageVec("play1");
+				
 			}});
 		((View)view.findViewById(R.id.musicplayerImageButton2))
 		.setOnClickListener(new OnClickListener(){@Override public void onClick(View v)
@@ -474,6 +476,10 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 	{
 		try
 		{
+			if(mode==4){
+				p3.setImageVec("play");
+				return;
+				}
 			if(mode!=2)
 			{
 				index++;

@@ -1,15 +1,175 @@
 package com.yzrilyzr.floatingwindow.pluginapi;
+import android.graphics.Bitmap;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.ViewGroup;
-import android.graphics.Bitmap;
+import android.view.WindowManager.LayoutParams;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener ,OnLongClickListener
 {
+	public android.view.View addView(int p1)
+    {
+        return (View)invoke("addView",new Class[]{int.class},p1);
+    }
+
+    public android.view.View addView(org.xmlpull.v1.XmlPullParser p1)
+    {
+        return (View)invoke("addView",new Class[]{org.xmlpull.v1.XmlPullParser.class},p1);
+    }
+
+    public OnButtonDown getOnButtonDown()
+    {
+        return (OnButtonDown)invoke("getOnButtonDown");
+    }
+
+    public OnCrash getOnCrash()
+    {
+        return (OnCrash)invoke("getOnCrash");
+    }
+
+    public OnPositionChanged getOnPositionChanged()
+    {
+        return (OnPositionChanged)invoke("getOnPositionChanged");
+    }
+
+    public OnSizeChanged getOnSizeChanged()
+    {
+        return (OnSizeChanged)invoke("getOnSizeChanged");
+    }
+
+    public int getPositionX()
+    {
+        return invoke("getPositionX");
+    }
+
+    public int getPositionY()
+    {
+        return invoke("getPositionY");
+    }
+
+    public boolean isCanFocus()
+    {
+        return invoke("isCanFocus");
+    }
+
+    public boolean isResize()
+    {
+        return invoke("isResize");
+    }
+
+    public boolean isShowing()
+    {
+        return invoke("isShowing");
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setAddButton(android.graphics.drawable.Drawable p1)
+    {
+        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton",new Class[]{android.graphics.drawable.Drawable.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setAddButton(java.lang.String p1)
+    {
+        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton",new Class[]{java.lang.String.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setAddButton2(android.graphics.drawable.Drawable p1)
+    {
+        return (com.yzrilyzr.floatingwindow.Window)invoke("setAddButton2",new Class[]{android.graphics.drawable.Drawable.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setAddButton2(java.lang.String p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setAddButton2",new Class[]{java.lang.String.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setBColor(int p1)
+    {
+        return (com.yzrilyzr.floatingwindow.Window)invoke("setBColor",new Class[]{int.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setBar(int p1,int p2,int p3)
+    {
+        return (com.yzrilyzr.floatingwindow.Window)invoke("setBar",new Class[]{int.class,int.class,int.class},p1,p2,p3);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setCanFocus(boolean p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setCanFocus",new Class[]{boolean.class},p1);
+    }
+
+
+    public com.yzrilyzr.floatingwindow.Window setColor(int p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setColor",new Class[]{int.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setIcon(com.yzrilyzr.icondesigner.VECfile p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setIcon",new Class[]{com.yzrilyzr.icondesigner.VECfile.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setParent(android.content.Intent p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setParent",new Class[]{android.content.Intent.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window setParent(com.yzrilyzr.floatingwindow.Window p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("setParent",new Class[]{com.yzrilyzr.floatingwindow.Window.class},p1);
+    }
+
+    public void setResize(boolean p1)
+    {
+        invoke("setResize",new Class[]{boolean.class},p1);
+    }
+
+    public void setShowing(boolean p1)
+    {
+        invoke("setShowing",new Class[]{boolean.class},p1);
+    }
+
+    public com.yzrilyzr.floatingwindow.Window show(boolean p1)
+    {
+        return(com.yzrilyzr.floatingwindow.Window) invoke("show",new Class[]{boolean.class},p1);
+    }
+
+    public static final void readData()
+    {
+        com.yzrilyzr.floatingwindow.Window.readData();
+    }
+
+    public static final void saveData()
+    {
+        com.yzrilyzr.floatingwindow.Window.saveData();
+    }
+
+	public static final class ButtonCode
+    {
+		public static final int ADD = 8;
+
+		public static final int ADD2 = 2;
+
+		public static final int ADD2_LONG = 4;
+
+		public static final int ADD_LONG = 9;
+
+		public static final int CLOSE = 3;
+
+		public static final int CLOSE_LONG = 7;
+
+		public static final int MAX = 1;
+
+		public static final int MAX_LONG = 6;
+
+		public static final int MIN = 0;
+
+		public static final int MIN_LONG = 5;
+    }
+
     public Window addView(android.view.View p1)
     {
         invoke("addView",new Class[]{android.view.View.class},p1);
@@ -268,27 +428,5 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
     {
         public abstract void onSizeChanged(int p1,int p2,int p3,int p4) ;
 
-    }
-    public static final class ButtonCode
-    {
-		public static final int ADD = 8;
-
-        public static final int ADD_LONG = 9;
-
-        public static final int CLOSE = 3;
-
-        public static final int CLOSE_LONG = 7;
-
-        public static final int FOCUS = 2;
-
-        public static final int FOCUS_LONG = 4;
-
-        public static final int MAX = 1;
-
-        public static final int MAX_LONG = 6;
-
-        public static final int MIN = 0;
-
-        public static final int MIN_LONG = 5;
     }
 }

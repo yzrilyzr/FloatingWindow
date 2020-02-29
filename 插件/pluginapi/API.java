@@ -1,5 +1,4 @@
 package com.yzrilyzr.floatingwindow.pluginapi;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -12,39 +11,75 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.xmlpull.v1.XmlPullParser;
+import com.yzrilyzr.floatingwindow.API;
 
 public class API
 {
     public static final String WINDOW_CLASS="com.yzrilyzr.floatingwindow.Window";
     public static final float density=Resources.getSystem().getDisplayMetrics().density;
-    public static void startService(Context ctx,String targetClass)
+    public static final ArrayList<String> loadedLibrary=new ArrayList<String>();
+	public static void startService(Context ctx,String targetClass)
     {
         startService(ctx,new Intent(),targetClass);
     }
-	public static void startServiceForResult(Context ctx,Intent intent,BroadcastReceiver h,String targetClass)
+	public static void startServiceForResult(Context ctx,Intent intent,Object h,String targetClass)
     {
+		startServiceForResult(ctx,intent,null,h,null,targetClass);
+    }
+	public static void startServiceForResult(Context ctx,Window parent,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,new Intent(),parent,h,null,targetClass);
+		//int ind=mBroadcastReceiver.index++;
+		//mBroadcastReceiver.cbk.put(ind,h);
+        //startService(ctx,new Intent().putExtra("rescode",ind).putExtra("parentIndex",Window.windowList.indexOf(parent)),targetClass);
+    }
+    public static void startServiceForResult(Context ctx,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,new Intent(),null,h,null,targetClass);
+		//int ind=mBroadcastReceiver.index++;
+		//mBroadcastReceiver.cbk.put(ind,h);
+		// startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
+    }
+	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetClass)
+    {
+		startServiceForResult(ctx,intent,parent,h,null,targetClass);
+	}
+	//main
+	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetPkg,String targetClass)
+    {
+		if(intent==null)intent=new Intent();
+		if(targetPkg==null)targetPkg="com.yzrilyzr.floatingwindow";
 		int ind=mBroadcastReceiver.index++;
 		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,intent.putExtra("rescode",ind),targetClass);
-    }
-	public static void startServiceForResult(Context ctx,BroadcastReceiver h,String targetClass)
-    {
-		int ind=mBroadcastReceiver.index++;
-		mBroadcastReceiver.cbk.put(ind,h);
-        startService(ctx,new Intent().putExtra("rescode",ind),targetClass);
-    }
-    public static void startService(Context ctx,Intent intent,String targetClass)
-    {
-        intent.setAction("com.yzrilyzr.Service");
+        intent
+		.putExtra("rescode",ind)
+		.putExtra("parentIndex",parent==null?-1:com.yzrilyzr.floatingwindow.Window.windowList.indexOf(parent));
+		intent.setAction("com.yzrilyzr.Service");
         intent.setPackage("com.yzrilyzr.floatingwindow");
-        intent.putExtra("pkg",ctx.getPackageName());
+        intent.putExtra("pkg",targetPkg);
         intent.putExtra("class",targetClass);
         ctx.startService(intent);
     }
-	public static void callBack(Context ctx,Intent extra,int code){
+	//main
+    public static void startService(Context ctx,Intent intent,String targetPkg,String targetClass)
+    {
+		if(intent==null)intent=new Intent();
+        intent.setAction("com.yzrilyzr.Service");
+        intent.setPackage("com.yzrilyzr.floatingwindow");
+        intent.putExtra("pkg",targetPkg);
+        intent.putExtra("class",targetClass);
+        ctx.startService(intent);
+    }
+	public static void startService(Context ctx,Intent intent,String targetClass)
+    {
+		startService(ctx,intent,ctx.getPackageName(),targetClass);
+    }
+	public static void callBack(Context ctx,Intent extra,int code)
+	{
 		ctx.sendBroadcast(extra.setAction("com.yzrilyzr.callback")
 		.putExtra("rescode",code));
 	}
@@ -55,7 +90,8 @@ public class API
 		ZipEntry en=f.getEntry(file);
 		return f.getInputStream(en);
     }
-	public static View parseView(Context ctx,int id){
+	public static View parseView(Context ctx,int id)
+	{
 		return LayoutInflater.from(ctx).inflate(ctx.getResources().getLayout(id),null);
 	}
     public static void exPkgFile(Context ctx,String pkgName,String file,String to) throws Throwable
@@ -72,6 +108,10 @@ public class API
 		o.close();
 		f.close();
     }
+	public static void loadLibrary(String path)
+	{
+		API.loadLibrary(path);
+	}
 	public static View parseXmlViewFromFile(Context ctx,String pkgName,String file) 
     {
         try

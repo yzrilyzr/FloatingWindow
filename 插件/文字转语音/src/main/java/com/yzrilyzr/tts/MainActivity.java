@@ -24,8 +24,9 @@ public class MainActivity extends Activity
 		{
 			String l=getPackageManager().getPackageInfo("com.yzrilyzr.tts",PackageInfo.INSTALL_LOCATION_AUTO).applicationInfo.nativeLibraryDir;
 			File[] fs=new File(l).listFiles();
-			File f=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/悬浮窗/文字转语音/lib");
+			File f=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/文字转语音/lib");
 			if(!f.exists()){
+				Toast.makeText(this,"正在解压资源…",0).show();
 				f.mkdirs();
 				for(File h:fs){
 					FileChannel i=new FileInputStream(h).getChannel();
@@ -49,15 +50,19 @@ public class MainActivity extends Activity
 					i.close();
 					o.flush();
 					o.close();
-					}catch(Throwable e){}
+					}catch(Throwable e){
+						//Toast.makeText(this,"解压资源错误:"+e,0).show();
+						
+					}
 				}
+				Toast.makeText(this,"解压资源完毕",0).show();
 			}
 		}
 		catch (Exception e)
 		{
-			Toast.makeText(this,e+"",0).show();
+			Toast.makeText(this,"解压错误:"+e,0).show();
 		}
-        API.startMainService(this,new Intent(),"com.yzrilyzr.tts.Main");
+        API.startService(this,new Intent(),"com.yzrilyzr.tts.Main");
 		finish();
     }
 }

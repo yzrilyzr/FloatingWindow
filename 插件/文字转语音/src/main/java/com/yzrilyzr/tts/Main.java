@@ -4,19 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
-import android.widget.Toast;
 import com.baidu.tts.client.SpeechError;
 import com.baidu.tts.client.SpeechSynthesizer;
 import com.baidu.tts.client.SpeechSynthesizerListener;
 import com.baidu.tts.client.TtsMode;
 import com.yzrilyzr.floatingwindow.pluginapi.API;
+import com.yzrilyzr.floatingwindow.pluginapi.Window;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,9 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import com.yzrilyzr.floatingwindow.pluginapi.Window;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView;
+import android.widget.Adapter;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeListener
+public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeListener,Window.OnButtonDown
 {
 	Window win;
 	Context ctx;
@@ -37,14 +41,16 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 	public Main(Context c,Intent e) throws Exception
 	{
 		ctx=c;
-		File f=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/悬浮窗/文字转语音/lib");
+		File f=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/文字转语音/lib");
 		TEMP_DIR =f+"";
 		TEXT_FILENAME = TEMP_DIR + "/" + "bd_etts_text.dat";
 		MODEL_FILENAME =TEMP_DIR + "/" + "bd_etts_common_speech_m15_mand_eng_high_am-mix_v3.0.0_20170505.dat";
 		String l=c.getDir("ttslib",c.MODE_PRIVATE).getAbsolutePath();
-		if(new File(l).list().length==0){
+		if(new File(l).list().length==0)
+		{
 			File[] fs=f.listFiles();
-			for(File h:fs){
+			for(File h:fs)
+			{
 				if(!h.getName().endsWith(".so"))continue;
 				FileChannel i=new FileInputStream(h).getChannel();
 				FileChannel o=new FileOutputStream(l+"/"+h.getName()).getChannel();
@@ -55,27 +61,44 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 		}
 		//File fy=new File(f.getAbsolutePath()+"/libloaded");
 		//if(!fy.exists())
-		try{
-			//fy.createNewFile();
-			//fy.deleteOnExit();
-			Runtime r=Runtime.getRuntime();
-			r.load(l+"/libgnustl_shared.so");
-			r.load(l+"/libBDSpeechDecoder_V1.so");
-			r.load(l+"/libbd_etts.so");
-			r.load(l+"/libbdtts.so");
-			//r.load(l+"/libgnustl_shared.so");
-		}catch(Throwable pe){}
-		win=new Window(c,API.px(300),API.px(300));
+		//fy.createNewFile();
+		//fy.deleteOnExit();
+		Runtime r=Runtime.getRuntime();
+		
+		r.load(l+"/libgnustl_shared.so");
+		r.load(l+"/libBDSpeechDecoder_V1.so");
+		r.load(l+"/libbd_etts.so");
+		r.load(l+"/libbdtts.so");
+		/*API.loadLibrary(l+"/libgnustl_shared.so");
+		API.loadLibrary(l+"/libBDSpeechDecoder_V1.so");
+		API.loadLibrary(l+"/libbd_etts.so");
+		API.loadLibrary(l+"/libbdtts.so");*/
+		win=new Window(c,API.px(300),API.px(220));
 		vg=API.parseXmlViewFromFile(c,"com.yzrilyzr.tts","res/layout/main.xml");
 		win.setTitle("文字转语音");
 		win.addView(vg);
 		win.setIcon(new BitmapDrawable(loadAsset("res/drawable/ic_launcher.png")));
 		win.show();
-		Button mSpeak = (Button) vg.findViewById(R.id.speak);
-		Button mStop = (Button) vg.findViewById(R.id.stop);
+		final Button mSpeak = (Button) vg.findViewById(R.id.speak);
+		final Button mStop = (Button) vg.findViewById(R.id.stop);
 		edit=(EditText) vg.findViewById(R.id.mainEditText1);
-		Button paste=(Button) vg.findViewById(R.id.paste);
-		Button rel=(Button) vg.findViewById(R.id.release);
+		final Button paste=(Button) vg.findViewById(R.id.paste);
+		final View loadi=vg.findViewById(R.id.mainmyLoadingView1);
+		Spinner sp=(Spinner) vg.findViewById(R.id.mainmySpinner1);
+		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			@Override
+			public void onNothingSelected(AdapterView<?> p1)
+			{
+				// TODO: Implement this method
+			}
+			
+			@Override
+			public void onItemSelected(AdapterView<?> p1, View p2, int p3, long p4)
+			{
+				pq=Integer.toString(p3);
+			}
+		});
 		View.OnClickListener listener = new View.OnClickListener() {
 			public void onClick(View v)
 			{
@@ -83,18 +106,17 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 				switch (id)
 				{
 					case R.id.speak:
+						stop();
 						speak(edit.getText()+"");
 						break;
 					case R.id.stop:
 						stop();
 						break;
 					case R.id.paste:
+						stop();
 						String s=""+((ClipboardManager)ctx.getSystemService(ctx.CLIPBOARD_SERVICE)).getText();
 						edit.setText(s);
 						speak(s);
-						break;
-					case R.id.release:
-						onDestroy();
 						break;
 					default:
 						break;
@@ -104,16 +126,27 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 		mSpeak.setOnClickListener(listener);
 		mStop.setOnClickListener(listener);
 		paste.setOnClickListener(listener);
-		rel.setOnClickListener(listener);
+		mSpeak.setEnabled(false);
+		mStop.setEnabled(false);
+		paste.setEnabled(false);
 		new Thread(new Runnable(){
-				@Override
-				public void run()
-				{
-					initTTs();
-				}
-			}).start();
-		((SeekBar)vg.findViewById(R.id.mainmySeekBar1)).setOnSeekBarChangeListener(this);
-		((SeekBar)vg.findViewById(R.id.mainmySeekBar2)).setOnSeekBarChangeListener(this);
+			@Override
+			public void run()
+			{
+				initTTs();
+				new Handler(ctx.getMainLooper()).post(new Runnable(){
+					@Override
+					public void run()
+					{
+						mSpeak.setEnabled(true);
+						mStop.setEnabled(true);
+						paste.setEnabled(true);
+						loadi.setVisibility(8);
+					}
+				});
+				System.out.println("TTS Init");
+			}
+		}).start();
 		((SeekBar)vg.findViewById(R.id.mainmySeekBar3)).setOnSeekBarChangeListener(this);
 		((SeekBar)vg.findViewById(R.id.mainmySeekBar4)).setOnSeekBarChangeListener(this);
 	}
@@ -126,13 +159,8 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 	@Override
 	public void onProgressChanged(SeekBar p1, int p2, boolean p3)
 	{
-		switch(p1.getId()){
-			case R.id.mainmySeekBar1:
-				pq=Integer.toString(p2);
-				break;
-			case R.id.mainmySeekBar2:
-				pw=Integer.toString(p2);
-				break;
+		switch(p1.getId())
+		{
 			case R.id.mainmySeekBar3:
 				pe=Integer.toString(p2);
 				break;
@@ -212,7 +240,7 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 		// 设置在线发声音人： 0 普通女声（默认） 1 普通男声 2 特别男声 3 情感男声<度逍遥> 4 情感儿童声<度丫丫>
 		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEAKER,pq);
 		// 设置合成的音量，0-9 ，默认 5
-		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME,pw);
+		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME,"9");
 		// 设置合成的语速，0-9 ，默认 5
 		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEED,pe);
 		// 设置合成的语调，0-9 ，默认 5
@@ -258,7 +286,7 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 		 */
 		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEAKER,pq);
 		// 设置合成的音量，0-9 ，默认 5
-		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME,pw);
+		//mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME,"9");
 		// 设置合成的语速，0-9 ，默认 5
 		mSpeechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEED,pe);
 		// 设置合成的语调，0-9 ，默认 5
@@ -273,48 +301,53 @@ public class Main implements SpeechSynthesizerListener,SeekBar.OnSeekBarChangeLi
 	{
 		mSpeechSynthesizer.stop();
 	}
-	protected void onDestroy()
+
+	@Override
+	public void onButtonDown(int p1)
 	{
-		if (mSpeechSynthesizer != null)
+		if(p1==Window.ButtonCode.CLOSE)
 		{
-			mSpeechSynthesizer.stop();
-			mSpeechSynthesizer.release();
-			mSpeechSynthesizer = null;
+			if (mSpeechSynthesizer != null)
+			{
+				mSpeechSynthesizer.stop();
+				mSpeechSynthesizer.release();
+				mSpeechSynthesizer = null;
+			}
 		}
 	}
 	@Override
 	public void onError(String p1, SpeechError p2)
 	{
-		Toast.makeText(ctx,p1+","+p2.description,1).show();
+		System.out.println(p2.description);
 	}
 	@Override
 	public void onSpeechFinish(String p1)
 	{
-		// TODO: Implement this method
+		System.out.println(p1);
 	}
 	@Override
 	public void onSynthesizeStart(String p1)
 	{
-		// TODO: Implement this method
+		System.out.println(p1);
 	}
 	@Override
 	public void onSynthesizeDataArrived(String p1, byte[] p2, int p3)
 	{
-		// TODO: Implement this method
+		//System.out.println(p1);
 	}
 	@Override
 	public void onSpeechStart(String p1)
 	{
-		// TODO: Implement this method
+		System.out.println(p1);
 	}
 	@Override
 	public void onSynthesizeFinish(String p1)
 	{
-		// TODO: Implement this method
+		System.out.println(p1);
 	}
 	@Override
 	public void onSpeechProgressChanged(String p1, int p2)
 	{
-		// TODO: Implement this method
+		//System.out.println(p1);
 	}
 }

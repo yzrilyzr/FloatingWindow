@@ -1,21 +1,39 @@
 package com.yzrilyzr.bugs;
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import com.yzrilyzr.engine2d.MainActivity;
-import com.yzrilyzr.icondesigner.VECfile;
+import com.yzrilyzr.engine2d.GameActivity;
 
-public class MainActivity extends Activity
+public class MainActivity extends GameActivity
 {
+	@Override
+	public void render()
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public void start()
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public void stop()
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public void pause()
+	{
+		// TODO: Implement this method
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		// TODO: Implement this method
-		VECfile.VTypeface.DEFAULT=Typeface.createFromAsset(getAssets(),"font.ttf");
 		super.onCreate(savedInstanceState);
-		startActivity(new Intent(this,MainActivity.class));
-		finish();
+		//startActivity(new Intent(this,MainActivity.class));
+		//finish();
 	}
-	
 }
