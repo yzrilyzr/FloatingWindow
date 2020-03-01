@@ -9,7 +9,7 @@ import android.view.WindowManager.LayoutParams;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener ,OnLongClickListener
+public class Window extends ProxyAPI
 {
 	public android.view.View addView(int p1)
     {
@@ -139,12 +139,12 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
 
     public static final void readData()
     {
-        com.yzrilyzr.floatingwindow.pluginapi.Window.readData();
+        com.yzrilyzr.floatingwindow.Window.readData();
     }
 
     public static final void saveData()
     {
-        com.yzrilyzr.floatingwindow.pluginapi.Window.saveData();
+        com.yzrilyzr.floatingwindow.Window.saveData();
     }
 
 	public static final class ButtonCode
@@ -226,25 +226,6 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
     {
         return (boolean)invoke("moveableView",new Class[]{android.view.View.class,android.view.MotionEvent.class},p1,p2);
     }
-
-    @java.lang.Override()
-    public void onClick(android.view.View p1)
-    {
-        invoke("onClick",new Class[]{android.view.View.class},p1);
-    }
-
-    @java.lang.Override()
-    public boolean onLongClick(android.view.View p1)
-    {
-        return (boolean)invoke("onLongClick",new Class[]{android.view.View.class},p1);
-    }
-
-    @java.lang.Override()
-    public boolean onTouch(android.view.View p1,android.view.MotionEvent p2)
-    {
-        return (boolean)invoke("onTouch",new Class[]{android.view.View.class,android.view.MotionEvent.class},p1,p2);
-    }
-
     public Window setBar(int p1,int p2,int p3,int p4)
     {
        	invoke("setBar",new Class[]{int.class,int.class,int.class,int.class},p1,p2,p3,p4);
@@ -402,7 +383,7 @@ public class Window extends ProxyAPI implements OnClickListener ,OnTouchListener
 
     public Window(android.content.Context p1,int p2,int p3)
     {
-        super("com.yzrilyzr.floatingwindow.pluginapi.Window",new Class[]{android.content.Context.class,int.class,int.class},p1,p2,p3);
+        super("com.yzrilyzr.floatingwindow.Window",new Class[]{android.content.Context.class,int.class,int.class},p1,p2,p3);
     }
 
 

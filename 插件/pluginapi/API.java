@@ -5,17 +5,17 @@ import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
-import com.yzrilyzr.floatingwindow.mBroadcastReceiver;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.xmlpull.v1.XmlPullParser;
-import com.yzrilyzr.floatingwindow.API;
 
 public class API
 {
@@ -51,19 +51,29 @@ public class API
 	//main
 	public static void startServiceForResult(Context ctx,Intent intent,Window parent,Object h,String targetPkg,String targetClass)
     {
-		if(intent==null)intent=new Intent();
-		if(targetPkg==null)targetPkg="com.yzrilyzr.floatingwindow";
-		int ind=mBroadcastReceiver.index++;
-		mBroadcastReceiver.cbk.put(ind,h);
-        intent
-		.putExtra("rescode",ind)
-		.putExtra("parentIndex",parent==null?-1:com.yzrilyzr.floatingwindow.Window.windowList.indexOf(parent));
-		intent.setAction("com.yzrilyzr.Service");
-        intent.setPackage("com.yzrilyzr.floatingwindow");
-        intent.putExtra("pkg",targetPkg);
-        intent.putExtra("class",targetClass);
-        ctx.startService(intent);
-    }
+		try
+		{if(intent==null)intent=new Intent();
+			if(targetPkg==null)targetPkg="com.yzrilyzr.floatingwindow";
+			Class<?> mbr=Class.forName("com.yzrilyzr.floatingwindow.mBroadcastReceiver");
+			Field iii=mbr.getField("index");
+			int ind=iii.get(mbr);
+			iii.set(mbr,ind+1);
+			((HashMap<Integer,Object>)mbr.getField("cbk").get(mbr)).put(ind,h);
+			Class wcls=Class.forName(WINDOW_CLASS);
+			intent
+			.putExtra("rescode",ind)
+			.putExtra("parentIndex",parent==null?-1:((ArrayList)wcls.getField("windowList").get(wcls)).indexOf(parent));
+			intent.setAction("com.yzrilyzr.Service");
+			intent.setPackage("com.yzrilyzr.floatingwindow");
+			intent.putExtra("pkg",targetPkg);
+			intent.putExtra("class",targetClass);
+			ctx.startService(intent);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	//main
     public static void startService(Context ctx,Intent intent,String targetPkg,String targetClass)
     {
@@ -110,7 +120,15 @@ public class API
     }
 	public static void loadLibrary(String path)
 	{
-		API.loadLibrary(path);
+		try
+		{
+			Class<?> cl=Class.forName("com.yzrilyzr.floatingwindow.API");
+			cl.getMethod("loadLibrary",String.class).invoke(cl,path);
+		}
+		catch (Exception e)
+		{
+
+		}
 	}
 	public static View parseXmlViewFromFile(Context ctx,String pkgName,String file) 
     {

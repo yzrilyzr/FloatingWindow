@@ -37,7 +37,7 @@ public class MainClass implements Window.OnButtonDown
 					public void onReceive(Context p1, Intent p2)
 					{
 						Toast.makeText(ctx,"返回颜色:"+Integer.toHexString(p2.getIntExtra("color",0)),0).show();
-						//w.setColor(p2.getIntExtra("color",0));
+						w.setBColor(p2.getIntExtra("color",0));
 					}
 				},"com.yzrilyzr.floatingwindow.apps.ColorPicker");
 			}
