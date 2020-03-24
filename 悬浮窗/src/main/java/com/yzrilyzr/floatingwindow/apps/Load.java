@@ -17,17 +17,18 @@ import com.yzrilyzr.floatingwindow.view.StarterView;
 import com.yzrilyzr.icondesigner.Shape;
 import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.icondesigner.VecView;
-import com.yzrilyzr.myclass.JSEnv;
 import com.yzrilyzr.myclass.util;
 import com.yzrilyzr.ui.myLoadingView;
 import com.yzrilyzr.ui.myTextViewTitle;
 import com.yzrilyzr.ui.uidata;
 import java.io.IOException;
+import java.util.Date;
 
 public class Load implements Runnable,OnClickListener
 {
 	Window w;
 	Context c;
+	boolean isA=false;
 	private static boolean once=false,sa=false;
 
 	private boolean safe;
@@ -48,7 +49,37 @@ public class Load implements Runnable,OnClickListener
         v.setGravity(Gravity.CENTER);
 		VecView iv=new VecView(c);
         int ii=util.px(180);
-        iv.setImageVec("octocat");//floatingwindow");
+		Date dd=new Date(System.currentTimeMillis());
+		int m=dd.getMonth(),d=dd.getDate();
+		//System.out.println(m);
+		//System.out.println(d);
+		if(m==0&&d==3)
+		{
+			iv.setImageVec("bamboorod");
+			try
+			{
+				class 芊芊臭jio extends Exception{
+					public 芊芊臭jio(String dm)
+					{
+						super(dm);
+					}
+				}
+				util.toast("程序出现错误\n详情查看控制台");
+				throw new 芊芊臭jio("竹竿竿使用了\"芊芊臭jio\"技能导致了程序出错");
+			}
+			catch(Exception ep)
+			{
+				ep.printStackTrace();
+			}
+			isA=true;
+		}
+		else if(m==0&&d==10)
+		{
+			iv.setImageVec("yzr");
+			System.out.println("哦我的上帝啊,我祈祷它不会出现任何该死的Bug");
+			isA=true;
+		}
+        else iv.setImageVec("octocat");//floatingwindow");
         iv.setLayoutParams(new LinearLayout.LayoutParams(ii,ii));
 		iv.setOnClickListener(this);
         v.addView(iv);
@@ -98,7 +129,7 @@ public class Load implements Runnable,OnClickListener
 				StarterView.load(c);
 				PluginPicker.load();
 				m=System.currentTimeMillis()-m;
-				new Handler(c.getMainLooper()).postDelayed(Load.this,m<1000l&&m>0?1000l-m:0);
+				new Handler(c.getMainLooper()).postDelayed(Load.this,isA?2000:m<1000l&&m>0?1000l-m:0);
 			}
 		}.start();
 		once=true;
