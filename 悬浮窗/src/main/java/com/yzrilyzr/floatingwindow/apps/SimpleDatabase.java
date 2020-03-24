@@ -53,9 +53,10 @@ public class SimpleDatabase implements TextWatcher,OnClickListener,OnItemClickLi
 		edit=(EditText)v.findViewById(R.id.windowsimpledatabasemyEditText1);
 		myFab f1=(myFab)v.findViewById(R.id.windowsimpledatabasemyFab1);
 		f1.setOnClickListener(this);
-		new myAnim(f1,"tt:~,~,1000;");
 		up=(myFab) v.findViewById(R.id.windowsimpledatabasemyFab2);
 		up.setOnClickListener(this);
+		new myAnim(f1,"t:0,0,100,0,0,500;a:0,1,0,500;");
+		new myAnim(up,"t:0,0,50,0,0,500;a:0,1,0,500;");
 		list.setAdapter(new BaseAdapter(){
 			@Override
 			public int getCount()
