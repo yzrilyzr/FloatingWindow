@@ -199,13 +199,13 @@ public class Bug extends Shape
 			else
 			{
 				ma.reset();
-				float sc=Ui.NonLinearFunc(-hp/200);
+				float sc=Ui2.NonLinearFunc(-hp/200);
 				if(hp>-200){
 					ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
 					ma.postScale(sc,sc);
 					ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);
 				}
-				else if(hp<-1500)p.setAlpha((int)(255f*Ui.NonLinearFunc((2000+hp)/500)));
+				else if(hp<-1500)p.setAlpha((int)(255f*Ui2.NonLinearFunc((2000+hp)/500)));
 				ma.postTranslate(-bugicon.getWidth()/2,-bugicon.getHeight()/2);
 				ma.postRotate(dir);
 				ma.postTranslate(bugicon.getWidth()/2,bugicon.getHeight()/2);

@@ -10,6 +10,7 @@ public class Timer
 	}
 	public int render(float dt){
 		timer+=dt;
+		timer=Eg.limit(timer,0,3600000);
 		int size=ts.size();
 		if(size==0)return 0;
 		for(int i=size-1;i>=0;i--){

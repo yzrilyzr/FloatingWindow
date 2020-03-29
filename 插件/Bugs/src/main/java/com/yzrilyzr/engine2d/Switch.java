@@ -6,7 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 
-public class Switch extends Ui
+public class Switch extends Ui2
 {
 	boolean isOn=false;
 	RectF rec=new RectF();

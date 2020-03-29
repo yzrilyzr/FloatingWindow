@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff;
 
-public class SeekBar extends Ui
+public class SeekBar extends Ui2
 {
 	public int pro,max;
 	RectF rec=new RectF();

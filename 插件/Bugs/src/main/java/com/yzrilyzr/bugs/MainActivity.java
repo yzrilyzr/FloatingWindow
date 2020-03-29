@@ -14,7 +14,7 @@ public class MainActivity extends GameActivity
 	public void start()
 	{
 		Eg.setBackground(0xff666666);
-		Eg.loadScene(new StartAnim());
+		Eg.startScene(new Splash());
 	}
 
 	@Override
@@ -22,11 +22,4 @@ public class MainActivity extends GameActivity
 	{
 		// TODO: Implement this method
 	}
-
-	@Override
-	public void pause()
-	{
-		// TODO: Implement this method
-	}
-
 }

@@ -1,12 +1,11 @@
 package com.yzrilyzr.engine2d;
 import android.graphics.*;
-import java.util.*;
 import com.yzrilyzr.icondesigner.*;
-import java.io.*;
+import java.util.*;
 
 public class Eg
 {
-	public static boolean showfps=true;
+	public static boolean showfps=true,showgrid=true;
 	public static int fpslimit=120;
 	public static int bgcolor=0xffaaaaaa;
 	public static GameActivity gameact;
@@ -25,17 +24,23 @@ public class Eg
 	{
 		return gameact.getAbsHeight();
 	}
+	public static float p(float p)
+	{
+		return p*scale;
+	}
 	public static int pi(float p)
 	{
 		return (int)(p*scale);
 	}
 	//画布,文件,重心,缩放,重心偏移x、y
-	//动画(相对于图像大小)偏移x、y%
+	//动画偏移x、y%,时间(0～1),动画重心
 	//动画缩放%,缩放中心x、y
 	//动画旋转%,旋转中心x、y
 	//动画透明度%
+
+	//x y重心偏移是相对于各自的比例
 	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,
-		float atransx,float atransy,
+		float atransx,float atransy,float atranstime,int atransgravity,
 		float ascale,float ascpx,float ascpy,
 		float arotate,float aropx,float aropy,
 		float aalpha)
@@ -47,7 +52,6 @@ public class Eg
 			if(!cache.containsKey(p1))
 			{
 				VECfile vf=VECfile.readFileFromIs(gameact.getAssets().open(p1+".vec"));
-				vf.getWidth();
 				int w=1,h=1;
 				if(getAbsHeight()>getAbsWidth())
 				{
@@ -63,21 +67,76 @@ public class Eg
 				cache.put(p1,b);
 			}
 			else b=cache.get(p1);
-			int x=0,y=0,w=b.getWidth(),h=b.getHeight();
-			if(hasFlag(gravity,Gravity.RIGHT))x=(int)(getAbsWidth()-w);
-			if(hasFlag(gravity,Gravity.BOTTOM))y=(int)(getAbsHeight()-h);
-			if(hasFlag(gravity,Gravity.CENTER))
+			float x=0,y=0,w=b.getWidth(),h=b.getHeight();
+			if(atransgravity==0)
 			{
-				x=(int)(getAbsWidth()-w)/2;
-				y=(int)(getAbsHeight()-h)/2;
+				if(hasFlag(gravity,Gravity.CENTER))
+				{
+					x=(getAbsWidth()-w)/2;
+					y=(getAbsHeight()-h)/2;
+				}
+				if(hasFlag(gravity,Gravity.LEFT))x=0;
+				if(hasFlag(gravity,Gravity.TOP))y=0;
+				if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
+				if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
+				x+=getAbsWidth()*(dxperc+atransx)/100f;
+				y+=getAbsHeight()*(dyperc+atransy)/100f;
 			}
-			x+=getAbsWidth()*dxperc/100f;
-			y+=getAbsHeight()*dyperc/100f;
+			else
+			{
+				if(hasFlag(gravity,Gravity.CENTER))
+				{
+					x=(getAbsWidth()-w)/2;
+					y=(getAbsHeight()-h)/2;
+				}
+				if(hasFlag(gravity,Gravity.LEFT))x=0;
+				if(hasFlag(gravity,Gravity.TOP))y=0;
+				if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
+				if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
+				float x2=0,y2=0;
+				if(hasFlag(atransgravity,Gravity.CENTER))
+				{
+					x2=(getAbsWidth()-w)/2;
+					y2=(getAbsHeight()-h)/2;
+				}
+				if(hasFlag(atransgravity,Gravity.LEFT))x2=0;
+				if(hasFlag(atransgravity,Gravity.TOP))y2=0;
+				if(hasFlag(atransgravity,Gravity.RIGHT))x2=(getAbsWidth()-w);
+				if(hasFlag(atransgravity,Gravity.BOTTOM))y2=(getAbsHeight()-h);
+				x+=getAbsWidth()*dxperc/100f;
+				y+=getAbsHeight()*dyperc/100f;
+				x2+=getAbsWidth()*atransx/100f;
+				y2+=getAbsHeight()*atransy/100f;
+				x+=(x2-x)*atranstime;
+				y+=(y2-y)*atranstime;
+			}
 			m.postScale(ascale,ascale,w*ascpx/100f,h*ascpy/100f);
 			m.postRotate(arotate*360f,w*aropx/100f,h*aropy/100f);
-			m.postTranslate(x+atransx*w,y+atransy*h);
+			m.postTranslate(x,y);
 			p.setAlpha((int)(aalpha*255f));
 			c.drawBitmap(b,m,p);
+			if(showgrid)
+			{
+				RectF re=new RectF(0,0,w,h);
+				m.mapRect(re);
+				p.setColor(0xff4444ff);
+				p.setStyle(Paint.Style.STROKE);
+				p.setStrokeWidth(1);
+				c.drawRect(re,p);
+				p.setStyle(Paint.Style.FILL);
+				p.setTextSize(p(25));
+				RectF r=new RectF(re);
+				r.left*=100f/getAbsWidth();
+				r.top*=100f/getAbsHeight();
+				r.right*=100f/getAbsWidth();
+				r.bottom*=100f/getAbsHeight();
+				c.drawText(String.format("%f",r.left),re.left,re.centerY(),p);
+				c.drawText(String.format("%f",r.top),re.centerX(),re.top,p);
+				c.drawText(String.format("%f",r.right),re.right,re.centerY(),p);
+				c.drawText(String.format("%f",r.bottom),re.centerX(),re.bottom,p);
+				c.drawText(String.format("%f,%f",r.centerX(),r.centerY()),re.centerX(),re.centerY(),p);
+
+			}
 		}
 		catch(Exception e)
 		{
@@ -85,9 +144,25 @@ public class Eg
 			c.drawText(String.format("资源载入失败:%s",p1),0,p.getTextSize()*5,p);
 		}
 	}
+	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,
+		float atransx,float atransy,
+		float ascale,float ascpx,float ascpy,
+		float arotate,float aropx,float aropy,
+		float aalpha)
+	{
+		drawVec(c,p1,gravity,scale,dxperc,dyperc,
+			atransx,atransy,0,0,
+			ascale,ascpx,ascpy,
+			arotate,aropx,aropy,
+			aalpha);
+	}
 	public static void drawVec(Canvas c,String vec,int Gravity,float scale)
 	{
-		drawVec(c,vec,Gravity,scale,0,0,0,0,1,0,0,0,0,0,1);
+		drawVec(c,vec,Gravity,scale,0,0,
+			0,0,
+			1,0,0,
+			0,0,0,
+			1);
 	}
 	public static void delay(int ms)
 	{
@@ -110,7 +185,7 @@ public class Eg
 	{
 		p=o;
 	}
-	public static void loadScene(Scene sc)
+	public static void startScene(Scene sc)
 	{
 		gameact.startScene(sc);
 	}
@@ -152,13 +227,17 @@ public class Eg
 	{
 		return Math.max(Math.min(x,max),min);
 	}
+	public static int random(int min,int max)
+    {
+        return (int)Math.floor(Math.random()*(max-min))+min;
+    }
 
 	public interface GameCBK
 	{
 		public abstract void render(Canvas c,float dt);
 		public abstract void start();
 		public abstract void stop();
-		public abstract void pause();
+		//public abstract void touch(MotionEvent e);
 	}
 	public static class Gravity
 	{

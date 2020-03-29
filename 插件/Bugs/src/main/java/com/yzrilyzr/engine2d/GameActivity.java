@@ -15,8 +15,13 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	public SurfaceView sv;
 	SurfaceHolder hd;
 	public Paint p;
+	//触摸
+	float ppx,ppy;
+	//视图相关
+	ArrayList<Ui> uis=new ArrayList<Ui>();
+	Ui tui;
 	//多缓冲绘制
-	static int cachecount=5;
+	static int cachecount=10;
 	static Bitmap[] bmpc=new Bitmap[cachecount];
 	static Canvas[] cvsc=new Canvas[cachecount];
 	static int curdraw=0,lock=0;
@@ -47,19 +52,55 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		hd=sv.getHolder();
 		sv.setOnTouchListener(this);
 		hd.addCallback(this);
+		if(renderThread==null)
+		{
+			renderThread=new Thread(this);
+			renderThread.start();
+		}
+		else
+		{
+			toast("游戏正在运行");
+		}
 		start();
 	}
 	public void startScene(Scene e)
 	{
-		for(Scene s:mSceneList)s.stop();
 		mSceneList.add(e);
 		e.start();
 	}
 	@Override
-	public boolean onTouch(View p1, MotionEvent p2)
+	public boolean onTouch(View p1, MotionEvent event)
 	{
-		// TODO: Implement this method
-		return false;
+		ppx=event.getX()/sv.getWidth()*100f;
+		ppy=event.getY()/sv.getHeight()*100f;
+		/*for(int i=uis.size()-1;i>=0;i--)
+		{
+			Ui s=uis.get(i);
+			if(s.anim)continue;
+			if(Ui.down(event))
+			{
+				if(s.contains(event.getX(),event.getY())&&s.visible)
+				{
+					tui=s;
+					tui.onDown(event);
+					break;
+				}
+				else tui=null;
+			}
+			else if(Ui.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Eg.p(10)&&Math.abs(event.getY()-lyy)>Eg.p(10))
+			{
+				tui.onMove(event);
+				return true;
+			}
+			else if(Ui.up(event)&&tui!=null&&tui.contains(event.getX(),event.getY()))
+			{
+				tui.onClick(event);
+				tui=null;
+				return false;
+			}
+		}
+		*/
+		return true;
 	}
 
 	@Override
@@ -80,30 +121,30 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		// TODO: Implement this method
 	}
 	@Override
-	protected void onPause()
+	protected void onStop()
 	{
 		// TODO: Implement this method
 		super.onPause();
 		isPause=true;
-		for(Scene s:mSceneList)s.pause();
-		pause();
 	}
-
 	@Override
-	protected void onStart()
+	protected void onResume()
 	{
 		// TODO: Implement this method
-		super.onStart();
-		if(renderThread==null)
-		{
-			renderThread=new Thread(this);
-			renderThread.start();
-		}
-		else
-		{
-			toast("游戏正在运行");
-		}
+		super.onResume();
+		isPause=false;
 	}
+	@Override
+	protected void onDestroy()
+	{
+		// TODO: Implement this method
+		Running=false;
+		stop();
+		for(Scene s:mSceneList)s.stop();
+		super.onDestroy();
+		System.exit(0);
+	}
+
 	public void toast(final Throwable e)
 	{
 		new Handler(getMainLooper()).post(new Runnable(){
@@ -130,15 +171,6 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 				}
 			});
 	}
-
-	@Override
-	protected void onResume()
-	{
-		// TODO: Implement this method
-		super.onResume();
-		isPause=false;
-	}
-
 	@Override
 	public void run()
 	{
@@ -193,10 +225,13 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 								continue;
 							}
 							Canvas cs=hd.lockCanvas();
-							lock=curdraw-1;
-							if(lock<0)lock=bmpc.length-1;
-							int w=lock;
-							if(bmpc[w]!=null)
+							if(cs!=null)
+							{
+
+								lock=curdraw-1;
+								if(lock<0)lock=bmpc.length-1;
+								int w=lock;
+								if(bmpc[w]!=null)
 								//if(sv.getHeight()==bmpc[w].getHeight())cs.drawBitmap(bmpc[w],0,0,p);
 								//else
 								{
@@ -208,10 +243,11 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 									}
 									cs.drawBitmap(bmpc[w],m2,p);
 								}
-							//cs.drawBitmap(banner,m,p);
-							if(cs!=null)hd.unlockCanvasAndPost(cs);
-							lock=-1;
-							Thread.sleep(0,1000);
+								hd.unlockCanvasAndPost(cs);
+							}
+								//cs.drawBitmap(banner,m,p);
+								lock=-1;
+								Thread.sleep(0,1000);
 						}
 						catch (Exception e)
 						{
@@ -244,6 +280,28 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 				c.drawColor(Eg.bgcolor);
 				render(c,dt/1000000f);
 				for(Scene s:mSceneList)s.render(c,dt/1000000f);
+				for(Ui u:uis)u.render(c,dt/1000000f);
+				p.setStyle(Paint.Style.STROKE);
+				if(Eg.showgrid)
+				{
+					p.setStrokeWidth(1);
+					float k=getAbsWidth()/20;
+					for(int i=0;i<20;i++)
+					{
+						p.setColor(i%4==0?0xff00ff00:0xffff0000);
+						c.drawLine(i*k,0,i*k,getAbsHeight(),p);
+					}
+					k=getAbsHeight()/20;
+					for(int u=0;u<20;u++)
+					{
+						p.setColor(u%4==0?0xff00ff00:0xffff0000);
+						c.drawLine(0,u*k,getAbsWidth(),u*k,p);
+					}
+					p.setColor(0xff0000ff);
+					//c.drawLine(0,Eg.p(ppy),Eg.p(1600),Eg.p(ppy),p);
+					//c.drawLine(Eg.p(ppx),0,Eg.p(ppx),Eg.p(900),p);
+				}
+				p.setStyle(Paint.Style.FILL);
 				if(Eg.showfps)
 				{
 					if(dt==0)dt=1;
@@ -257,8 +315,8 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 						avgfps=0;
 					}
 					p.setColor(0xffff0000);
-					p.setTextSize(Shape.p(50));
-					c.drawText(String.format("FPS:%d Shape:d RAM:d Size:%dx%d x:d y:d",fps,(int)getAbsWidth(),(int)getAbsHeight()),0,Shape.p(50),p);
+					p.setTextSize(Eg.p(50));
+					c.drawText(String.format("FPS:%d Eg:d RAM:d Size:%dx%d x:%d y:%d",fps,(int)getAbsWidth(),(int)getAbsHeight(),(int)ppx,(int)ppy),0,Eg.p(50),p);
 				}
 				dt=System.nanoTime()-ns;
 				ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
@@ -277,17 +335,4 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		Running=false;
 		renderThread=null;
 	}
-
-
-	@Override
-	protected void onDestroy()
-	{
-		// TODO: Implement this method
-		Running=false;
-		stop();
-		for(Scene s:mSceneList)s.stop();
-		super.onDestroy();
-	}
-
-
 }

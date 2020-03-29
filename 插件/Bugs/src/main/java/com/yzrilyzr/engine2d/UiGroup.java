@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-public class UiGroup extends Ui
+public class UiGroup extends Ui2
 {
-	ArrayList<Ui> uis=new ArrayList<Ui>();
-	public UiGroup(Ui... uiss){
+	ArrayList<Ui2> uis=new ArrayList<Ui2>();
+	public UiGroup(Ui2... uiss){
 		super(null,0,0,0,0);
 		this.x=p(x);
 		this.y=p(y);
@@ -14,7 +14,7 @@ public class UiGroup extends Ui
 		this.h=p(h);
 		visible=false;
 		if(uiss!=null)
-		for(Ui ui:uiss){
+		for(Ui2 ui:uiss){
 			if(ui==null)continue;
 			uis.add(ui);
 			ui.parent=this;
@@ -54,7 +54,7 @@ public class UiGroup extends Ui
 	{
 		MainActivity.ui.remove(this);
 		MainActivity.ui.add(this);
-		for(Ui u:uis)
+		for(Ui2 u:uis)
 		{
 			MainActivity.ui.remove(u);
 			MainActivity.ui.add(u);
@@ -65,45 +65,45 @@ public class UiGroup extends Ui
 	public UiGroup setVisable(boolean b)
 	{
 		visible=b;
-		for(Ui u:uis)u.setVisable(b);
+		for(Ui2 u:uis)u.setVisable(b);
 		return this;
 	}
 
 	@Override
 	public UiGroup alphaFrom(float x, float m)
 	{
-		for(Ui u:uis)u.alphaFrom(x,m);
+		for(Ui2 u:uis)u.alphaFrom(x,m);
 		return this;
 	}
 
 	@Override
 	public UiGroup alphaTo(float x, float m)
 	{
-		for(Ui u:uis)u.alphaTo(x,m);
+		for(Ui2 u:uis)u.alphaTo(x,m);
 		return this;
 	}
 
 	@Override
 	public UiGroup tScFrom(float x, float y, float w, float h, float millis)
 	{
-		for(Ui u:uis)u.tScFrom(x, y, w, h, millis);
+		for(Ui2 u:uis)u.tScFrom(x, y, w, h, millis);
 		return this;
 	}
 
 	@Override
 	public UiGroup tScTo(float x, float y, float w, float h, float millis)
 	{
-		for(Ui u:uis)u.tScTo(x, y, w, h, millis);
+		for(Ui2 u:uis)u.tScTo(x, y, w, h, millis);
 		return this;
 	}
 	public UiGroup tScTo(float... p){
 		int i=0;
-		for(Ui u:uis)u.tScTo(p[i++],p[i++],p[i++],p[i++],p[i++]);
+		for(Ui2 u:uis)u.tScTo(p[i++],p[i++],p[i++],p[i++],p[i++]);
 		return this;
 	}
 	public UiGroup tScFrom(float... p){
 		int i=0;
-		for(Ui u:uis)u.tScFrom(p[i++],p[i++],p[i++],p[i++],p[i++]);
+		for(Ui2 u:uis)u.tScFrom(p[i++],p[i++],p[i++],p[i++],p[i++]);
 		return this;
 	}
 }

@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import java.util.concurrent.CopyOnWriteArrayList;
 import android.graphics.PorterDuff;
 
-public class List extends Ui
+public class List extends Ui2
 {
 	private float ypos=0,lastypos=0,//y增量
 	dy=0,lastdy=0,//拖动位移
@@ -15,7 +15,7 @@ public class List extends Ui
 	lasty,totalH;//按下时y
 	private boolean touch=false,isScroll=false;
 	private int scralpha=0;
-	public CopyOnWriteArrayList<Ui> views=new CopyOnWriteArrayList<Ui>();
+	public CopyOnWriteArrayList<Ui2> views=new CopyOnWriteArrayList<Ui2>();
 	public CopyOnWriteArrayList<Float> oys=new CopyOnWriteArrayList<Float>();//原始y
 	//实际y=原始y+y增量+listy
 	Canvas c;
@@ -31,7 +31,7 @@ public class List extends Ui
 		scralpha=0;
 		float max=0;
 		oys.clear();
-		for(Ui ui:views)
+		for(Ui2 ui:views)
 		{
 			ui.x-=x;
 			max=Math.max(ui.y+ui.h,max);
@@ -63,7 +63,7 @@ public class List extends Ui
 		//p.setColor(0xff15154a);
 		for(int i=0;i<Math.min(views.size(),oys.size());i++)
 		{
-			Ui v=views.get(i);
+			Ui2 v=views.get(i);
 			float oy=oys.get(i);
 			//if()
 			{
@@ -119,7 +119,7 @@ public class List extends Ui
 		vy=0;
 		//MainActivity.toast("u");
 		if(!isScroll)
-			for(Ui u:views){
+			for(Ui2 u:views){
 				//MainActivity.toast("y:"+u.y+"  py:"+e.getY()+" ly:"+y+" ?y:"+ypos);
 				if(u.contains(e.getX()-x,e.getY()-y))
 				{
@@ -128,10 +128,10 @@ public class List extends Ui
 				}
 				}
 	}
-	public void addView(Ui... m)
+	public void addView(Ui2... m)
 	{
 		if(m!=null)
-			for(Ui v:m)
+			for(Ui2 v:m)
 				if(v!=null)
 				{
 					MainActivity.ui.remove(v);
