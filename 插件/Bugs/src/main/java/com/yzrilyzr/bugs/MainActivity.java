@@ -1,19 +1,20 @@
 package com.yzrilyzr.bugs;
 import android.os.Bundle;
 import com.yzrilyzr.engine2d.GameActivity;
+import com.yzrilyzr.engine2d.*;
+import android.graphics.*;
 
 public class MainActivity extends GameActivity
 {
 	@Override
-	public void render()
+	public void render(Canvas c, float dt)
 	{
-		// TODO: Implement this method
 	}
-
 	@Override
 	public void start()
 	{
-		// TODO: Implement this method
+		Eg.setBackground(0xff666666);
+		Eg.loadScene(new StartAnim());
 	}
 
 	@Override
@@ -27,13 +28,5 @@ public class MainActivity extends GameActivity
 	{
 		// TODO: Implement this method
 	}
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		// TODO: Implement this method
-		super.onCreate(savedInstanceState);
-		//startActivity(new Intent(this,MainActivity.class));
-		//finish();
-	}
+
 }
