@@ -9,4 +9,8 @@ public class Button extends Ui
 	public void click(){
 		
 	}
+	public Button(String vec,int g,float d,float x,float y,boolean r){
+		super(vec,g,d,x,y);
+		this.r=Eg.p(d/2f);
+	}
 }

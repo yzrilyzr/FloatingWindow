@@ -1,0 +1,56 @@
+package com.yzrilyzr.bugs;
+import com.yzrilyzr.engine2d.*;
+import android.graphics.*;
+import android.view.*;
+
+public class LevelSelect extends Scene
+{
+	Button mainmenu;
+	Timer in,out;
+	@Override
+	public void render(Canvas c, float dt)
+	{
+		if(in!=null)
+			switch(in.render(dt)){
+				case 0:
+					anim(true);
+					mainmenu.draw(c,0,13-13*in.getNLF(),0.7f+0.3f*in.getNLF(),50,50,0,0,0,in.getNLF());
+					break;
+				case 500:
+					anim(false);
+					mainmenu.draw(c);
+			}
+		c.drawText("cc",500,500,Eg.p);
+		if(out!=null)
+			switch(out.render(dt)){
+				case 0:
+					anim(true);
+					mainmenu.draw(c,0,13*out.getNLF(),1f-0.3f*out.getNLF(),50,50,0,0,0,1-out.getNLF());
+					break;
+				case 500:
+					out=null;
+					removeSelf();
+			}
+	}
+
+	@Override
+	public void start()
+	{
+		in=new Timer(0,500);
+		mainmenu=new Button("buttonmainmenu",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,10,-3,-3){
+			public void onClick(MotionEvent e){
+				in=null;
+				out=new Timer(0,500);
+				Eg.startScene(new MainMenu(false));
+			}
+		};
+		add(mainmenu);
+	}
+
+	@Override
+	public void stop()
+	{
+		// TODO: Implement this method
+	}
+	
+}

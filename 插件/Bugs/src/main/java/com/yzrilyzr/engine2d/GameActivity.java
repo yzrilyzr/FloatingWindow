@@ -7,6 +7,7 @@ import android.widget.*;
 import com.yzrilyzr.icondesigner.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public abstract class GameActivity extends Activity implements Runnable,View.OnTouchListener,SurfaceHolder.Callback,Eg.GameCBK
 {
@@ -16,17 +17,19 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	SurfaceHolder hd;
 	public Paint p;
 	//触摸
-	float ppx,ppy;
+	float ppx,ppy,lxx,lyy;
+	boolean disabletouch=false;
 	//视图相关
-	ArrayList<Ui> uis=new ArrayList<Ui>();
 	Ui tui;
 	//多缓冲绘制
-	static int cachecount=10;
+	static int cachecount=5;
 	static Bitmap[] bmpc=new Bitmap[cachecount];
 	static Canvas[] cvsc=new Canvas[cachecount];
+	static int[] bmpcuseage=new int[cachecount];
+	static int[] bmpcuseage2=new int[cachecount];
 	static int curdraw=0,lock=0;
 	//场景列表
-	public ArrayList<Scene> mSceneList=new ArrayList<Scene>();
+	public CopyOnWriteArrayList<Scene> mSceneList=new CopyOnWriteArrayList<Scene>();
 
 	public float getAbsHeight()
 	{
@@ -73,13 +76,17 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	{
 		ppx=event.getX()/sv.getWidth()*100f;
 		ppy=event.getY()/sv.getHeight()*100f;
-		/*for(int i=uis.size()-1;i>=0;i--)
+		if(disabletouch)return false;
+		for(Scene sc:mSceneList)
+		for(int i=sc.uis.size()-1;i>=0;i--)
 		{
-			Ui s=uis.get(i);
+			Ui s=sc.uis.get(i);
 			if(s.anim)continue;
 			if(Ui.down(event))
 			{
-				if(s.contains(event.getX(),event.getY())&&s.visible)
+				lxx=event.getX();
+				lyy=event.getY();
+				if(s.contains(event.getX(),event.getY()))
 				{
 					tui=s;
 					tui.onDown(event);
@@ -87,7 +94,7 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 				}
 				else tui=null;
 			}
-			else if(Ui.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Eg.p(10)&&Math.abs(event.getY()-lyy)>Eg.p(10))
+			else if(Ui.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Eg.p(0.5f)&&Math.abs(event.getY()-lyy)>Eg.p(0.5f))
 			{
 				tui.onMove(event);
 				return true;
@@ -99,7 +106,6 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 				return false;
 			}
 		}
-		*/
 		return true;
 	}
 
@@ -141,8 +147,10 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		Running=false;
 		stop();
 		for(Scene s:mSceneList)s.stop();
+		Eg.cache.clear();
+		mSceneList.clear();
 		super.onDestroy();
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	public void toast(final Throwable e)
@@ -190,8 +198,10 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		//多缓冲初始化
 		for(int i=0;i<bmpc.length;i++)
 		{
-			bmpc[i]=Bitmap.createBitmap(Eg.pi(sv.getWidth()),Eg.pi(sv.getHeight()),Bitmap.Config.ARGB_8888);
+			bmpc[i]=Bitmap.createBitmap(sv.getWidth(),sv.getHeight(),Bitmap.Config.ARGB_8888);
 			cvsc[i]=new Canvas(bmpc[i]);
+			bmpcuseage[i]=0;
+			bmpcuseage2[i]=0;
 		}
 		//多缓冲线程
 		new Thread(new Runnable(){
@@ -242,6 +252,7 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 										lres=bmpc[w].getHeight();
 									}
 									cs.drawBitmap(bmpc[w],m2,p);
+									bmpcuseage[w]++;
 								}
 								hd.unlockCanvasAndPost(cs);
 							}
@@ -271,17 +282,26 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 					continue;
 				}
 				//获取缓冲区
-				if(++curdraw>=cvsc.length)curdraw=0;
+				if(++curdraw>=cvsc.length){
+					curdraw=0;
+					for(int i=0;i<bmpcuseage.length;i++){
+						bmpcuseage2[i]=bmpcuseage[i];
+						bmpcuseage[i]=0;
+					}
+				}
 				if(curdraw==lock)continue;
 				//if(curdraw==lock)curdraw++;
 				//if(curdraw>=cvsc.length)curdraw=0;
 				c=cvsc[curdraw];
+				//重置计数器
+				Eg.drawcount=0;
 				//绘制
 				c.drawColor(Eg.bgcolor);
 				render(c,dt/1000000f);
 				for(Scene s:mSceneList)s.render(c,dt/1000000f);
-				for(Ui u:uis)u.render(c,dt/1000000f);
+				//for(Ui u:uis)u.render(c,dt/1000000f);
 				p.setStyle(Paint.Style.STROKE);
+				//显示网格
 				if(Eg.showgrid)
 				{
 					p.setStrokeWidth(1);
@@ -298,10 +318,11 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 						c.drawLine(0,u*k,getAbsWidth(),u*k,p);
 					}
 					p.setColor(0xff0000ff);
-					//c.drawLine(0,Eg.p(ppy),Eg.p(1600),Eg.p(ppy),p);
-					//c.drawLine(Eg.p(ppx),0,Eg.p(ppx),Eg.p(900),p);
+					c.drawLine(0,ppy*getAbsHeight(),getAbsWidth(),ppy*getAbsHeight(),p);
+					c.drawLine(ppx*getAbsWidth(),0,ppx*getAbsWidth(),getAbsHeight(),p);
 				}
 				p.setStyle(Paint.Style.FILL);
+				//fps相关
 				if(Eg.showfps)
 				{
 					if(dt==0)dt=1;
@@ -315,11 +336,18 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 						avgfps=0;
 					}
 					p.setColor(0xffff0000);
-					p.setTextSize(Eg.p(50));
-					c.drawText(String.format("FPS:%d Eg:d RAM:d Size:%dx%d x:%d y:%d",fps,(int)getAbsWidth(),(int)getAbsHeight(),(int)ppx,(int)ppy),0,Eg.p(50),p);
+					p.setTextSize(Eg.p(5));
+					ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
+					c.drawText(String.format("FPS:%d Draw:%d Cache:%d RAM:%dMB Size:%dx%d x:%d y:%d",fps,Eg.drawcount,Eg.cache.size(),ram,(int)getAbsWidth(),(int)getAbsHeight(),(int)ppx,(int)ppy),0,Eg.p(5),p);
+					int to=0;
+					for(int i=0;i<bmpcuseage2.length;i++)to+=bmpcuseage2[i];
+					c.drawLine(0,Eg.p(10),bmpcuseage2.length*Eg.p(5),Eg.p(10),p);
+					if(to!=0)
+						for(int i=0;i<bmpcuseage2.length;i++){
+							c.drawRect(i*Eg.p(5),Eg.p(15)-bmpcuseage2[i]*Eg.p(5)/to,(i+1)*Eg.p(5),Eg.p(15),p);
+					}
 				}
 				dt=System.nanoTime()-ns;
-				ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
 				if(dt<1000000000/Eg.fpslimit)Thread.sleep((int)((float)(1000000000/Eg.fpslimit-(int)dt)/1000000f));
 				dt=System.nanoTime()-ns;
 				ns=System.nanoTime();

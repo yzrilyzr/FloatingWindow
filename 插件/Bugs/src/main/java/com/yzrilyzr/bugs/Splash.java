@@ -11,15 +11,10 @@ public class Splash extends Scene
 		switch(t.render(dt))
 		{
 			case 0:
-				float t1=Eg.getNLinearValueByTime(t.timer,0,600);
 				Eg.p.setColor(0xff55aaff);
-				Eg.p.setAlpha((int)(t1*255));
+				Eg.p.setAlpha((int)(t.getNLF()*255));
 				c.drawPaint(Eg.p);
-				Eg.drawVec(c,"yzrilyzr",Eg.Gravity.CENTER,40,0,-10,
-					0,0,
-					t1*0.5f+0.5f,50,50,
-					0,0,0,
-					t1);
+				Eg.drawVec(c,"yzrilyzr",Eg.Gravity.CENTER,40,0,-10,0,-10f*t.getSF(),(t.getNLF()+1)*0.5f,50,50,0,0,0,t.getNLF());
 				break;
 			case 600:
 				Eg.p.setColor(0xff55aaff);
@@ -28,15 +23,10 @@ public class Splash extends Scene
 				Eg.drawVec(c,"yzrilyzr",Eg.Gravity.CENTER,40,0,-10,0,0,1,0,0,0,0,0,1);
 				break;
 			case 1400:
-				float t11=Eg.getNLinearValueByTime(t.timer,1400,2000);
 				Eg.p.setColor(0xff55aaff);
-				Eg.p.setAlpha(255-(int)(t11*255));
+				Eg.p.setAlpha(255-(int)(t.getNLF()*255));
 				c.drawPaint(Eg.p);
-				Eg.drawVec(c,"yzrilyzr",Eg.Gravity.CENTER,40,0,-10,
-					0,0,
-					1,0,0,
-					0,0,0,
-					1-t11);
+				Eg.drawVec(c,"yzrilyzr",Eg.Gravity.CENTER,40,0,-10,0,0,1,0,0,0,0,0,1-t.getNLF());
 				break;
 			case 2000:
 				Eg.startScene(new StartAnim());

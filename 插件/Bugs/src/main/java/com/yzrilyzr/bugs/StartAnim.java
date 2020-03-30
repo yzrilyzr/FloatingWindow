@@ -30,19 +30,20 @@ public class StartAnim extends Scene
 				Eg.drawVec(c,"vec/startanim/loadcode",Eg.Gravity.LEFT,100,0,0,0,0,1,0,0,0,0,0,t11);
 				Eg.drawVec(c,"vec/startanim/loadpp",0,30,60,55,0,0,1,0,0,0,0,0,t11);
 				Eg.drawVec(c,"vec/startanim/loadp",0,60,60,55,0,0,1,0,0,0,0,0,t11);
-				float t4=Eg.getNLinearValueByTime(t.timer,2700,3100);
+				float t4=Eg.getNLinearValueByTime(t.timer,2700,3500);
 				for(int i=0;i<20;i++)
 				{
 					Eg.drawVec(c,"bugs/"+i,Eg.Gravity.CENTER,rd[i],rd[20+i],rd[40+i],0,0,1,0,0,rd[60+i]/100f,50,50,t11);
 				}
 				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,0,0,1,0,0,0,0,0,t4);
 				break;
-			case 3100:
-				float t43=Eg.getNLinearValueByTime(t.timer,3100,4000);
-				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,6,-2,t43,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,1f-t43*0.3f,0,100,0,0,0,1);
+			case 3500:
+				float t43=Eg.getNLinearValueByTime(t.timer,3500,4200);
+				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,6,-2,t43,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,1f-t43*0.3f,0,100,0,0,0,1);
 				break;
-			case 4000:
-				Eg.startScene(new MainMenu());
+			case 4200:
+				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,6,-2,1,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,0.7f,0,100,0,0,0,1);
+				Eg.startScene(new MainMenu(true));
 				removeSelf();
 				break;
 		}
@@ -50,8 +51,8 @@ public class StartAnim extends Scene
 	@Override
 	public void start()
 	{
-		t=new Timer(0,2500,3100,4000);
-		Eg.setBackground(0xff111111);
+		t=new Timer(0,2500,3500,4200);
+		Eg.setBackground(0xff666666);
 		for(int i=0;i<20;i++)rd[i]=Eg.random(15,30);
 		for(int i=20;i<40;i++)rd[i]=Eg.random(-50,50);
 		for(int i=40;i<60;i++)rd[i]=Eg.random(-50,50);

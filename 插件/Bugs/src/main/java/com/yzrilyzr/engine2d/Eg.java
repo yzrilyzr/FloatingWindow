@@ -5,17 +5,24 @@ import java.util.*;
 
 public class Eg
 {
-	public static boolean showfps=true,showgrid=true;
-	public static int fpslimit=120;
+	public static boolean showfps=true,showgrid=false;
+	public static int fpslimit=60;
 	public static int bgcolor=0xffaaaaaa;
 	public static GameActivity gameact;
 	public static Paint p;
 	public static HashMap<String,Bitmap> cache=new HashMap<String,Bitmap>();
 	public static float scale=1;
+	public static int drawcount=0;
 	public static void setCacheCount(int c)
 	{
 		GameActivity.cachecount=c;
 	}
+	/*public static void disableTouch(){
+		gameact.disabletouch=true;
+	}
+	public static void enableTouch(){
+		gameact.disabletouch=false;
+	}*/
 	public static float getAbsWidth()
 	{
 		return gameact.getAbsWidth();
@@ -26,11 +33,12 @@ public class Eg
 	}
 	public static float p(float p)
 	{
-		return p*scale;
+		if(getAbsHeight()>getAbsWidth())return (p*getAbsWidth()*scale/100f);
+		else return(p*getAbsHeight()*scale/100f);
 	}
 	public static int pi(float p)
 	{
-		return (int)(p*scale);
+		return (int)p(p);
 	}
 	//画布,文件,重心,缩放,重心偏移x、y
 	//动画偏移x、y%,时间(0～1),动画重心
@@ -39,12 +47,13 @@ public class Eg
 	//动画透明度%
 
 	//x y重心偏移是相对于各自的比例
-	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,
+	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,RectF maprect,
 		float atransx,float atransy,float atranstime,int atransgravity,
 		float ascale,float ascpx,float ascpy,
 		float arotate,float aropx,float aropy,
 		float aalpha)
 	{		
+	if(aalpha==0||ascale==0||scale==0||p1==null)return;
 		try
 		{
 			Bitmap b=null;
@@ -115,6 +124,11 @@ public class Eg
 			m.postTranslate(x,y);
 			p.setAlpha((int)(aalpha*255f));
 			c.drawBitmap(b,m,p);
+			drawcount++;
+			if(maprect!=null){
+				maprect.set(0,0,w,h);
+				m.mapRect(maprect);
+			}
 			if(showgrid)
 			{
 				RectF re=new RectF(0,0,w,h);
@@ -124,17 +138,17 @@ public class Eg
 				p.setStrokeWidth(1);
 				c.drawRect(re,p);
 				p.setStyle(Paint.Style.FILL);
-				p.setTextSize(p(25));
+				p.setTextSize(p(3));
 				RectF r=new RectF(re);
 				r.left*=100f/getAbsWidth();
 				r.top*=100f/getAbsHeight();
 				r.right*=100f/getAbsWidth();
 				r.bottom*=100f/getAbsHeight();
-				c.drawText(String.format("%f",r.left),re.left,re.centerY(),p);
-				c.drawText(String.format("%f",r.top),re.centerX(),re.top,p);
-				c.drawText(String.format("%f",r.right),re.right,re.centerY(),p);
-				c.drawText(String.format("%f",r.bottom),re.centerX(),re.bottom,p);
-				c.drawText(String.format("%f,%f",r.centerX(),r.centerY()),re.centerX(),re.centerY(),p);
+				c.drawText(String.format("%.2f",r.left),re.left,re.centerY(),p);
+				c.drawText(String.format("%.2f",r.top),re.centerX(),re.top,p);
+				c.drawText(String.format("%.2f",r.right),re.right,re.centerY(),p);
+				c.drawText(String.format("%.2f",r.bottom),re.centerX(),re.bottom,p);
+				c.drawText(String.format("%.2f,%.2f",r.centerX(),r.centerY()),re.centerX(),re.centerY(),p);
 
 			}
 		}
@@ -150,11 +164,15 @@ public class Eg
 		float arotate,float aropx,float aropy,
 		float aalpha)
 	{
-		drawVec(c,p1,gravity,scale,dxperc,dyperc,
+		drawVec(c,p1,gravity,scale,dxperc,dyperc,null,
 			atransx,atransy,0,0,
 			ascale,ascpx,ascpy,
 			arotate,aropx,aropy,
 			aalpha);
+	}
+	public static void drawVec(Canvas c,String vec,int Gravity,float scale,float dx,float dy){
+		drawVec(c,vec,Gravity,scale,dx,dy,
+		0,0,1,0,0,0,0,0,1);
 	}
 	public static void drawVec(Canvas c,String vec,int Gravity,float scale)
 	{
@@ -215,6 +233,20 @@ public class Eg
 		float y=x<0.5?(float)Math.pow(x,2)*2f:-(float)Math.pow(x-1f,2)*2f+1f;
 		return limit(y,0,1);
 	}
+	public static float getSinValueByTime(float time,float starttime,float endtime)
+	{
+		float sec=endtime-starttime;
+		if(sec<=0)sec=1;
+		float x=limit((time-starttime)/sec,0f,1f);
+		return SinFunc(x);
+	}
+	public static float SinFunc(float x)
+	{
+		x=limit(x,0,1);
+		float y=(float)Math.sin(x*Math.PI);
+		return limit(y,0,1);
+	}
+	
 	public static float limit(float x,float min,float max)
 	{
 		return Math.max(Math.min(x,max),min);
