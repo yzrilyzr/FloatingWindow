@@ -18,7 +18,6 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	public Paint p;
 	//触摸
 	float ppx,ppy,lxx,lyy;
-	boolean disabletouch=false;
 	//视图相关
 	Ui tui;
 	//多缓冲绘制
@@ -76,35 +75,38 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	{
 		ppx=event.getX()/sv.getWidth()*100f;
 		ppy=event.getY()/sv.getHeight()*100f;
-		if(disabletouch)return false;
-		for(Scene sc:mSceneList)
-		for(int i=sc.uis.size()-1;i>=0;i--)
+		for(int ii=mSceneList.size()-1;ii>=0;ii--)
 		{
-			Ui s=sc.uis.get(i);
-			if(s.anim)continue;
-			if(Ui.down(event))
+			Scene sc=mSceneList.get(ii);
+			for(int i=sc.uis.size()-1;i>=0;i--)
 			{
-				lxx=event.getX();
-				lyy=event.getY();
-				if(s.contains(event.getX(),event.getY()))
+				Ui s=sc.uis.get(i);
+				if(s.anim)continue;
+				if(Ui.down(event))
 				{
-					tui=s;
-					tui.onDown(event);
-					break;
+					lxx=event.getX();
+					lyy=event.getY();
+					if(s.contains(event.getX(),event.getY()))
+					{
+						tui=s;
+						tui.onDown(event);
+						break;
+					}
+					else tui=null;
 				}
-				else tui=null;
+				else if(Ui.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Eg.p(0.5f)&&Math.abs(event.getY()-lyy)>Eg.p(0.5f))
+				{
+					tui.onMove(event);
+					return true;
+				}
+				else if(Ui.up(event)&&tui!=null&&tui.contains(event.getX(),event.getY()))
+				{
+					tui.onClick(event);
+					tui=null;
+					return false;
+				}
 			}
-			else if(Ui.move(event)&&tui!=null&&Math.abs(event.getX()-lxx)>Eg.p(0.5f)&&Math.abs(event.getY()-lyy)>Eg.p(0.5f))
-			{
-				tui.onMove(event);
-				return true;
-			}
-			else if(Ui.up(event)&&tui!=null&&tui.contains(event.getX(),event.getY()))
-			{
-				tui.onClick(event);
-				tui=null;
-				return false;
-			}
+			if(tui!=null)break;
 		}
 		return true;
 	}
@@ -256,9 +258,9 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 								}
 								hd.unlockCanvasAndPost(cs);
 							}
-								//cs.drawBitmap(banner,m,p);
-								lock=-1;
-								Thread.sleep(0,1000);
+							//cs.drawBitmap(banner,m,p);
+							lock=-1;
+							Thread.sleep(0,1000);
 						}
 						catch (Exception e)
 						{
@@ -282,9 +284,11 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 					continue;
 				}
 				//获取缓冲区
-				if(++curdraw>=cvsc.length){
+				if(++curdraw>=cvsc.length)
+				{
 					curdraw=0;
-					for(int i=0;i<bmpcuseage.length;i++){
+					for(int i=0;i<bmpcuseage.length;i++)
+					{
 						bmpcuseage2[i]=bmpcuseage[i];
 						bmpcuseage[i]=0;
 					}
@@ -343,9 +347,10 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 					for(int i=0;i<bmpcuseage2.length;i++)to+=bmpcuseage2[i];
 					c.drawLine(0,Eg.p(10),bmpcuseage2.length*Eg.p(5),Eg.p(10),p);
 					if(to!=0)
-						for(int i=0;i<bmpcuseage2.length;i++){
+						for(int i=0;i<bmpcuseage2.length;i++)
+						{
 							c.drawRect(i*Eg.p(5),Eg.p(15)-bmpcuseage2[i]*Eg.p(5)/to,(i+1)*Eg.p(5),Eg.p(15),p);
-					}
+						}
 				}
 				dt=System.nanoTime()-ns;
 				if(dt<1000000000/Eg.fpslimit)Thread.sleep((int)((float)(1000000000/Eg.fpslimit-(int)dt)/1000000f));

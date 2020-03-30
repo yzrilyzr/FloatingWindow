@@ -263,7 +263,13 @@ public class Eg
     {
         return (int)Math.floor(Math.random()*(max-min))+min;
     }
-
+	public static double getArc(double x,double y,double r)
+	{
+		double a=Math.asin(y/r);
+		if(x<0)a=Math.PI-a;
+		if(x>0&&y<0)a+=2*Math.PI;
+		return a;
+	}
 	public interface GameCBK
 	{
 		public abstract void render(Canvas c,float dt);

@@ -12,12 +12,12 @@ import java.util.Random;
 public class Bug extends Shape
 {
 	Bitmap bugicon,bugdicon;
-	float vx,vy;
-	float ax,ay;
+	public float vx,vy;
+	public float ax,ay;
 	float mscale=1;
 	//float x,y;
-	float vel;
-	float hp,maxhp,frztime;
+	public float vel;
+	public float hp,maxhp,frztime;
 	float rdmg,rtime,rdtime,rdcdtime;
 	float slow,dir;
 	VECfile ico,dico;

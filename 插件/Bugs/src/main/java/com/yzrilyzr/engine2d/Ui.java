@@ -9,7 +9,7 @@ public class Ui
 	public boolean anim;
 	public String vec;
 	public float r=0;
-	RectF rect=new RectF();
+	public RectF rect=new RectF();
 	public void draw(Canvas c)
 	{
 		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,0,0,0,0,1,0,0,0,0,0,1);
