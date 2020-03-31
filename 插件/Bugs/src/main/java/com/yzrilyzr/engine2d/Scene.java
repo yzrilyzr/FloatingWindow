@@ -1,11 +1,11 @@
 package com.yzrilyzr.engine2d;
 
 import com.yzrilyzr.engine2d.*;
-import java.util.*;
+import java.util.concurrent.*;
 
 public abstract class Scene implements Eg.GameCBK
 {
-	public ArrayList<Ui> uis=new ArrayList<Ui>();
+	public CopyOnWriteArrayList<Ui> uis=new CopyOnWriteArrayList<Ui>();
 	public void removeSelf(){
 		stop();
 		Eg.gameact.mSceneList.remove(this);
