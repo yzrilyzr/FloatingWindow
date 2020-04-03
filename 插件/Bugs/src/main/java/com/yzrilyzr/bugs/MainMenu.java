@@ -13,7 +13,7 @@ public class MainMenu extends Scene
 	String[] uh,ud;
 	RectF tipm;
 	Button yzr;
-	Button play,info,settings,bugs,help;
+	Button play,info,settings;
 	boolean from;
 	public MainMenu(boolean fromAnim)
 	{
@@ -33,8 +33,6 @@ public class MainMenu extends Scene
 					play.draw(c,0,0,0.5f*(1f+in.getNLF()),50,50,0,0,0,in.getNLF());
 					settings.draw(c,18*(1-in.getNLF()),0,0.5f*(1f+in.getNLF()),50,50,0,0,0,in.getNLF());
 					info.draw(c,18*(1-in.getNLF()),0,0.5f*(1f+in.getNLF()),50,50,0,0,0,in.getNLF());
-					bugs.draw(c,18*(1-in.getNLF()),0,0.5f*(1f+in.getNLF()),50,50,0,0,0,in.getNLF());
-					help.draw(c,18*(1-in.getNLF()),0,0.5f*(1f+in.getNLF()),50,50,0,0,0,in.getNLF());
 					break;
 				case 500:
 					anim(false);
@@ -43,8 +41,6 @@ public class MainMenu extends Scene
 					play.draw(c);
 					settings.draw(c);
 					info.draw(c);
-					bugs.draw(c);
-					help.draw(c);
 					break;
 			}
 		else if(out!=null)
@@ -57,8 +53,6 @@ public class MainMenu extends Scene
 					yzr.draw(c,0,0,1-0.3f*out.getNLF(),50,50,0,0,0,1-out.getNLF());
 					settings.draw(c,18*out.getNLF(),0,0.5f*(2f-out.getNLF()),50,50,0,0,0,out.getNLF());
 					info.draw(c,18*out.getNLF(),0,0.5f*(2f-out.getNLF()),50,50,0,0,0,1-out.getNLF());
-					bugs.draw(c,18*out.getNLF(),0,0.5f*(2f-out.getNLF()),50,50,0,0,0,1-out.getNLF());
-					help.draw(c,18*out.getNLF(),0,0.5f*(2f-out.getNLF()),50,50,0,0,0,1-out.getNLF());
 					break;
 				case 500:
 					out=null;
@@ -73,7 +67,7 @@ public class MainMenu extends Scene
 					Eg.drawVec(c,"vec/mainmenu/mainmenutip",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,30,5,-60,0,0,tip.getNLF(),75,95,0,0,0,1);
 					break;
 				case 300:
-					Eg.drawVec(c,"vec/mainmenu/mainmenutip",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,30,5,-60,tipm,0,0,0,0,1,0,0,0,0,0,1);
+					Eg.drawVec(c,"vec/mainmenu/mainmenutip",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,30,5,-60,tipm,null,0,0,0,0,1,0,0,0,0,0,1);
 					Eg.p.setColor(0xff000000);
 					Eg.p.setStyle(Paint.Style.FILL);
 					Eg.p.setTextSize(Eg.p(3));
@@ -130,7 +124,7 @@ public class MainMenu extends Scene
 		settings=new Button("vec/mainmenu/settings",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,15,-3,-3,true){
 			public void onClick(MotionEvent e)
 			{
-				
+				Eg.startScene(new Settings());
 			}
 		};
 		info=new Button("vec/mainmenu/info",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,15,-3,-21,true){
@@ -139,19 +133,7 @@ public class MainMenu extends Scene
 				Eg.startScene(new About());
 			}
 		};
-		bugs=new Button("vec/mainmenu/bugs",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,15,-3,-39,true){
-			public void onClick(MotionEvent e)
-			{
-
-			}
-		};
-		help=new Button("vec/mainmenu/help",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,15,-3,-57,true){
-			public void onClick(MotionEvent e)
-			{
-				
-			}
-		};
-		add(yzr,play,settings,help,bugs,info);
+				add(yzr,play,settings,info);
 		//-15,-10
 		//播放动画
 		in=new Timer(0,500);

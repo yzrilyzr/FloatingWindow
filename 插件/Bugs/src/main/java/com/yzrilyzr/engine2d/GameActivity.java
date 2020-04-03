@@ -73,8 +73,9 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 	@Override
 	public boolean onTouch(View p1, MotionEvent event)
 	{
-		ppx=event.getX()/sv.getWidth()*100f;
-		ppy=event.getY()/sv.getHeight()*100f;
+		event.setLocation(Eg.getAbsWidth()*event.getX()/sv.getWidth(),Eg.getAbsHeight()*event.getY()/sv.getHeight());
+		ppx=event.getX()/Eg.getAbsWidth()*100f;
+		ppy=event.getY()/Eg.getAbsHeight()*100f;
 		for(int ii=mSceneList.size()-1;ii>=0;ii--)
 		{
 			Scene sc=mSceneList.get(ii);
@@ -200,7 +201,7 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		//多缓冲初始化
 		for(int i=0;i<bmpc.length;i++)
 		{
-			bmpc[i]=Bitmap.createBitmap(sv.getWidth(),sv.getHeight(),Bitmap.Config.ARGB_8888);
+			bmpc[i]=Bitmap.createBitmap(sv.getWidth()*2,sv.getHeight(),Bitmap.Config.ARGB_8888);
 			cvsc[i]=new Canvas(bmpc[i]);
 			bmpcuseage[i]=0;
 			bmpcuseage2[i]=0;

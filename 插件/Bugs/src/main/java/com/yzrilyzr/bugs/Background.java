@@ -27,7 +27,10 @@ public class Background extends Scene
 			b.compute(dt);
 			if(b.t==null){
 				Eg.p.setAlpha(255);
-				c.drawBitmap(b.bug,b.x,b.y,Eg.p);
+				b.ma.reset();
+				b.ma.postRotate((float)(180f*Eg.getArc(b.vx,b.vy,b.vel)/Math.PI)+90,b.r,b.r);
+				b.ma.postTranslate(b.x,b.y);
+				c.drawBitmap(b.bug,b.ma,Eg.p);
 			}else
 				switch(b.t.render(dt))
 				{
@@ -128,8 +131,8 @@ public class Background extends Scene
 				if(y<-ro)y=Eg.getAbsHeight()+ro;
 				if(x>Eg.getAbsWidth()+ro)x=-ro;
 				if(y>Eg.getAbsHeight()+ro)y=-ro;
-				ax=(rd.nextBoolean()?1:-1)*Eg.p(0.00001f);
-				ay=(rd.nextBoolean()?1:-1)*Eg.p(0.00001f);
+				ax=(rd.nextBoolean()?1:-1)*Eg.p(0.00005f);
+				ay=(rd.nextBoolean()?1:-1)*Eg.p(0.00005f);
 				//dx=x*100/Eg.getAbsWidth();
 				//dy=y*100/Eg.getAbsHeight();
 				rect.set(x,y,x+2*r,y+2*r);

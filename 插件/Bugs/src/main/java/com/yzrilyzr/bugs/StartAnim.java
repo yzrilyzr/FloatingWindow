@@ -39,10 +39,10 @@ public class StartAnim extends Scene
 				break;
 			case 3500:
 				float t43=Eg.getNLinearValueByTime(t.timer,3500,4200);
-				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,6,-2,t43,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,1f-t43*0.3f,0,100,0,0,0,1);
+				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,null,6,-2,t43,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,1f-t43*0.3f,0,100,0,0,0,1);
 				break;
 			case 4200:
-				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,6,-2,1,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,0.7f,0,100,0,0,0,1);
+				Eg.drawVec(c,"vec/mainmenu/mainmenuyzr",Eg.Gravity.CENTER,100,0,0,null,null,6,-2,1,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,0.7f,0,100,0,0,0,1);
 				Eg.startScene(new Background());
 				Eg.startScene(new MainMenu(true));
 				removeSelf();

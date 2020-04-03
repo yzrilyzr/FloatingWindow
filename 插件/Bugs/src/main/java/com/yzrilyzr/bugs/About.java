@@ -20,13 +20,13 @@ public class About extends Scene
 					Eg.p.setColor(0xff000000);
 					Eg.p.setAlpha((int)(in.getNLF()*128));
 					c.drawPaint(Eg.p);
-					Eg.drawVec(c,"vec/mainmenu/uiabout",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,90,-3,-21,null,
+					Eg.drawVec(c,"vec/mainmenu/uiabout",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,90,-3,-21,null,null,
 						0,0,in.getNLF(),Eg.Gravity.CENTER,
 						in.getNLF(),100,100,
 						0,0,0,
 						in.getNLF()
 					);
-					Eg.drawVec(c,"vec/mainmenu/uiaboutok",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,10,-3,-21,null,
+					Eg.drawVec(c,"vec/mainmenu/uiaboutok",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,10,-3,-21,null,null,
 						0,35,in.getNLF(),Eg.Gravity.CENTER,
 						in.getNLF(),100,100,
 						0,0,0,
@@ -50,13 +50,13 @@ public class About extends Scene
 					Eg.p.setColor(0xff000000);
 					Eg.p.setAlpha((int)(128-out.getNLF()*128));
 					c.drawPaint(Eg.p);
-					Eg.drawVec(c,"vec/mainmenu/uiabout",Eg.Gravity.CENTER,90,0,0,null,
+					Eg.drawVec(c,"vec/mainmenu/uiabout",Eg.Gravity.CENTER,90,0,0,null,null,
 						-3,-21,out.getNLF(),Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,
 						1-out.getNLF(),100,100,
 						0,0,0,
 						1-out.getNLF()
 					);
-					Eg.drawVec(c,"vec/mainmenu/uiaboutok",Eg.Gravity.CENTER,90,0,35,null,
+					Eg.drawVec(c,"vec/mainmenu/uiaboutok",Eg.Gravity.CENTER,90,0,35,null,null,
 						-3,-21,out.getNLF(),Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,
 						1-out.getNLF(),100,100,
 						0,0,0,

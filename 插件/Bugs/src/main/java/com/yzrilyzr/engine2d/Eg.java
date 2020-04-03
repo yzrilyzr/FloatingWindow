@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Eg
 {
-	public static boolean showfps=true,showgrid=false;
+	public static boolean showfps=true,showgrid=true;
 	public static int fpslimit=60;
 	public static int bgcolor=0xffaaaaaa;
 	public static GameActivity gameact;
@@ -18,11 +18,11 @@ public class Eg
 		GameActivity.cachecount=c;
 	}
 	/*public static void disableTouch(){
-		gameact.disabletouch=true;
-	}
-	public static void enableTouch(){
-		gameact.disabletouch=false;
-	}*/
+	 gameact.disabletouch=true;
+	 }
+	 public static void enableTouch(){
+	 gameact.disabletouch=false;
+	 }*/
 	public static float getAbsWidth()
 	{
 		return gameact.getAbsWidth();
@@ -40,20 +40,20 @@ public class Eg
 	{
 		return (int)p(p);
 	}
-	//画布,文件,重心,缩放,重心偏移x、y
+	//画布,文件,重心,缩放,重心偏移x、y(相对重心refRect，绝对重心于屏幕),映射绝对区域,重心参考
 	//动画偏移x、y%,时间(0～1),动画重心
 	//动画缩放%,缩放中心x、y
 	//动画旋转%,旋转中心x、y
 	//动画透明度%
 
 	//x y重心偏移是相对于各自的比例
-	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,RectF maprect,
+	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,RectF maprect,RectF refrect,
 		float atransx,float atransy,float atranstime,int atransgravity,
 		float ascale,float ascpx,float ascpy,
 		float arotate,float aropx,float aropy,
 		float aalpha)
 	{		
-	if(aalpha==0||ascale==0||scale==0||p1==null)return;
+		if(aalpha==0||ascale==0||scale==0||p1==null)return;
 		try
 		{
 			Bitmap b=null;
@@ -79,29 +79,64 @@ public class Eg
 			float x=0,y=0,w=b.getWidth(),h=b.getHeight();
 			if(atransgravity==0)
 			{
-				if(hasFlag(gravity,Gravity.CENTER))
+				//相对坐标
+				if(refrect!=null)
 				{
-					x=(getAbsWidth()-w)/2;
-					y=(getAbsHeight()-h)/2;
+					if(hasFlag(gravity,Gravity.CENTER))
+					{
+						x=refrect.centerX()-w/2;
+						y=refrect.centerY()-h/2;
+					}
+					if(hasFlag(gravity,Gravity.LEFT))x=refrect.left;
+					if(hasFlag(gravity,Gravity.TOP))y=refrect.top;
+					if(hasFlag(gravity,Gravity.RIGHT))x=(refrect.right-w);
+					if(hasFlag(gravity,Gravity.BOTTOM))y=(refrect.bottom-h);
+					x+=refrect.width()*(dxperc+atransx)/100f;
+					y+=refrect.height()*(dyperc+atransy)/100f;
 				}
-				if(hasFlag(gravity,Gravity.LEFT))x=0;
-				if(hasFlag(gravity,Gravity.TOP))y=0;
-				if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
-				if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
-				x+=getAbsWidth()*(dxperc+atransx)/100f;
-				y+=getAbsHeight()*(dyperc+atransy)/100f;
+				//绝对坐标
+				else
+				{
+					if(hasFlag(gravity,Gravity.CENTER))
+					{
+						x=(getAbsWidth()-w)/2;
+						y=(getAbsHeight()-h)/2;
+					}
+					if(hasFlag(gravity,Gravity.LEFT))x=0;
+					if(hasFlag(gravity,Gravity.TOP))y=0;
+					if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
+					if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
+					x+=getAbsWidth()*(dxperc+atransx)/100f;
+					y+=getAbsHeight()*(dyperc+atransy)/100f;
+				}
 			}
 			else
 			{
-				if(hasFlag(gravity,Gravity.CENTER))
+				if(refrect!=null)
 				{
-					x=(getAbsWidth()-w)/2;
-					y=(getAbsHeight()-h)/2;
+					if(hasFlag(gravity,Gravity.CENTER))
+					{
+						x=refrect.centerX()-w/2;
+						y=refrect.centerY()-h/2;
+					}
+					if(hasFlag(gravity,Gravity.LEFT))x=refrect.left;
+					if(hasFlag(gravity,Gravity.TOP))y=refrect.top;
+					if(hasFlag(gravity,Gravity.RIGHT))x=(refrect.right-w);
+					if(hasFlag(gravity,Gravity.BOTTOM))y=(refrect.bottom-h);
 				}
-				if(hasFlag(gravity,Gravity.LEFT))x=0;
-				if(hasFlag(gravity,Gravity.TOP))y=0;
-				if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
-				if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
+				//绝对坐标
+				else
+				{
+					if(hasFlag(gravity,Gravity.CENTER))
+					{
+						x=(getAbsWidth()-w)/2;
+						y=(getAbsHeight()-h)/2;
+					}
+					if(hasFlag(gravity,Gravity.LEFT))x=0;
+					if(hasFlag(gravity,Gravity.TOP))y=0;
+					if(hasFlag(gravity,Gravity.RIGHT))x=(getAbsWidth()-w);
+					if(hasFlag(gravity,Gravity.BOTTOM))y=(getAbsHeight()-h);
+				}
 				float x2=0,y2=0;
 				if(hasFlag(atransgravity,Gravity.CENTER))
 				{
@@ -112,8 +147,8 @@ public class Eg
 				if(hasFlag(atransgravity,Gravity.TOP))y2=0;
 				if(hasFlag(atransgravity,Gravity.RIGHT))x2=(getAbsWidth()-w);
 				if(hasFlag(atransgravity,Gravity.BOTTOM))y2=(getAbsHeight()-h);
-				x+=getAbsWidth()*dxperc/100f;
-				y+=getAbsHeight()*dyperc/100f;
+				x+=(refrect==null?getAbsWidth():refrect.width())*dxperc/100f;
+				y+=(refrect==null?getAbsHeight():refrect.height())*dyperc/100f;
 				x2+=getAbsWidth()*atransx/100f;
 				y2+=getAbsHeight()*atransy/100f;
 				x+=(x2-x)*atranstime;
@@ -125,7 +160,8 @@ public class Eg
 			p.setAlpha((int)(aalpha*255f));
 			c.drawBitmap(b,m,p);
 			drawcount++;
-			if(maprect!=null){
+			if(maprect!=null)
+			{
 				maprect.set(0,0,w,h);
 				m.mapRect(maprect);
 			}
@@ -164,15 +200,16 @@ public class Eg
 		float arotate,float aropx,float aropy,
 		float aalpha)
 	{
-		drawVec(c,p1,gravity,scale,dxperc,dyperc,null,
+		drawVec(c,p1,gravity,scale,dxperc,dyperc,null,null,
 			atransx,atransy,0,0,
 			ascale,ascpx,ascpy,
 			arotate,aropx,aropy,
 			aalpha);
 	}
-	public static void drawVec(Canvas c,String vec,int Gravity,float scale,float dx,float dy){
+	public static void drawVec(Canvas c,String vec,int Gravity,float scale,float dx,float dy)
+	{
 		drawVec(c,vec,Gravity,scale,dx,dy,
-		0,0,1,0,0,0,0,0,1);
+			0,0,1,0,0,0,0,0,1);
 	}
 	public static void drawVec(Canvas c,String vec,int Gravity,float scale)
 	{
@@ -246,7 +283,7 @@ public class Eg
 		float y=(float)Math.sin(x*Math.PI);
 		return limit(y,0,1);
 	}
-	
+
 	public static float limit(float x,float min,float max)
 	{
 		return Math.max(Math.min(x,max),min);

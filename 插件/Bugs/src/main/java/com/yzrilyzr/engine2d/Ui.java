@@ -10,17 +10,18 @@ public class Ui
 	public String vec;
 	public float r=0;
 	public RectF rect=new RectF();
+	public Ui parent;
 	public void draw(Canvas c)
 	{
-		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,0,0,0,0,1,0,0,0,0,0,1);
+		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,parent==null?null:parent.rect,0,0,0,0,1,0,0,0,0,0,1);
 	}
 	public void draw(Canvas c,float atransx,float atransy,float scale,float scalecx,float scalecy,float rotate,float rotatecx,float rotatecy,float alpha)
 	{
-		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,atransx,atransy,0,0,scale,scalecx,scalecy,rotate,rotatecx,rotatecy,alpha);
+		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,parent==null?null:parent.rect,atransx,atransy,0,0,scale,scalecx,scalecy,rotate,rotatecx,rotatecy,alpha);
 	}
 	public void draw(Canvas c,float atransx,float atransy,float ms,int gr,float scale,float scalecx,float scalecy,float rotate,float rotatecx,float rotatecy,float alpha)
 	{
-		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,atransx,atransy,ms,gr,scale,scalecx,scalecy,rotate,rotatecx,rotatecy,alpha);
+		Eg.drawVec(c,vec,gravity,si,dx,dy,rect,parent==null?null:parent.rect,atransx,atransy,ms,gr,scale,scalecx,scalecy,rotate,rotatecx,rotatecy,alpha);
 	}
 	public void onClick(MotionEvent e)
 	{}
