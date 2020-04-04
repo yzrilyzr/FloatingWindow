@@ -11,7 +11,7 @@ public class Settings extends Scene
 	@Override
 	public void render(Canvas c, float dt)
 	{
-		if(in!=null)
+		/*if(in!=null)
 			switch(in.render(dt))
 			{
 				case 0:
@@ -37,7 +37,7 @@ public class Settings extends Scene
 						0,0,0,
 						in.getNLF()
 					);*/
-					break;
+					/*break;
 				case 500:
 					anim(false,close);
 					Eg.p.setColor(0xff000000);
@@ -71,7 +71,7 @@ public class Settings extends Scene
 				case 500:
 					removeSelf();
 					break;
-			}
+			}*/
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class Settings extends Scene
 	{
 		in=new Timer(0,500);
 		mask=new Ui(0,0,Eg.getAbsWidth(),Eg.getAbsHeight());
-		close=new Button("vec/settings/close",Eg.Gravity.RIGHT|Eg.Gravity.TOP,10,-5,5){
+		close=new Button("vec/settings/close",10,Eg.Gravity.RIGHT|Eg.Gravity.TOP,-5,5,null){
 			public void onClick(MotionEvent e)
 			{
 				//this.anim=true;
@@ -87,7 +87,7 @@ public class Settings extends Scene
 				out=new Timer(0,500);
 			}
 		};
-		setting=new Ui("vec/settings/setting",Eg.Gravity.CENTER,90,0,0);
+		//setting=new Ui("vec/settings/setting",Eg.Gravity.CENTER,90,0,0);
 		close.parent=setting;
 		add(mask,setting,close);
 	}

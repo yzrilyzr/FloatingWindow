@@ -78,7 +78,7 @@ public class Background extends Scene
 		Bitmap bug,dbug;
 		public mBug(int id,float x,float y,float size)
 		{
-			super(x,y,x+size,y+size);
+			super(x,y,size,size);
 			try
 			{
 				int s=Eg.pi(size);
@@ -113,7 +113,7 @@ public class Background extends Scene
 		{
 			if(t==null)
 			{
-				anim=true;
+				//anim=true;
 				t=new Timer(0,200,1500,2000);
 			}
 		}

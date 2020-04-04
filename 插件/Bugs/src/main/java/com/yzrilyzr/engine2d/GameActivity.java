@@ -63,7 +63,6 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		{
 			toast("游戏正在运行");
 		}
-		start();
 	}
 	public void startScene(Scene e)
 	{
@@ -82,7 +81,7 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 			for(int i=sc.uis.size()-1;i>=0;i--)
 			{
 				Ui s=sc.uis.get(i);
-				if(s.anim)continue;
+				if(s.anim.size()>0)continue;
 				if(Ui.down(event))
 				{
 					lxx=event.getX();
@@ -201,11 +200,12 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 		//多缓冲初始化
 		for(int i=0;i<bmpc.length;i++)
 		{
-			bmpc[i]=Bitmap.createBitmap(sv.getWidth()*2,sv.getHeight(),Bitmap.Config.ARGB_8888);
+			bmpc[i]=Bitmap.createBitmap(sv.getWidth(),sv.getHeight(),Bitmap.Config.ARGB_8888);
 			cvsc[i]=new Canvas(bmpc[i]);
 			bmpcuseage[i]=0;
 			bmpcuseage2[i]=0;
 		}
+		start();
 		//多缓冲线程
 		new Thread(new Runnable(){
 				@Override
@@ -323,8 +323,8 @@ public abstract class GameActivity extends Activity implements Runnable,View.OnT
 						c.drawLine(0,u*k,getAbsWidth(),u*k,p);
 					}
 					p.setColor(0xff0000ff);
-					c.drawLine(0,ppy*getAbsHeight(),getAbsWidth(),ppy*getAbsHeight(),p);
-					c.drawLine(ppx*getAbsWidth(),0,ppx*getAbsWidth(),getAbsHeight(),p);
+					c.drawLine(0,ppy*getAbsHeight()/100f,getAbsWidth(),ppy*getAbsHeight()/100f,p);
+					c.drawLine(ppx*getAbsWidth()/100f,0,ppx*getAbsWidth()/100f,getAbsHeight(),p);
 				}
 				p.setStyle(Paint.Style.FILL);
 				//fps相关

@@ -47,7 +47,7 @@ public class Eg
 	//动画透明度%
 
 	//x y重心偏移是相对于各自的比例
-	public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,RectF maprect,RectF refrect,
+	/*public static void drawVec(Canvas c, String p1,int gravity,float scale, float dxperc,float dyperc,RectF maprect,RectF refrect,
 		float atransx,float atransy,float atranstime,int atransgravity,
 		float ascale,float ascpx,float ascpy,
 		float arotate,float aropx,float aropy,
@@ -218,7 +218,7 @@ public class Eg
 			1,0,0,
 			0,0,0,
 			1);
-	}
+	}*/
 	public static void delay(int ms)
 	{
 		try
@@ -257,6 +257,12 @@ public class Eg
 	 {
 	 flag=(flag|all)-all+f;
 	 }*/
+	public static float getFuncXByTime(float time,float starttime,float endtime)
+	{
+		float sec=endtime-starttime;
+		if(sec<=0)sec=1;
+		return limit((time-starttime)/sec,0f,1f);
+	}
 	public static float getNLinearValueByTime(float time,float starttime,float endtime)
 	{
 		float sec=endtime-starttime;

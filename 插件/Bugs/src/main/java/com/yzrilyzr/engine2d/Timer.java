@@ -14,6 +14,9 @@ public class Timer
 	{
 		timer=0;
 	}
+	public float getFuncX(){
+		return Eg.getFuncXByTime(timer,st,ed);
+	}
 	public float getNLF(){
 		return Eg.getNLinearValueByTime(timer,st,ed);
 	}

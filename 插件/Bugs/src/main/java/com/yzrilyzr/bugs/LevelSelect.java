@@ -10,7 +10,7 @@ public class LevelSelect extends Scene
 	@Override
 	public void render(Canvas c, float dt)
 	{
-		if(in!=null)
+		/*if(in!=null)
 			switch(in.render(dt)){
 				case 0:
 					anim(true);
@@ -40,33 +40,33 @@ public class LevelSelect extends Scene
 				case 500:
 					out=null;
 					removeSelf();
-			}
+			}*/
 	}
 
 	@Override
 	public void start()
 	{
 		in=new Timer(0,500);
-		mainmenu=new Button("buttonmainmenu",Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,10,-3,-3){
+		mainmenu=new Button("buttonmainmenu",10,Eg.Gravity.RIGHT|Eg.Gravity.BOTTOM,-3,-3,null){
 			public void onClick(MotionEvent e){
 				in=null;
 				out=new Timer(0,500);
 				Eg.startScene(new MainMenu(false));
 			}
 		};
-		bugs=new Button("vec/levelselect/bugs",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,15,3,-3,true){
+		bugs=new Button("vec/levelselect/bugs",15,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,3,-3,null,true){
 			public void onClick(MotionEvent e)
 			{
 
 			}
 		};
-		help=new Button("vec/levelselect/help",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,15,21,-3,true){
+		help=new Button("vec/levelselect/help",15,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,21,-3,null,true){
 			public void onClick(MotionEvent e)
 			{
 
 			}
 		};
-		achi=new Button("vec/levelselect/achi",Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,15,39,-3,true){
+		achi=new Button("vec/levelselect/achi",15,Eg.Gravity.LEFT|Eg.Gravity.BOTTOM,39,-3,null,true){
 			public void onClick(MotionEvent e)
 			{
 
