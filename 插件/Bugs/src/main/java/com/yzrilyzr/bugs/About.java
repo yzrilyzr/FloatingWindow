@@ -33,7 +33,6 @@ public class About extends Scene
 					Eg.p.setColor(0xff000000);
 					Eg.p.setAlpha((int)(128-out.getNLF()*128));
 					c.drawPaint(Eg.p);
-
 					break;
 				case 500:
 					removeSelf();
@@ -49,14 +48,15 @@ public class About extends Scene
 		mask=new Ui(0,0,100,100);
 		abo=new Ui("vec/mainmenu/uiabout",90,Ui.G.C,0,0,null)
 		.alpha(0,500,0,100)
-		.scale(0,500,0,100,0,100,0,0,null,null)
-		.translate(0,500,Ui.G.R|Ui.G.B,-3,-21,15,15,null,Ui.G.C,0,0,100,100,null);
+		.scale(0,500,0,100)//,0,100,0,100,0,0,null,null)
+		.translate(0,500,Ui.G.R|Ui.G.B,-3,-21,10,15,null,Ui.G.C,0,0,100,100,null);
 		ok=new Button("vec/mainmenu/uiaboutok",10,Ui.G.C|Ui.G.B,0,-5,abo){
 			public void onClick(MotionEvent e)
 			{
 				//this.anim=true;
 				in=null;
 				out=new Timer(0,500);
+				stop();
 			}
 		}
 		.scale(0,500,0,100)
@@ -68,7 +68,13 @@ public class About extends Scene
 	@Override
 	public void stop()
 	{
-		// TODO: Implement this method
+		abo.alpha(0,500,100,0)
+			.scale(0,500,100,0)//,0,100,0,100,0,0,null,null)
+			.translate(0,500,Ui.G.C,0,0,100,100,null,Ui.G.R|Ui.G.B,-3,-21,10,15,null);
+		ok.scale(0,500,100,0)
+			.alpha(0,500,100,0)
+			.translate(0,500,0,0,0,0);
+		
 	}
 
 

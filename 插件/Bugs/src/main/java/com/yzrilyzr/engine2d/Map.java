@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.*;
+import com.yzrilyzr.engine2d.Map.*;
 
 public class Map
 {
@@ -170,47 +171,9 @@ public class Map
 		ArrayList<AstarPoint> possible=findAllPossibleWayPoints();
 		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
-			ArrayList<AstarPoint> mpossible=new ArrayList<AstarPoint>();
-			ArrayList<AstarPoint> sort=new ArrayList<AstarPoint>();
-			ArrayList<AstarPoint> reach=new ArrayList<AstarPoint>();
-			mpossible.addAll(possible);
-			mpossible.add(asp[1]);
-			AstarPoint start=asp[0];
-			AstarPoint finish=asp[1];
-			AstarPoint p=start;
-			sort.add(start);
-			int findcount=0;
-			while(p!=finish&&findcount++<1000)
-			{
-				for(AstarPoint p1:mpossible)
-					if(reachable(p,p1))reach.add(p1);
-				Collections.sort(reach,new Comparator<AstarPoint>(){
-						@Override
-						public int compare(AstarPoint p1, AstarPoint p2)
-						{
-							// TODO: Implement this method
-							return 0;
-						}
-					});
-				if(reach.size()==0)
-				{
-					sort.remove(p);
-					p=sort.get(sort.size()-1);
-				}
-				else
-				{
-					p=reach.get(0);
-					sort.add(p);
-					mpossible.removeAll(reach);
-					reach.clear();
-				}
-				if(p==finish)
-				{
-					wpwaypointt.add(sort);
-					break;
-				}
-				if(mpossible.size()==0||p==start)break;
-			}
+			ArrayList<AstarPoint> sort=sortWayPoints(possible, asp),opt=null;
+			while((opt=optimize(sort)).size()<sort.size())sort=opt;
+			wpwaypointt.add(opt);
 //			ArrayList<AstarPoint> c=new ArrayList<AstarPoint>();
 //			ArrayList<AstarPoint> u=new ArrayList<AstarPoint>();
 //			AstarPoint np=start;
@@ -281,6 +244,87 @@ public class Map
 		for(ArrayList<AstarPoint>m:wpwaypointt)wpwaypoint.add(m);
 		return true;
 	}
+
+	private ArrayList<AstarPoint> sortWayPoints(ArrayList<AstarPoint> possible, AstarPoint[] asp)
+	{
+		ArrayList<AstarPoint> mpossible=new ArrayList<AstarPoint>();
+		ArrayList<AstarPoint> sort=new ArrayList<AstarPoint>();
+		ArrayList<AstarPoint> reach=new ArrayList<AstarPoint>();
+		mpossible.addAll(possible);
+		mpossible.add(asp[1]);
+		final AstarPoint start=asp[0];
+		final AstarPoint finish=asp[1];
+		AstarPoint p=start;
+		sort.add(start);
+		int findcount=0;
+		while(p!=finish&&findcount++<1000)
+		{
+			for(AstarPoint p1:mpossible)
+				if(reachable(p,p1))reach.add(p1);
+			final AstarPoint g=p;
+			Collections.sort(reach,new Comparator<AstarPoint>(){
+					@Override
+					public int compare(AstarPoint p1, AstarPoint p2)
+					{
+						// TODO: Implement this method
+						float sp1=distancePoint(start,p1),
+							sp=distancePoint(start,g),
+							ep=distancePoint(finish,g),
+							ep1=distancePoint(finish,p1),
+							pp1=distancePoint(g,p1),
+							sp2=distancePoint(start,p2),
+							ep2=distancePoint(finish,p2),
+							pp2=distancePoint(g,p2);
+							float f1=sp1-sp+ep-ep1-pp1;
+							float f2=sp2-sp+ep-ep2-pp2;
+						if(f1==f2)return getAngle(p1,start,finish)>getAngle(p2,start,finish)?1:-1;
+						return f1>f2?1:-1;
+					}
+				});
+			if(reach.size()==0)
+			{
+				sort.remove(p);
+				p=sort.get(sort.size()-1);
+			}
+			else
+			{
+				p=reach.get(0);
+				sort.add(p);
+				mpossible.removeAll(reach);
+				reach.clear();
+			}
+			if(p==finish)
+			{
+				return sort;
+			}
+			if(mpossible.size()==0||p==start)return null;
+		}
+		return null;
+	}
+	public float getAngle(AstarPoint center,AstarPoint p1,AstarPoint p2){
+		float x1=p1.x-center.x,y1=p1.y-center.y;
+		float x2=p2.x-center.x,y2=p2.y-center.y;
+		return (float)Math.acos((x1*x2+y1*y2)/(Math.sqrt(x1*x1+y1*y1)*Math.sqrt(x2*x2+y2*y2)));
+	}
+	public ArrayList<AstarPoint> optimize(ArrayList<AstarPoint> c)
+	{
+		ArrayList<AstarPoint> u=new ArrayList<AstarPoint>();
+		AstarPoint a=c.get(0),d=null;
+		u.add(a);
+		for(int i=c.size()-1;i>=0;i--)
+		{
+			AstarPoint b=c.get(i);
+			if(a==b)break;
+			if(reachable(a,b))
+			{
+				u.add(b);
+				i=c.size()-1;
+				a=b;
+			}
+		}
+		u.add(c.get(c.size()-1));
+		return u;
+	}
 	boolean isWall(int x,int y)
 	{
 		int id=map[x][y];
@@ -318,6 +362,10 @@ public class Map
 	int distancePoint(int x,int y,AstarPoint w)
 	{
 		return (int)(1000f*Math.sqrt((x-w.x)*(x-w.x)+(y-w.y)*(y-w.y)));
+	}
+	int distancePoint(AstarPoint p1,AstarPoint p2)
+	{
+		return (int)(1000f*Math.sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y)));
 	}
 	boolean containPoint(ArrayList<AstarPoint> l,int x,int y)
 	{

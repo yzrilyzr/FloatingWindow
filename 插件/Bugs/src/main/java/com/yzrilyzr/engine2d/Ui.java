@@ -129,9 +129,9 @@ public class Ui
 					if(ii==delay)
 					{
 						matrix.postScale(
-						(fromx+(tox-fromx)*(inX==null?getNLF():inX.get(getFuncX())))/100f,
-						(fromy+(toy-fromy)*(inY==null?getNLF():inY.get(getFuncX())))/100f,
-						cx*absW/100f,cy*absH/100f);
+							(fromx+(tox-fromx)*(inX==null?getNLF():inX.get(getFuncX())))/100f,
+							(fromy+(toy-fromy)*(inY==null?getNLF():inY.get(getFuncX())))/100f,
+							cx*absW/100f,cy*absH/100f);
 					}
 					else if(ii==delay+duration)
 					{
@@ -171,7 +171,10 @@ public class Ui
 					int ii=super.render(dt);
 					if(ii==delay)
 					{
-						matrix.postTranslate(absW*(fromX+(toX-fromX)*(inX==null?getNLF():inX.get(getFuncX())))/100f,absH*(fromY+(toY-fromY)*(inY==null?getNLF():inY.get(getFuncX())))/100f);
+						matrix.postTranslate(
+							absW*(fromX+(toX-fromX)*(inX==null?getNLF():inX.get(getFuncX())))/100f,
+							absH*(fromY+(toY-fromY)*(inY==null?getNLF():inY.get(getFuncX())))/100f);
+						if(parent!=null)matrix.postTranslate(parent.matrix.MTRANS_X,parent.matrix.MTRANS_Y);
 					}
 					else if(ii==delay+duration)
 					{
@@ -183,9 +186,9 @@ public class Ui
 		return this;
 	}
 	public Ui translate(final int delay,final int duration,
-	final int fromGra,final float fromX,final float fromY,final float fromW,final float fromH,final Ui fromUi,
-	final int toGra,final float toX,final float toY,final float toW,final float toH,final Ui toUi,
-	final Interpolator inX,final Interpolator inY)
+		final int fromGra,final float fromX,final float fromY,final float fromW,final float fromH,final Ui fromUi,
+		final int toGra,final float toX,final float toY,final float toW,final float toH,final Ui toUi,
+		final Interpolator inX,final Interpolator inY)
 	{
 		anim.add(new Timer(0,delay,delay+duration){
 				public int render(float dt)
@@ -196,8 +199,9 @@ public class Ui
 						float[] fp=getPosition(fromGra,fromX,fromY,fromW*absW/100f,fromH*absH/100f,fromUi);
 						float[] tp=getPosition(toGra,toX,toY,toW*absW/100f,toH*absH/100f,toUi);
 						matrix.postTranslate(
-						-absX+fp[0]+(tp[0]-fp[0])*(inX==null?getNLF():inX.get(getFuncX())),
-						-absY+fp[1]+(tp[1]-fp[1])*(inY==null?getNLF():inY.get(getFuncX())));
+							-absX+fp[0]+(tp[0]-fp[0])*(inX==null?getNLF():inX.get(getFuncX())),
+							-absY+fp[1]+(tp[1]-fp[1])*(inY==null?getNLF():inY.get(getFuncX())));
+						if(parent!=null)matrix.postTranslate(parent.matrix.MTRANS_X,parent.matrix.MTRANS_Y);
 					}
 					else if(ii==delay+duration)
 					{
@@ -226,7 +230,8 @@ public class Ui
 	}
 	public Ui translate(final int delay,final int duration,
 		final int fromGra,final float fromX,final float fromY,final float fromW,final float fromH,final Ui fromUi,
-		final int toGra,final float toX,final float toY,final float toW,final float toH,final Ui toUi){
+		final int toGra,final float toX,final float toY,final float toW,final float toH,final Ui toUi)
+	{
 		return translate(delay,duration,fromGra,fromX,fromY,fromW,fromH,fromUi,toGra,toX,toY,toW,toH,toUi,null,null);
 	}
 	public Ui delayShow(final int delay)
