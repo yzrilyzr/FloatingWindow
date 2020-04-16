@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 public class Map
 {
@@ -146,78 +147,135 @@ public class Map
 			sendnowcd=3;
 		}
 	}
+	public ArrayList<AstarPoint> findAllPossibleWayPoints()
+	{
+		ArrayList<AstarPoint> po=new ArrayList<AstarPoint>();
+		for(int x=0;x<map.length;x++)
+			for(int y=0;y<map[x].length;y++)
+			{
+				if(!isWall(x,y))continue;
+				else
+				{
+					if(!isWall(x-1,y-1)&&!isWall(x,y-1)&&!isWall(x-1,y))po.add(new AstarPoint(x-1,y-1));
+					else if(!isWall(x,y-1)&&!isWall(x+1,y-1)&&!isWall(x+1,y))po.add(new AstarPoint(x+1,y-1));
+					else if(!isWall(x-1,y)&&!isWall(x-1,y+1)&&!isWall(x,y+1))po.add(new AstarPoint(x-1,y+1));
+					else if(!isWall(x+1,y)&&!isWall(x,y+1)&&!isWall(x+1,y+1))po.add(new AstarPoint(x+1,y+1));
+				}
+			}
+		return po;
+	}
 	public boolean findWayPoint()
 	{
 		ArrayList<ArrayList<AstarPoint>> wpwaypointt=new ArrayList<ArrayList<AstarPoint>>();
+		ArrayList<AstarPoint> possible=findAllPossibleWayPoints();
 		for(AstarPoint[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
+			ArrayList<AstarPoint> mpossible=new ArrayList<AstarPoint>();
+			ArrayList<AstarPoint> sort=new ArrayList<AstarPoint>();
+			ArrayList<AstarPoint> reach=new ArrayList<AstarPoint>();
+			mpossible.addAll(possible);
+			mpossible.add(asp[1]);
 			AstarPoint start=asp[0];
 			AstarPoint finish=asp[1];
-			ArrayList<AstarPoint> c=new ArrayList<AstarPoint>();
-			ArrayList<AstarPoint> u=new ArrayList<AstarPoint>();
-			AstarPoint np=start;
-
-
-			while(true)
+			AstarPoint p=start;
+			sort.add(start);
+			int findcount=0;
+			while(p!=finish&&findcount++<1000)
 			{
-				AstarPoint fmin=null;
-				int l=np.x-1,t=np.y-1,r=np.x+1,b=np.y+1;
-				if(l>=0&&isWall(l,np.y))l=np.x;
-				if(r<size&&isWall(r,np.y))r=np.x;
-				if(t>=0&&isWall(np.x,t))t=np.y;
-				if(b<size&&isWall(np.x,b))b=np.y;
-				for(int x=l;x<=r;x++)
+				for(AstarPoint p1:mpossible)
+					if(reachable(p,p1))reach.add(p1);
+				Collections.sort(reach,new Comparator<AstarPoint>(){
+						@Override
+						public int compare(AstarPoint p1, AstarPoint p2)
+						{
+							// TODO: Implement this method
+							return 0;
+						}
+					});
+				if(reach.size()==0)
 				{
-					for(int y=t;y<=b;y++)
-					{
-						//◆如果它是不可抵达的或者它在 close list 中，忽略它
-						if(x==np.x&&y==np.y)continue;
-						if(x<0||x>=size||y<0||y>=size)continue;
-						if(isWall(x,y))continue;
-						if(containPoint(c,x,y)/*||containPoint(u,x,y)*/)continue;
-						AstarPoint tmp=new AstarPoint(x,y,distancePoint(x,y,np),/*(distancePoint(x,y,finish))/4*/0,np);
-						if(fmin==null||tmp.g+tmp.h<fmin.g+fmin.h)fmin=tmp;
-						//if(tmp==null)MainActivity.toast(tmp+"");
-					}
-				}
-				if(fmin==null)
-				{
-					u.add(np);
-					np=np.parent;
-					if(np==null)return false;
+					sort.remove(p);
+					p=sort.get(sort.size()-1);
 				}
 				else
 				{
-					np=fmin;
-					c.add(np);
+					p=reach.get(0);
+					sort.add(p);
+					mpossible.removeAll(reach);
+					reach.clear();
 				}
-				try
+				if(p==finish)
 				{
-					if(np==null)return false;
-					if(np.x==finish.x&&np.y==finish.y)break;
-				}
-				catch(Throwable tt)
-				{
+					wpwaypointt.add(sort);
 					break;
 				}
+				if(mpossible.size()==0||p==start)break;
 			}
-			for(AstarPoint x:u)c.remove(x);
-			AstarPoint a=new AstarPoint(start.x,start.y),d=null;
-			u.clear();
-			u.add(a);
-			for(int i=c.size()-1;i>=0;i--)
-			{
-				AstarPoint b=c.get(i);
-				if(a==b)break;
-				if(reachable(a,b))
-				{
-					u.add(b);
-					i=c.size()-1;
-					a=b;
-				}
-			}
-			u.add(new AstarPoint(finish.x,finish.y));
-			wpwaypointt.add(u);
+//			ArrayList<AstarPoint> c=new ArrayList<AstarPoint>();
+//			ArrayList<AstarPoint> u=new ArrayList<AstarPoint>();
+//			AstarPoint np=start;
+//
+//
+//			while(true)
+//			{
+//				AstarPoint fmin=null;
+//				int l=np.x-1,t=np.y-1,r=np.x+1,b=np.y+1;
+//				if(l>=0&&isWall(l,np.y))l=np.x;
+//				if(r<size&&isWall(r,np.y))r=np.x;
+//				if(t>=0&&isWall(np.x,t))t=np.y;
+//				if(b<size&&isWall(np.x,b))b=np.y;
+//				for(int x=l;x<=r;x++)
+//				{
+//					for(int y=t;y<=b;y++)
+//					{
+//						//◆如果它是不可抵达的或者它在 close list 中，忽略它
+//						if(x==np.x&&y==np.y)continue;
+//						if(x<0||x>=size||y<0||y>=size)continue;
+//						if(isWall(x,y))continue;
+//						if(containPoint(c,x,y)/*||containPoint(u,x,y)*/)continue;
+//						AstarPoint tmp=new AstarPoint(x,y,distancePoint(x,y,np),/*(distancePoint(x,y,finish))/4*/0,np);
+//						if(fmin==null||tmp.g+tmp.h<fmin.g+fmin.h)fmin=tmp;
+//						//if(tmp==null)MainActivity.toast(tmp+"");
+//					}
+//				}
+//				if(fmin==null)
+//				{
+//					u.add(np);
+//					np=np.parent;
+//					if(np==null)return false;
+//				}
+//				else
+//				{
+//					np=fmin;
+//					c.add(np);
+//				}
+//				try
+//				{
+//					if(np==null)return false;
+//					if(np.x==finish.x&&np.y==finish.y)break;
+//				}
+//				catch(Throwable tt)
+//				{
+//					break;
+//				}
+//			}
+//			for(AstarPoint x:u)c.remove(x);
+//			AstarPoint a=new AstarPoint(start.x,start.y),d=null;
+//			u.clear();
+//			u.add(a);
+//			for(int i=c.size()-1;i>=0;i--)
+//			{
+//				AstarPoint b=c.get(i);
+//				if(a==b)break;
+//				if(reachable(a,b))
+//				{
+//					u.add(b);
+//					i=c.size()-1;
+//					a=b;
+//				}
+//			}
+//			u.add(new AstarPoint(finish.x,finish.y));
+//			wpwaypointt.add(u);
 		}
 		wpwaypoint.clear();
 		for(ArrayList<AstarPoint>m:wpwaypointt)wpwaypoint.add(m);
@@ -235,7 +293,7 @@ public class Map
 		for(Bug t:bugs)
 		{
 			if(x<=Math.ceil(t.x)&&x>=Math.floor(t.x)&&
-			y<=Math.ceil(t.y)&&y>=Math.floor(t.y))return true;
+				y<=Math.ceil(t.y)&&y>=Math.floor(t.y))return true;
 		}
 		return false;
 	}
