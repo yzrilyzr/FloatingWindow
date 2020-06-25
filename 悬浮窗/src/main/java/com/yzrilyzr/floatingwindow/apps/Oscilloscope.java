@@ -1,38 +1,21 @@
 package com.yzrilyzr.floatingwindow.apps;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.AudioTrack;
-import android.media.MediaRecorder;
-import android.view.View;
+import android.content.*;
+import android.media.*;
+import android.view.*;
+import android.view.View.*;
+import android.widget.*;
+import android.widget.AdapterView.*;
+import android.widget.CompoundButton.*;
+import android.widget.SeekBar.*;
+import com.yzrilyzr.floatingwindow.*;
+import com.yzrilyzr.floatingwindow.apps.*;
+import com.yzrilyzr.floatingwindow.view.*;
+import com.yzrilyzr.myclass.*;
+import com.yzrilyzr.ui.*;
+import java.io.*;
+
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.ToggleButton;
-import com.yzrilyzr.floatingwindow.API;
-import com.yzrilyzr.floatingwindow.R;
 import com.yzrilyzr.floatingwindow.Window;
-import com.yzrilyzr.floatingwindow.apps.cls;
-import com.yzrilyzr.floatingwindow.view.FloatPicker;
-import com.yzrilyzr.floatingwindow.view.OscilloscopeView;
-import com.yzrilyzr.myclass.Pcm;
-import com.yzrilyzr.myclass.util;
-import com.yzrilyzr.ui.myButton;
-import com.yzrilyzr.ui.mySeekBar;
-import com.yzrilyzr.ui.mySpinner;
-import com.yzrilyzr.ui.mySpinnerAdapter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import android.widget.CompoundButton;
-import com.yzrilyzr.ui.myImageButton;
-import com.yzrilyzr.ui.uidata;
 
 public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Window.OnButtonDown,OnClickListener
 {
@@ -43,6 +26,8 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 	Context ctx;
 	protected Window w;
 	View b1,b2,b3,b4;
+	myCheckBox sbk;
+	AudioTrack track;
 	public Oscilloscope(Context c,Intent e)
 	{
 		ctx=c;
@@ -57,6 +42,7 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		sp.setAdapter(new mySpinnerAdapter("内部指定,麦克风,wav文件".split(",")));
 		pa=(FloatPicker) vg.findViewById(R.id.windowoscilloscopeFloatPicker1);
 		pb=(FloatPicker) vg.findViewById(R.id.windowoscilloscopeFloatPicker2);
+		sbk=(myCheckBox)vg.findViewById(R.id.windowoscilloscopemyCheckBox1);
 		pa.setListener(this);
 		pb.setListener(this);
 		ViewGroup gg=(ViewGroup) vg.getChildAt(3);
@@ -68,6 +54,28 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 		b4=gg.getChildAt(7);
 		b3.setOnClickListener(this);
 		b4.setOnClickListener(this);
+		sbk.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+				@Override
+				public void onCheckedChanged(CompoundButton p1, boolean p2)
+				{
+					if(p2){
+						int TEST_SR =48000;
+						//int BufferSize=2400;
+						int TEST_CONF =AudioFormat.CHANNEL_CONFIGURATION_MONO;
+						int TEST_FORMAT= AudioFormat.ENCODING_PCM_16BIT;
+						int TEST_MODE =AudioTrack.MODE_STREAM;
+						int TEST_STREAM_TYPE = AudioManager.STREAM_MUSIC;
+						int minBuffSize =AudioTrack.getMinBufferSize(TEST_SR, TEST_CONF, TEST_FORMAT);
+						track=new AudioTrack(TEST_STREAM_TYPE,TEST_SR,TEST_CONF,TEST_FORMAT,minBuffSize*2,TEST_MODE);
+						track.play();
+					}
+					else{
+						track.stop();
+						track.release();
+						track=null;
+					}
+				}
+			});
 		sp.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
@@ -78,9 +86,12 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 			@Override
 			public void onItemSelected(final AdapterView<?> pp1, View p2, int p3, long p4)
 			{
+				((View)sbk.getParent()).setVisibility(8);
+				sbk.setChecked(false);
 				if(p3==0)recing=false;
 				else if(p3==1)
 				{
+					((View)sbk.getParent()).setVisibility(0);
 					util.toast("警告:此示波器不带输入衰减\n请勿输入高电压(>±0.1v)！！！");
 					if(!recing)new Thread(Oscilloscope.this).start();
 				}
@@ -335,6 +346,8 @@ public class Oscilloscope implements FloatPicker.FloatPickerEvent,Runnable,Windo
 			while(recing)
 			{
 				record.read(data,0,data.length);
+				if(sbk.isChecked()&&track!=null)
+					track.write(data,0,data.length);
 				int[] d=Pcm.mono_16Bit_PCM(data);
 				append(d);
 			}
