@@ -1,33 +1,23 @@
 package com.yzrilyzr.floatingwindow.apps;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
-import android.util.Base64;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.LinearLayout;
-import com.yzrilyzr.floatingwindow.API;
-import com.yzrilyzr.floatingwindow.PluginService;
+import android.content.*;
+import android.content.pm.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
+import android.os.*;
+import android.util.*;
+import android.view.*;
+import android.widget.*;
+import com.yzrilyzr.floatingwindow.*;
+import com.yzrilyzr.floatingwindow.view.*;
+import com.yzrilyzr.floatingwindow.viewholder.*;
+import com.yzrilyzr.icondesigner.*;
+import com.yzrilyzr.myclass.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+
 import com.yzrilyzr.floatingwindow.Window;
-import com.yzrilyzr.floatingwindow.view.StarterView;
-import com.yzrilyzr.floatingwindow.viewholder.HolderGrid;
-import com.yzrilyzr.icondesigner.VECfile;
-import com.yzrilyzr.myclass.util;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Comparator;
 
 public class PluginPicker implements AdapterView.OnItemClickListener,Window.OnSizeChanged,Window.OnButtonDown
 {
@@ -186,7 +176,8 @@ public class PluginPicker implements AdapterView.OnItemClickListener,Window.OnSi
 									m.put("pkg",appInfo.packageName);
 									m.put("text1",k[0]);
 									m.put("class",g[0]);
-									m.put("text2",appInfo.loadLabel(pm));
+									String lb=appInfo.loadLabel(pm).toString();
+									m.put("text2",lb.equals(R.string.app_name)?null:lb);
 									cache.add(m);
 								}
 							}
@@ -241,14 +232,17 @@ public class PluginPicker implements AdapterView.OnItemClickListener,Window.OnSi
 				}
 			}
 			last.clear();
-			for(Map<String,Object> k:cache)last.add(k);
-//			Collections.sort(last,new Comparator<Map<String,Object>>(){
-//				@Override
-//				public int compare(Map<String, Object> p1, Map<String, Object> p2)
-//				{
-//					return ((String)p1.get("text1")).compareToIgnoreCase((String)p2.get("text1"));
-//				}
-//			});
+			ArrayList<Map<String,Object>> last2=new ArrayList<Map<String,Object>>();
+			for(Map<String,Object> k:cache)last2.add(k);
+			Collections.sort(last2,new Comparator<Map<String,Object>>(){
+				@Override
+				public int compare(Map<String, Object> p1, Map<String, Object> p2)
+				{
+					return ((String)p1.get("text1")).compareToIgnoreCase((String)p2.get("text1"));
+				}
+			});
+			last.addAll(last2);
+			//last2.clear();
 			return null;
 		}
 	}
