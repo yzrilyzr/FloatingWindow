@@ -22,7 +22,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 	public HexEditor(Context c,Intent e)
 	{
 		ctx=c;
-		w=new Window(c,util.px(280),util.px(500))
+		w=new Window(c,util.px(330),util.px(500))
 			.setTitle("Hex编辑器")
 			.setIcon("hex")
 			.setOnButtonDown(this)
@@ -34,9 +34,9 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 		(vg.findViewById(R.id.windowhexeditorVecView3)).setOnClickListener(this);
 		try
 		{
-			String d="低音可能刻录机了都那么小多了佛罗里达客流量fiejnekfidemekslsfjeje461946734619137346😇😁😐😃😑😁😯😃☺😐😢😳😥";
+			String d="Hex     Editor  Open a  file andcontinue";
 			StringBuilder bd=new StringBuilder();
-			for(int i=0;i<10;i++)bd.append(d);
+			bd.append(d);
 			hv.loadStream(new ByteArrayInputStream(bd.toString().getBytes()));
 
 		}
@@ -67,7 +67,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 						}
 					},cls.EXPLORER);
 				break;
-			case R.id.windowlongtexteditorVecView2:
+			case R.id.windowhexeditorVecView2:
 				if(new File(file).exists())
 					new myDialog.Builder(ctx)
 						.setMessage("文件已存在，是否覆盖？")

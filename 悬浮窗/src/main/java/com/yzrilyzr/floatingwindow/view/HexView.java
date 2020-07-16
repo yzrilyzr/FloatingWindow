@@ -15,16 +15,22 @@ public class HexView extends View
 	Paint pa;
 	int bys=8;
 	long size;
-	float y=0,dy=0,py=0,lasty=0;
-	boolean isSeek=false;
-	public boolean changed=false;
-	public HexView(Context ctx,AttributeSet a){
+	float y=0,dy=0,py=0,px=0,lasty=0,lastx=0;
+	boolean isSeek=false,skeyboard=false;
+	float skbms=0;
+	long lasttime;
+	ArrayList<RectF> keys=new ArrayList<RectF>();
+	private final static String HEX = "0123456789ABCDEF";
+	public boolean changed=false,isMove=false;
+	public HexView(Context ctx,AttributeSet a)
+	{
 		super(ctx,a);
 		pa=new Paint(Paint.ANTI_ALIAS_FLAG);
 		pa.setTextSize(util.px(uidata.TEXTSIZE));
 		pa.setColor(uidata.TEXTMAIN);
 		pa.setTypeface(Typeface.MONOSPACE);
-		
+		setLayerType(View.LAYER_TYPE_SOFTWARE,null);
+
 	}
 	public HexView(Context ctx)
 	{
@@ -58,7 +64,7 @@ public class HexView extends View
 					System.arraycopy(bu,i,bg,0,index-i);
 					data.add(bg);
 				}
-				
+
 			}
 		}
 		is.close();
@@ -67,7 +73,6 @@ public class HexView extends View
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		System.out.println(y);
 		// TODO: Implement this method
 		super.onDraw(canvas);
 		int sy=(int)(-y/pa.getTextSize());
@@ -85,9 +90,11 @@ public class HexView extends View
 			StringBuffer sb2=new StringBuffer();
 			for(int t=0;t<b.length;t++)
 			{
-				String h=Integer.toHexString((int)b[t]+127).toUpperCase();
-				if(h.length()==1)sb.append("0");
-				sb.append(h);
+				//String h=Integer.toHexString((char)b[t]).toUpperCase();
+				sb.append(HEX.charAt((b[t]>>4)&0x0f)).append(HEX.charAt(b[t]&0x0f));
+
+				//if(h.length()==1)sb.append("0");
+				//sb.append(h);
 				sb.append(" ");
 				sb2.append((char)b[t]);
 				sb2.append(" ");
@@ -98,7 +105,7 @@ public class HexView extends View
 			canvas.drawLine(xo,0,xo,getHeight(),pa);
 			canvas.drawLine(xo2,0,xo2,getHeight(),pa);
 			pa.setStyle(Paint.Style.FILL);
-			pa.setColor(0xff4444ff);
+			pa.setColor(0xff44bbff);
 			canvas.drawText("偏移",0,pa.getTextSize(),pa);
 			canvas.drawText(Integer.toHexString(i*bys).toUpperCase(),0,pa.getTextSize()+(drawy+=pa.getTextSize()),pa);
 			pa.setColor(uidata.TEXTMAIN);
@@ -106,16 +113,86 @@ public class HexView extends View
 			canvas.drawText(sb.toString(),xo,pa.getTextSize()+drawy,pa);
 			canvas.drawText("Char",xo2,pa.getTextSize(),pa);
 			canvas.drawText(sb2.toString(),xo2,pa.getTextSize()+drawy,pa);
-			
+
 		}
 		pa.setColor(uidata.ACCENT);
 		float r=util.px(3);
 		canvas.drawRoundRect(new RectF(getWidth()-3*r,r,getWidth()-r,getHeight()-r),r/2f,r/2f,pa);
 		canvas.drawCircle(getWidth()-2*r,util.limit(2*r-y*(getHeight()-4*r)/pa.getTextSize()/data.size(),2*r,getHeight()-2*r),2*r,pa);
+		if(lasttime==0)lasttime=System.currentTimeMillis();
+		float dt=System.currentTimeMillis()-lasttime;
+		if(skeyboard&&skbms<500)skbms+=dt;
+		if(!skeyboard&&skbms>=0)skbms-=dt;
+		if(skbms>0)
+		{
+			pa.setColor(uidata.MAIN);
+			canvas.drawRoundRect(new RectF(0,
+					getHeight()-myAnim.getNLinearValueByTime(skbms,0,300)*util.px(100),
+					getWidth(),getHeight()+util.px(uidata.UI_RADIUS)),util.px(uidata.UI_RADIUS),util.px(uidata.UI_RADIUS),pa);
+			pa.setColor(uidata.BUTTON);
+			if(keys.size()==0)
+			{
+				for(int i=0;i<8;i++)
+				{
+					//int al=(int)(255f*myAnim.getNLinearValueByTime(skbms,300+i*25,325+i*25));
+					//pa.setShadowLayer(util.px(1.5f),0,util.px(2),al/2*0x01000000);
+					//pa.setAlpha(al);
+					//canvas.drawRoundRect(
+					keys.add(new RectF(
+							getWidth()/9*(i+1)-util.px(15),
+							getHeight()-util.px(300/4)-util.px(15),
+							getWidth()/9*(i+1)+util.px(15),
+							getHeight()-util.px(300/4)+util.px(15)));
+					//util.px(uidata.UI_RADIUS),util.px(uidata.UI_RADIUS),pa);
+				}
+				for(int i=0;i<8;i++)
+				{
+						//canvas.drawRoundRect(
+					keys.add(new RectF(
+							getWidth()/9*(i+1)-util.px(15),
+							getHeight()-util.px(100/4)-util.px(15),
+							getWidth()/9*(i+1)+util.px(15),
+							getHeight()-util.px(100/4)+util.px(15)));
+					//
+				}
+			}
+			int i=0;
+			pa.setTextAlign(Paint.Align.CENTER);
+			for(RectF rr:keys){
+				int al=(int)(255f*myAnim.getNLinearValueByTime(skbms,300+i*12,312+i*12));
+				pa.setShadowLayer(util.px(1.5f),0,util.px(2),(al/2)<<24);
+				pa.setColor(uidata.BUTTON);
+				pa.setAlpha(al);
+				canvas.drawRoundRect(rr,util.px(uidata.UI_RADIUS),util.px(uidata.UI_RADIUS),pa);
+				pa.setColor(uidata.TEXTMAIN);
+				pa.setShadowLayer(0,0,0,0);
+				pa.setAlpha(al);
+				canvas.drawText(""+HEX.charAt(i),rr.centerX(),rr.centerY()+pa.getTextSize()/2,pa);
+				i++;
+			}
+			pa.setTextAlign(Paint.Align.LEFT);
+			
+		}
+		pa.setAlpha(255);
+		lasttime=System.currentTimeMillis();
 		invalidate();
 	}
-	public long getSize(){
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh)
+	{
+		// TODO: Implement this method
+		super.onSizeChanged(w, h, oldw, oldh);
+		keys.clear();
+		skbms=0;
+	}
+	
+	public long getSize()
+	{
 		return size;
+	}
+	private void input(int i){
+		
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
@@ -123,24 +200,50 @@ public class HexView extends View
 		float ppx=event.getX();
 		float ppy=event.getY();
 		float r=util.px(3);
-		switch(event.getAction()){
+		switch(event.getAction())
+		{
 			case MotionEvent.ACTION_DOWN:
-				if(ppx>getWidth()-4*r){
+				if(ppx>getWidth()-4*r)
+				{
 					isSeek=true;
 					y=-pa.getTextSize()*data.size()*ppy/getHeight();
 					break;
 				}
 				isSeek=false;
+				isMove=false;
 				py=ppy;
+				px=ppx;
 				lasty=y;
+				lastx=ppx;
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if(isSeek){
+				if(isSeek)
+				{
 					y=-pa.getTextSize()*data.size()*ppy/getHeight();
 					break;
 				}
+				if(Math.abs(px-ppx)>util.px(5)||Math.abs(py-ppy)>util.px(5))
+				{
+					isMove=true;
+					skeyboard=false;
+				}
 				dy=ppy-py;
 				y=lasty+dy;
+				break;
+			case MotionEvent.ACTION_UP:
+				if(!isMove&&!isSeek){
+					skeyboard=true;
+					if(skbms>=500&&ppy>getHeight()-util.px(100))
+						for(int i=0;i<keys.size();i++){
+						if(keys.get(i).contains(ppx,ppy)){
+							input(i);
+							return false;
+						}
+					}
+					else{
+						
+					}
+				}
 				break;
 		}
 		if(y>0)y=0;
