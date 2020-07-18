@@ -15,8 +15,9 @@ public class HexView extends View
 	Paint pa;
 	int bys=8;
 	long size;
-	float y=0,dy=0,py=0,px=0,lasty=0,lastx=0;
-	boolean isSeek=false,skeyboard=false;
+	int ix,iy;
+	float y=0,dy=0,py=0,px=0,lasty=0,lastx=0,spx=0,spy=0;
+	boolean isSeek=false,skeyboard=false,inp=false;
 	float skbms=0;
 	long lasttime;
 	ArrayList<RectF> keys=new ArrayList<RectF>();
@@ -44,6 +45,7 @@ public class HexView extends View
 	public void loadStream(InputStream is) throws IOException
 	{
 		size=is.available();
+		y=0;
 		byte[] bu=new byte[1024];
 		int index=0;
 		byte[] bg=new byte[bys];
@@ -82,22 +84,39 @@ public class HexView extends View
 		StringBuilder sbb=new StringBuilder();
 		for(int u=0;u<bys;u++)sbb.append("000");
 		float xo2=xo+pa.measureText(sbb.toString());
+		if(spx>xo&&spx<xo2&&spy<getHeight()-util.px(100)){
+			float ww=pa.measureText(" ");
+			ix=util.limit((int)((spx-xo)/ww+1)/3,0,7);
+			iy=util.limit((int)((spy-y)/pa.getTextSize()-1),0,data.size()-1);
+			int yyy=(int)(iy+y/pa.getTextSize())+1;
+			pa.setColor(0xff000000);
+			canvas.drawRect(ix*3*ww+xo,yyy*pa.getTextSize(),xo+ix*3*ww+2*ww,(yyy+1)*pa.getTextSize(),pa);
+		}
 		for(int i=sy;i<sy+getHeight()/pa.getTextSize()&&i<data.size()&&i>=0;i++)
 		{
 			if(i>=data.size())break;
 			byte[] b=data.get(i);
 			StringBuffer sb=new StringBuffer();
+			StringBuffer sb3=new StringBuffer();
 			StringBuffer sb2=new StringBuffer();
+			StringBuffer sb4=new StringBuffer();
 			for(int t=0;t<b.length;t++)
 			{
 				//String h=Integer.toHexString((char)b[t]).toUpperCase();
-				sb.append(HEX.charAt((b[t]>>4)&0x0f)).append(HEX.charAt(b[t]&0x0f));
-
-				//if(h.length()==1)sb.append("0");
-				//sb.append(h);
-				sb.append(" ");
-				sb2.append((char)b[t]);
-				sb2.append(" ");
+				if(b[t]>=0x21&&b[t]<=0x7e)
+				{
+					sb.append(HEX.charAt((b[t]>>4)&0x0f)).append(HEX.charAt(b[t]&0x0f)).append(" ");
+					sb3.append("   ");
+					sb2.append((char)b[t]).append(" ");
+					sb4.append("  ");
+				}
+				else
+				{
+					sb.append("   ");
+					sb3.append(HEX.charAt((b[t]>>4)&0x0f)).append(HEX.charAt(b[t]&0x0f)).append(" ");
+					sb4.append(". ");
+					sb2.append("  ");
+				}
 			}
 			pa.setStrokeWidth(1);
 			pa.setStyle(Paint.Style.STROKE);
@@ -110,10 +129,17 @@ public class HexView extends View
 			canvas.drawText(Integer.toHexString(i*bys).toUpperCase(),0,pa.getTextSize()+(drawy+=pa.getTextSize()),pa);
 			pa.setColor(uidata.TEXTMAIN);
 			canvas.drawText("HEX",xo,pa.getTextSize(),pa);
+			//21-7e
 			canvas.drawText(sb.toString(),xo,pa.getTextSize()+drawy,pa);
+			pa.setColor(0xffff5555);
+			canvas.drawText(sb3.toString(),xo,pa.getTextSize()+drawy,pa);
+			pa.setColor(uidata.TEXTMAIN);
+
 			canvas.drawText("Char",xo2,pa.getTextSize(),pa);
 			canvas.drawText(sb2.toString(),xo2,pa.getTextSize()+drawy,pa);
-
+			pa.setColor(0xffff5555);
+			canvas.drawText(sb4.toString(),xo2,pa.getTextSize()+drawy,pa);
+			
 		}
 		pa.setColor(uidata.ACCENT);
 		float r=util.px(3);
@@ -147,7 +173,7 @@ public class HexView extends View
 				}
 				for(int i=0;i<8;i++)
 				{
-						//canvas.drawRoundRect(
+					//canvas.drawRoundRect(
 					keys.add(new RectF(
 							getWidth()/9*(i+1)-util.px(15),
 							getHeight()-util.px(100/4)-util.px(15),
@@ -158,7 +184,8 @@ public class HexView extends View
 			}
 			int i=0;
 			pa.setTextAlign(Paint.Align.CENTER);
-			for(RectF rr:keys){
+			for(RectF rr:keys)
+			{
 				int al=(int)(255f*myAnim.getNLinearValueByTime(skbms,300+i*12,312+i*12));
 				pa.setShadowLayer(util.px(1.5f),0,util.px(2),(al/2)<<24);
 				pa.setColor(uidata.BUTTON);
@@ -171,7 +198,7 @@ public class HexView extends View
 				i++;
 			}
 			pa.setTextAlign(Paint.Align.LEFT);
-			
+
 		}
 		pa.setAlpha(255);
 		lasttime=System.currentTimeMillis();
@@ -186,13 +213,29 @@ public class HexView extends View
 		keys.clear();
 		skbms=0;
 	}
-	
+
 	public long getSize()
 	{
 		return size;
 	}
-	private void input(int i){
-		
+	private void input(int i)
+	{
+		try{
+		byte[] bp=data.get(util.limit(iy,0,data.size()-1));
+		byte b=bp[util.limit(ix,0,bp.length-1)];
+		System.out.println(Integer.toHexString(b));
+		if(!inp){
+			b=(byte)i;
+			inp=true;
+		}
+		else{
+			b=(byte)((byte)(b<<4)+(byte)i);
+			inp=false;
+		}
+		data.get(iy)[ix]=b;
+		}catch(Throwable e){
+			util.toast("编辑失败");
+		}
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
@@ -231,17 +274,22 @@ public class HexView extends View
 				y=lasty+dy;
 				break;
 			case MotionEvent.ACTION_UP:
-				if(!isMove&&!isSeek){
+				if(!isMove&&!isSeek)
+				{
 					skeyboard=true;
 					if(skbms>=500&&ppy>getHeight()-util.px(100))
-						for(int i=0;i<keys.size();i++){
-						if(keys.get(i).contains(ppx,ppy)){
-							input(i);
-							return false;
+						for(int i=0;i<keys.size();i++)
+						{
+							if(keys.get(i).contains(ppx,ppy))
+							{
+								input(i);
+								return false;
+							}
 						}
-					}
-					else{
-						
+					else
+					{
+						spx=ppx;
+						spy=ppy;
 					}
 				}
 				break;

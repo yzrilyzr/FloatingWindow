@@ -13,7 +13,7 @@ import com.yzrilyzr.floatingwindow.Window;
 
 public class HexEditor implements OnClickListener,Window.OnButtonDown
 {
-	String file;
+	String file="";
 	Window w;
 	HexView hv;
 	Context ctx;
@@ -31,7 +31,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 		hv=(HexView) vg.findViewById(R.id.windowhexeditorHexView1);
 		(vg.findViewById(R.id.windowhexeditorVecView1)).setOnClickListener(this);
 		(vg.findViewById(R.id.windowhexeditorVecView2)).setOnClickListener(this);
-		(vg.findViewById(R.id.windowhexeditorVecView3)).setOnClickListener(this);
+		//(vg.findViewById(R.id.windowhexeditorVecView3)).setOnClickListener(this);
 		try
 		{
 			String d="Hex     Editor  Open a  file andcontinue";

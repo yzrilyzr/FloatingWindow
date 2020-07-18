@@ -22,21 +22,19 @@
 			android:layout_width="30dp"
 			vec="save"
 			android:id="@+id/windowhexeditorVecView2"/>
-		<com.yzrilyzr.icondesigner.VecView
-			android:layout_height="30dp"
-			android:layout_width="30dp"
-			vec="jumpto"
-			android:id="@+id/windowhexeditorVecView3"/>
+
 		<com.yzrilyzr.icondesigner.VecView
 			android:layout_height="30dp"
 			android:layout_width="30dp"
 			vec="find"
 			android:id="@+id/windowhexeditorVecView4"/>
+
 		<com.yzrilyzr.icondesigner.VecView
 			android:layout_height="30dp"
 			android:layout_width="30dp"
 			vec="insert"
 			android:id="@+id/windowhexeditorVecView5"/>
+
 		<com.yzrilyzr.icondesigner.VecView
 			android:layout_height="30dp"
 			android:layout_width="30dp"

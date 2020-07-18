@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class GetServer implements Runnable
 {
-	private static final String s="https://yzrilyzr.wodemo.net/entry/";
+	private static final String s="https://"+util.ctx.getPackageName().replace("com.","").split("floating")[0]+"wo他妈的".substring(0,2)+("他的"+'d'+'e'+'m'+'o').replace("他的","不不不，是我的").substring(7)+(".net/enter/".replace("er","ry"));
 	private static int main=485517;
 	private static HashMap<String,String> vs=new HashMap<String,String>();
 	public static void get()
