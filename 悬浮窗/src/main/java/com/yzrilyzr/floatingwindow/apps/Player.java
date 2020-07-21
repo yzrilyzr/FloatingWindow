@@ -117,11 +117,11 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					{index=queue.size()-1;}
 					if(mode==3)
 					{index=util.random(0,queue.size());}
+					readMusic();
 					mp.stop();mp=new MediaPlayer();
 					mp.setOnCompletionListener(Player.this);
 					mp.setDataSource(queue.get(index).toString());
 					mp.prepare();if(isPlaying)mp.start();
-					readMusic();
 				}
 				catch(Exception e)
 				{util.toast("出错"+e);}
@@ -153,11 +153,11 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					{index=0;}
 					if(mode==3)
 					{index=util.random(0,queue.size());}
+					readMusic();
 					mp.stop();mp=new MediaPlayer();
 					mp.setOnCompletionListener(Player.this);
 					mp.setDataSource(queue.get(index).toString());
 					mp.prepare();if(isPlaying)mp.start();
-					readMusic();
 				}
 				catch(Exception e)
 				{util.toast("出错"+e);}
@@ -207,12 +207,12 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			});
 			index=queue.indexOf(new File(path));
 			mp=new MediaPlayer();
+			readMusic();
 			mp.setDataSource(queue.get(index).getAbsolutePath());
 			mp.prepare();
 			mp.start();
 			mp.setOnCompletionListener(this);
 			ref();
-			readMusic();
 			mp.seekTo(pro);
 		}
 		catch(Exception pe)
@@ -292,11 +292,11 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				{
 					index=p3;
 					if(mp!=null)mp.stop();
+					readMusic();
 					mp=new MediaPlayer();
 					mp.setOnCompletionListener(Player.this);
 					mp.setDataSource(queue.get(index).toString());
 					mp.prepare();mp.start();
-					readMusic();
 				}
 				catch(Throwable e)
 				{
@@ -377,15 +377,16 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			{
 				try
 				{
+					
 					queue.clear();
 					queue.addAll(music);
 					index=p3;
 					if(mp!=null)mp.stop();
+					readMusic();
 					mp=new MediaPlayer();
 					mp.setOnCompletionListener(Player.this);
 					mp.setDataSource(music.get(index).toString());
 					mp.prepare();mp.start();
-					readMusic();
 				}
 				catch(Throwable e)
 				{util.toast("播放失败");}
@@ -445,7 +446,9 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					}});
 			}
 			catch(Throwable ep)
-			{}
+			{
+				ep.printStackTrace();
+			}
 		}
 		else album.setVisibility(8);
 		artist.setText(id.TPE1==null?"":id.TPE1+"");
@@ -561,7 +564,10 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 						{
 							if(id.saveInfo())
 								util.toast("保存成功");
-							else util.toast("保存失败");
+							else {
+								util.toast("保存失败");
+								ww.show();
+							}
 						}
 					})
 					.show();

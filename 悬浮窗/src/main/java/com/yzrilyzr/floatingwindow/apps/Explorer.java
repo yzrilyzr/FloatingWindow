@@ -93,7 +93,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 		{
 			v.getChildAt(4).setVisibility(0);
 			mFilename=(EditText)v.findViewById(R.id.windowexplorerEditText1);
-			mFilename.setText(e.getStringExtra("savemFile"));
+			mFilename.setText(e.getStringExtra("savefile"));
 			((View)v.findViewById(R.id.windowexplorerButton1)).setOnClickListener(new OnClickListener(){
 				@Override
 				public void onClick(View p1)
@@ -1549,7 +1549,9 @@ Window.OnButtonDown,Window.OnSizeChanged
 				{
 					mFile x=new mFile(path);
 					if(!x.exists())path=x.getParent();
-					if(!g.renameTo(new mFile(g.getParent()+"/"+edi.getText().toString())))throw new Exception();
+					mFile pp=new mFile(g.getParent()+"/"+edi.getText().toString());
+					if(pp.exists())throw new Exception("文件重名");
+					if(!g.renameTo(pp))throw new Exception();
 					list();
 				}
 				catch(Exception e)

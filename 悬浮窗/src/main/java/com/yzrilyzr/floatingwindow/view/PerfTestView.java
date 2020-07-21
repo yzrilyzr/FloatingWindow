@@ -13,9 +13,9 @@ public class PerfTestView extends View
 {
 	boolean start=false;
 	long ns,cns;
-	long times,starttime;
+	public long times,starttime;
 	Paint p;
-	public Shapes sh=new Shapes(0);
+ Shapes sh=new Shapes(0);
 	public PerfTestView(Context c){
 		super(c);
 		p=new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -28,8 +28,12 @@ public class PerfTestView extends View
 	{
 		sh.onCompute();
 		sh.onDraw(canvas);
-		if(ns!=0)canvas.drawText("FPS:"+(1000000000l/ns),getWidth()/2,getHeight()/2,p);
-		canvas.drawText(Long.toString(10l-(cns-starttime)/1000000000l),getWidth()/2,getHeight()/2+p.getTextSize()*1.5f,p);
+		if(ns!=0){
+			canvas.drawText(String.format("FPS:%d",(1000000000l/ns)),getWidth()/2,getHeight()/2-p.getTextSize()*0.5f,p);
+			canvas.drawText(String.format("AVGFPS:%d",getAverageFps()),getWidth()/2,getHeight()/2+p.getTextSize()*0.5f,p);
+			}
+			long time=10l-(cns-starttime)/1000000000l;
+		canvas.drawText(time>=0?Long.toString(time):"加时测试",getWidth()/2,getHeight()/2+p.getTextSize()*2f,p);
 		ns=System.nanoTime()-cns;
 		cns=System.nanoTime();
 		times++;
@@ -44,7 +48,7 @@ public class PerfTestView extends View
 		return true;
 	}
 	public boolean finish(){
-		return ((cns-starttime)/1000000000l)==10l;
+		return ((cns-starttime)/1000000000l)>=10l&&getAverageFps()<57;
 	}
 	public void start(){
 		sh.pos.clear();
@@ -56,8 +60,10 @@ public class PerfTestView extends View
 		starttime=cns;
 		times=0;
 	}
-	public int getAverageFps(){
+	public void interrupt(){
 		start=false;
+	}
+	public int getAverageFps(){
 		return (int)(times*1000000000l/(System.nanoTime()-starttime));
 	}
 }

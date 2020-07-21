@@ -17,7 +17,7 @@ public class ANRThread extends Thread
 		inst=this;
 		setName("ANR检测");
 		Handler h=new Handler(util.ctx.getMainLooper());
-		while(Window.anr||!util.sup)
+		while(Window.anr/*||!util.sup*/)
 		{
 			h.postAtFrontOfQueue(new Runnable(){
 					@Override

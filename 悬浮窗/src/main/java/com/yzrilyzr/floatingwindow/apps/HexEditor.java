@@ -13,11 +13,11 @@ import com.yzrilyzr.floatingwindow.Window;
 
 public class HexEditor implements OnClickListener,Window.OnButtonDown
 {
-	String file="";
+	String file=null;
 	Window w;
 	HexView hv;
 	Context ctx;
-
+	boolean changed=false;
 	ViewGroup vg;
 	public HexEditor(Context c,Intent e)
 	{
@@ -29,6 +29,14 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 			.show();
 		vg=(ViewGroup) w.addView(R.layout.window_hexeditor);
 		hv=(HexView) vg.findViewById(R.id.windowhexeditorHexView1);
+		hv.setLi(new HexView.OnChangedListener(){
+				@Override
+				public void onChanged()
+				{
+					changed=true;
+					w.setTitle("Hex编辑器"+(file==null?"":":"+new File(file).getName())+"*");
+				}
+			});
 		(vg.findViewById(R.id.windowhexeditorVecView1)).setOnClickListener(this);
 		(vg.findViewById(R.id.windowhexeditorVecView2)).setOnClickListener(this);
 		//(vg.findViewById(R.id.windowhexeditorVecView3)).setOnClickListener(this);
@@ -59,6 +67,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 							{
 								file=e.getStringExtra("path");
 								hv.loadStream(new FileInputStream(file));
+								w.setTitle("Hex编辑器:"+new File(file).getName());
 							}
 							catch(Exception ex)
 							{
@@ -68,7 +77,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 					},cls.EXPLORER);
 				break;
 			case R.id.windowhexeditorVecView2:
-				if(new File(file).exists())
+				if(file!=null&&new File(file).exists())
 					new myDialog.Builder(ctx)
 						.setMessage("文件已存在，是否覆盖？")
 						.setPositiveButton("确定",new DialogInterface.OnClickListener(){
@@ -80,7 +89,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 						})
 						.setNegativeButton("取消",null)
 						.show();
-				else API.startServiceForResult(ctx,new Intent().putExtra("save",true).putExtra("savefile","新建文件.txt"),w,new BroadcastReceiver(){
+				else API.startServiceForResult(ctx,new Intent().putExtra("save",true).putExtra("savefile","未命名文件"),w,new BroadcastReceiver(){
 							@Override
 							public void onReceive(Context c,Intent e)
 							{
@@ -99,7 +108,7 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 											@Override
 											public void onClick(DialogInterface p1, int p2)
 											{
-												file="";
+												file=null;
 											}
 										})
 										.show();
@@ -121,8 +130,8 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 			os.flush();
 			os.close();
 			myToast.makeText(ctx,"保存成功",0).show();
-			w.setTitle(w.getTitle());
-			hv.changed=false;
+			w.setTitle("Hex编辑器"+(file==null?"":":"+new File(file).getName()));
+			changed=false;
 		}
 		catch (Exception e)
 		{
@@ -134,9 +143,9 @@ public class HexEditor implements OnClickListener,Window.OnButtonDown
 	{
 		if(code==Window.ButtonCode.CLOSE)
 		{
-			if(hv.changed)
+			if(changed)
 				new myDialog.Builder(ctx)
-					.setMessage("是否保存对 \""+new File(file).getName()+"\" 的更改?")
+					.setMessage("是否保存对 \""+file==null?"未命名文件":new File(file).getName()+"\" 的更改?")
 					.setPositiveButton("保存",new DialogInterface.OnClickListener(){
 						@Override
 						public void onClick(DialogInterface p1, int p2)

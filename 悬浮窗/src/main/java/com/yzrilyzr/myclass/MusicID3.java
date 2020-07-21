@@ -194,7 +194,7 @@ public class MusicID3
 	{
 		try
 		{
-			BufferedOutputStream o=new BufferedOutputStream(new FileOutputStream(path+"_1"));
+			BufferedOutputStream o=new BufferedOutputStream(new FileOutputStream(path.replace(".mp3","_.mp3")));
 			InputStream is=new FileInputStream(path);
 			byte[] id3=new byte[3];
 			is.read(id3,0,3);

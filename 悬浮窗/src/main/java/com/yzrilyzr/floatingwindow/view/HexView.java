@@ -20,9 +20,10 @@ public class HexView extends View
 	boolean isSeek=false,skeyboard=false,inp=false;
 	float skbms=0;
 	long lasttime;
+	OnChangedListener li;
 	ArrayList<RectF> keys=new ArrayList<RectF>();
 	private final static String HEX = "0123456789ABCDEF";
-	public boolean changed=false,isMove=false;
+	public boolean isMove=false;
 	public HexView(Context ctx,AttributeSet a)
 	{
 		super(ctx,a);
@@ -36,6 +37,16 @@ public class HexView extends View
 	public HexView(Context ctx)
 	{
 		this(ctx,null);
+	}
+
+	public void setLi(OnChangedListener li)
+	{
+		this.li = li;
+	}
+
+	public OnChangedListener getLi()
+	{
+		return li;
 	}
 
 	public void setYOff(int p2)
@@ -88,9 +99,8 @@ public class HexView extends View
 			float ww=pa.measureText(" ");
 			ix=util.limit((int)((spx-xo)/ww+1)/3,0,7);
 			iy=util.limit((int)((spy-y)/pa.getTextSize()-1),0,data.size()-1);
-			int yyy=(int)(iy+y/pa.getTextSize())+1;
 			pa.setColor(0xff000000);
-			canvas.drawRect(ix*3*ww+xo,yyy*pa.getTextSize(),xo+ix*3*ww+2*ww,(yyy+1)*pa.getTextSize(),pa);
+			canvas.drawRect(ix*3*ww+xo,(iy-sy+1.1f)*pa.getTextSize(),xo+ix*3*ww+2*ww,(iy-sy+2.1f)*pa.getTextSize(),pa);
 		}
 		for(int i=sy;i<sy+getHeight()/pa.getTextSize()&&i<data.size()&&i>=0;i++)
 		{
@@ -233,6 +243,7 @@ public class HexView extends View
 			inp=false;
 		}
 		data.get(iy)[ix]=b;
+		if(li!=null)li.onChanged();
 		}catch(Throwable e){
 			util.toast("编辑失败");
 		}
@@ -262,7 +273,7 @@ public class HexView extends View
 			case MotionEvent.ACTION_MOVE:
 				if(isSeek)
 				{
-					y=-pa.getTextSize()*data.size()*ppy/getHeight();
+					y=util.limit(-pa.getTextSize()*data.size()*ppy/getHeight(),-pa.getTextSize()*data.size(),0);
 					break;
 				}
 				if(Math.abs(px-ppx)>util.px(5)||Math.abs(py-ppy)>util.px(5))
@@ -297,5 +308,7 @@ public class HexView extends View
 		if(y>0)y=0;
 		return true;
 	}
-
+public interface OnChangedListener{
+	public void onChanged();
+}
 }

@@ -207,7 +207,7 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 		 value = null;
 		 }
 		 if(value==null)throw new RuntimeException("");*/
-		if(!util.sup)util.toast("不支持的设备");
+		//if(!util.sup)util.toast("不支持的设备");
 		
 			//Thread.setDefaultUncaughtExceptionHandler(this);
 			//ct.setUncaughtExceptionHandler(this);

@@ -269,7 +269,7 @@ public class Settings implements Window.OnButtonDown,myViewPager.OnPageChangeLis
 			r3.setEnabled(false);
 			((ViewGroup)r3.getParent()).getChildAt(0).setEnabled(false);
 		}
-		if(!util.sup)
+		/*if(!util.sup)
 		{
 			v2.setOnClickListener(null);
 			v2.setEnabled(false);
@@ -277,7 +277,7 @@ public class Settings implements Window.OnButtonDown,myViewPager.OnPageChangeLis
 			r4.setChecked(true);
 			r4.setEnabled(false);
 			((ViewGroup)r4.getParent()).getChildAt(0).setEnabled(false);
-		}
+		}*/
 	}
 	public void initUi()
 	{

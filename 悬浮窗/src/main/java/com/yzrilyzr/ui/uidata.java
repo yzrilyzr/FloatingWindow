@@ -19,7 +19,7 @@ public final class uidata
 	public static int BACK=-12895429;
 	public static int ACCENT=-27859;
 	public static int BUTTON=-9539986;
-	public static int UNENABLED=-2236963;
+	public static int UNENABLED=0xff656565;
 	
 	public static int getAlphacolor(int c,int alpha){
 		return (c|0xff000000)-(0x01000000*(0xff-alpha));
