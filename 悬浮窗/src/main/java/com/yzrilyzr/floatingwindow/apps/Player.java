@@ -29,7 +29,7 @@ import com.yzrilyzr.floatingwindow.apps.cls;
 import com.yzrilyzr.floatingwindow.viewholder.BaseHolder;
 import com.yzrilyzr.icondesigner.VECfile;
 import com.yzrilyzr.icondesigner.VecView;
-import com.yzrilyzr.myclass.MusicID3;
+import com.yzrilyzr.myclass.MP3File;
 import com.yzrilyzr.myclass.Comparator;
 import com.yzrilyzr.myclass.util;
 import java.io.BufferedInputStream;
@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import com.yzrilyzr.myclass.*;
 public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListener
 {
 	int index=0,mode=1;//0播放列表后停止，1播放列表后循环，2单曲循环,3随机,4单曲播放
@@ -49,7 +50,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 	MediaPlayer mp;
 	ArrayList<File> queue=new ArrayList<File>();
 	ArrayList<File> music=new ArrayList<File>();
-	static ConcurrentHashMap<String,MusicID3> id3=new ConcurrentHashMap<String,MusicID3>();
+	static ConcurrentHashMap<String,MP3File> id3=new ConcurrentHashMap<String,MP3File>();
 	private Context ctx;
 	private String path;
 	private Window w;
@@ -66,7 +67,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 		SharedPreferences sp=util.getSPRead(key);
 		int pro=sp.getInt("pro",0);
 		String last=sp.getString("last",null);
-		load();
+		//load();
 		path=e.getStringExtra("path");
 		if(path!=null&&!path.equals(last))pro=0;
 		if(path==null)path=last;
@@ -206,6 +207,15 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				}
 			});
 			index=queue.indexOf(new File(path));
+			/*new Thread(new Runnable(){
+
+					@Override
+					public void run()
+					{
+						myPlayer pl=new myPlayer(queue.get(index).getAbsolutePath());
+					}
+				}).start();
+			*/
 			mp=new MediaPlayer();
 			readMusic();
 			mp.setDataSource(queue.get(index).getAbsolutePath());
@@ -252,10 +262,10 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				if(position<queue.size())
 				{
 					String f=queue.get(position).getAbsolutePath();
-					MusicID3 id=id3.get(f);
+					MP3File id=id3.get(f);
 					if(id==null)
 					{
-						id=new MusicID3(f);
+						id=new MP3File(f);
 						id.loadInfo();
 						id3.put(f,id);
 						MediaPlayer l=new MediaPlayer();
@@ -270,9 +280,10 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 						l.release();
 					}
 					holder.text1.setText(getTime(id.length));
-					holder.text2.setText(id.TPE1==null?"":id.TPE1);
-					holder.text3.setText(id.TALB==null?"":id.TALB);
-					if(id.TIT2!=null&&!id.TIT2.equals("null"))holder.text0.setText(String.format("%d. %s",position+1,id.TIT2));
+					holder.text2.setText(id.id3v2.get("TPE1")==null?"":id.id3v2.get("TPE1")+"");
+					holder.text3.setText(id.id3v2.get("TALB")==null?"":id.id3v2.get("TALB")+"");
+					String tit2=(String)id.id3v2.get("TIT2");
+					if(tit2!=null&&!tit2.equals("null"))holder.text0.setText(String.format("%d. %s",position+1,tit2));
 					else holder.text0.setText(String.format("%d. %s",position+1,queue.get(position).getName()));
 					holder.v.setVisibility(8);
 					int c=position==index?uidata.TEXTMAIN:uidata.UNENABLED;
@@ -339,10 +350,10 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				if(position<music.size())
 				{
 					String f=music.get(position).getAbsolutePath();
-					MusicID3 id=id3.get(f);
+					MP3File id=id3.get(f);
 					if(id==null)
 					{
-						id=new MusicID3(f);
+						id=new MP3File(f);
 						id.loadInfo();
 						id3.put(f,id);
 						MediaPlayer l=new MediaPlayer();
@@ -357,9 +368,11 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 						l.release();
 					}
 					holder.text1.setText(getTime(id.length));
-					holder.text2.setText(id.TPE1==null?"":id.TPE1);
-					holder.text3.setText(id.TALB==null?"":id.TALB);
-					if(id.TIT2!=null&&!id.TIT2.equals("null"))holder.text0.setText(String.format("%d. %s",position+1,id.TIT2));
+					holder.text1.setText(getTime(id.length));
+					holder.text2.setText(id.id3v2.get("TPE1")==null?"":id.id3v2.get("TPE1"));
+					holder.text3.setText(id.id3v2.get("TALB")==null?"":id.id3v2.get("TALB"));
+					String tit2=(String)id.id3v2.get("TIT2");
+					if(tit2!=null&&!tit2.equals("null"))holder.text0.setText(String.format("%d. %s",position+1,tit2));
 					else holder.text0.setText(String.format("%d. %s",position+1,music.get(position).getName()));
 					holder.v.setVisibility(8);
 					/*int c=position==index?uidata.TEXTMAIN:uidata.UNENABLED;
@@ -396,12 +409,12 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 		});
 		
 	}
-	private void load(){
+	/*private void load(){
 		SharedPreferences sp=util.getSPRead(key);
 		Set<String> s=sp.getStringSet("musiclib",new TreeSet<String>());
 		for(String x:s){
 			String[] z=x.split("</>");
-			MusicID3 i=new MusicID3(z[0]);
+			MP3File i=new MP3File(z[0]);
 			i.length=Integer.parseInt(z[1]);
 			i.TIT2=z[2];
 			i.TALB=z[3];
@@ -413,7 +426,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 	private void save(){
 		SharedPreferences.Editor sp=util.getSPWrite(key);
 		Set<String> s=new TreeSet<String>();
-		for(MusicID3 x:id3.values()){
+		for(MP3File x:id3.values()){
 			StringBuilder b=new StringBuilder()
 			.append(x.path)
 			.append("</>")
@@ -427,16 +440,17 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			s.add(b.toString());
 		}
 		sp.putStringSet("musiclib",s).commit();
-	}
+	}*/
 	private void readMusic()
 	{
-		MusicID3 id=new MusicID3(queue.get(index).getAbsolutePath());
+		MP3File id=new MP3File(queue.get(index).getAbsolutePath());
 		id.loadInfo();
-		if(id.APIC!=null)
+		Object bb=id.id3v2.get("APIC");
+		if(bb!=null)
 		{
 			try
 			{
-				final byte[] b=id.APIC;
+				final byte[] b=(byte[])bb;
 				Bitmap g=BitmapFactory.decodeByteArray(b,0,b.length);
 				album.setImageBitmap(g);
 				album.setVisibility(0);
@@ -451,9 +465,9 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			}
 		}
 		else album.setVisibility(8);
-		artist.setText(id.TPE1==null?"":id.TPE1+"");
-		albumname.setText(id.TALB==null?"":id.TALB+"");
-		if(id.TIT2!=null)name.setText(id.TIT2+"");
+		artist.setText(id.id3v2.get("TPE1")==null?"":id.id3v2.get("TPE1")+"");
+		albumname.setText(id.id3v2.get("TALB")==null?"":id.id3v2.get("TALB")+"");
+		if(id.id3v2.get("TIT2")!=null)name.setText(id.id3v2.get("TIT2")+"");
 		else name.setText(queue.get(index).getName());
 		p3.setImageVec(mp.isPlaying()?"pause":"play");
 		try{
@@ -471,7 +485,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			.commit();
 			mp.stop();
 			mp.release();
-			save();
+			//save();
 		}
 	}
 	@Override
@@ -535,7 +549,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 	{
 		myListView l=new myListView(ctx);
 		File f=queue.get(index);
-		final MusicID3 id=new MusicID3(f.getAbsolutePath());
+		final MP3File id=new MP3File(f.getAbsolutePath());
 		id.loadInfo();
 		final Window ww=new Window(ctx,util.px(264),util.px(362))
 		.setTitle("ID3编辑器:"+f.getName())
@@ -562,12 +576,12 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 						@Override
 						public void onClick(DialogInterface p1, int p2)
 						{
-							if(id.saveInfo())
+							/*if(id.saveInfo())
 								util.toast("保存成功");
 							else {
 								util.toast("保存失败");
 								ww.show();
-							}
+							}*/
 						}
 					})
 					.show();
@@ -627,9 +641,9 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				vp.setScaleType(ImageView.ScaleType.FIT_CENTER);
 				try
 				{
-					if(id.APIC!=null)
+					if(id.id3v2.get("APIC")!=null)
 					{
-						final byte[] b=id.APIC;
+						final byte[] b=(byte[]) id.id3v2.get("APIC");
 						Bitmap g=BitmapFactory.decodeByteArray(b,0,b.length);
 						vp.setImageBitmap(g);
 					}
@@ -649,7 +663,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 										in.close();
 										Bitmap g=BitmapFactory.decodeByteArray(APIC,0,APIC.length);
 										if(g==null)throw new Exception();
-										id.APIC=APIC;
+										id.id3v2.put("APIC",APIC);
 										vp.setImageBitmap(g);
 									}
 									catch(Exception ex)
@@ -671,7 +685,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				final int pp1=p1;
 				try
 				{
-					Object s=MusicID3.class.getField(MusicID3.p[pp1]).get(id);
+					Object s=MP3File.class.getField(MP3File.p[pp1]).get(id);
 					if(s!=null)e.setText((String)s);
 				}
 				catch (Exception ep)
@@ -691,7 +705,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					{
 						try
 						{
-							MusicID3.class.getField(MusicID3.p[pp1]).set(id,p1+"");
+							MP3File.class.getField(MP3File.p[pp1]).set(id,p1+"");
 						}
 						catch (Exception ep)
 						{
@@ -751,7 +765,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					return p1.getName().compareToIgnoreCase(p2.getName());
 				}
 			});
-			save();
+			//save();
 			((BaseAdapter)musiclist.getAdapter()).notifyDataSetChanged();
 			util.toast("扫描完毕");
 		}
@@ -765,7 +779,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 					return p1.getName().compareToIgnoreCase(p2.getName());
 				}
 			});
-			save();
+			//save();
 			((BaseAdapter)musiclist.getAdapter()).notifyDataSetChanged();
 			util.toast("扫描取消");
 			
@@ -781,7 +795,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 			}
 			if(dir.exists()&&util.getMIMEType(dir).contains("audio")){
 				String f=dir.getAbsolutePath();
-				MusicID3 id=new MusicID3(f);
+				MP3File id=new MP3File(f);
 				id.loadInfo();
 				id3.put(f,id);
 				MediaPlayer l=new MediaPlayer();

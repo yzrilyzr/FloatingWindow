@@ -605,7 +605,7 @@ Window.OnButtonDown,Window.OnSizeChanged
 			}
 			else if(p1==butt[6]){
 				final ViewGroup vg=(ViewGroup) LayoutInflater.from(ctx).inflate(R.layout.window_explorersort,null);
-				new Window(ctx,util.px(260),util.px(230))
+				new Window(ctx,util.px(260),util.px(233))
 				.setTitle("视图和排序")
 				.setBar(8,8,0)
 				.setIcon("sort")
@@ -1644,13 +1644,13 @@ Window.OnButtonDown,Window.OnSizeChanged
 				{
 					if(sorttype==0)return p1.getName().compareToIgnoreCase(p2.getName());
 					else if(sorttype==1)return getFileExt(p1).compareToIgnoreCase(getFileExt(p2));
-					else if(sorttype==2)return p1.length()>p2.length()?1:-1;
-					else if(sorttype==3)return p1.lastModified()>p2.lastModified()?1:-1;
+					else if(sorttype==2)return util.compareL(p1.length(),p2.length());
+					else if(sorttype==3)return util.compareL(p1.lastModified(),p2.lastModified());
 					else if(sorttype==4)return -(p1.getName().compareToIgnoreCase(p2.getName()));
 					else if(sorttype==5)return -(getFileExt(p1).compareToIgnoreCase(getFileExt(p2)));
-					else if(sorttype==6)return p1.length()<p2.length()?1:-1;
-					else if(sorttype==7)return p1.lastModified()<p2.lastModified()?1:-1;
-					return 1;
+					else if(sorttype==6)return -util.compareL(p1.length(),p2.length());
+					else if(sorttype==7)return -util.compareL(p1.lastModified(),p2.lastModified());
+					return 0;
 				}
 			};
 			Collections.sort(files,cp2);

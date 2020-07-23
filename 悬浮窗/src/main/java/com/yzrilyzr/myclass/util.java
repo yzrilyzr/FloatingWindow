@@ -103,6 +103,18 @@ public final class util
 		((InputMethodManager)ctx. getSystemService(Context.INPUT_METHOD_SERVICE)). 
 		hideSoftInputFromWindow(v.getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
 	}
+	public static int compareI(int a,int b){
+		return a>b?1:a==b?0:-1;
+	}
+	public static int compareL(long a,long b){
+		return a>b?1:a==b?0:-1;
+	}
+	public static int compareF(float a,float b){
+		return a>b?1:a==b?0:-1;
+	}
+	public static int compareD(double a,double b){
+		return a>b?1:a==b?0:-1;
+	}
 	public static void openIME(View v)
 	{
 		v.setFocusable(true);
