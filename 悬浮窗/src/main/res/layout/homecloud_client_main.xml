@@ -16,7 +16,8 @@
 			android:layout_width="wrap_content"
 			android:orientation="vertical"
 			android:layout_weight="1.0"
-			android:gravity="center">
+			android:gravity="center"
+			android:id="@+id/homecloudclientmainLinearLayout1">
 
 			<com.yzrilyzr.icondesigner.VecView
 				android:layout_height="wrap_content"
@@ -37,7 +38,8 @@
 			android:layout_width="wrap_content"
 			android:orientation="vertical"
 			android:layout_weight="1.0"
-			android:gravity="center">
+			android:gravity="center"
+			android:id="@+id/homecloudclientmainLinearLayout2">
 
 			<com.yzrilyzr.icondesigner.VecView
 				android:layout_height="wrap_content"
@@ -66,7 +68,8 @@
 			android:layout_width="match_parent"
 			android:orientation="vertical"
 			android:layout_weight="1.0"
-			android:gravity="center">
+			android:gravity="center"
+			android:id="@+id/homecloudclientmainLinearLayout3">
 
 			<com.yzrilyzr.icondesigner.VecView
 				android:layout_height="wrap_content"
@@ -87,7 +90,8 @@
 			android:layout_width="match_parent"
 			android:orientation="vertical"
 			android:layout_weight="1.0"
-			android:gravity="center">
+			android:gravity="center"
+			android:id="@+id/homecloudclientmainLinearLayout4">
 
 			<com.yzrilyzr.icondesigner.VecView
 				android:layout_height="wrap_content"

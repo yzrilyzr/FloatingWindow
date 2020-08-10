@@ -17,7 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-public class Server
+public class FileServer
 {
 	static boolean serverrun=false;
 	static Thread serverthread=null;

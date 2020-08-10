@@ -1,5 +1,5 @@
 package com.yzrilyzr.homecloud;
 
-public class FtpInputStream
+public class FileTransfer
 {
 }

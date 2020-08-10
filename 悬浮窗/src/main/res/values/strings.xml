@@ -17,8 +17,8 @@
 		示波器:.apps.Oscilloscope@Vsignal;
 		简单数据库:.apps.SimpleDatabase@Vdatabase;
 		准星:.apps.FrontSight@Vfrontsight;
-		屋里云-客户端:com.yzrilyzr.homecloud.Client@Vhomecloud;
-		屋里云-服务器:com.yzrilyzr.homecloud.Control@Vhcserver;
+		屋里云-客户端:com.yzrilyzr.homecloud.ClientMain@Vhomecloud/homecloud;
+		屋里云-服务器:com.yzrilyzr.homecloud.ServerMain@Vhomecloud/hcserver;
 		画板:.apps.DrawingBoard@Vdrawingboard;
 		窗口管理器:.apps.Manager@Vmanager;
 		内置图标字段查看:.apps.InnerVecList@Vclass;

@@ -20,6 +20,7 @@ import org.xmlpull.v1.XmlPullParser;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.graphics.drawable.BitmapDrawable;
+import android.widget.*;
 public class Window implements View.OnClickListener,View.OnTouchListener,View.OnLongClickListener
 {
     public static final ArrayList<Window> windowList=new ArrayList<Window>();
@@ -121,7 +122,7 @@ public class Window implements View.OnClickListener,View.OnTouchListener,View.On
 			ViewGroup g=(ViewGroup)v;
 			for(int i=0;i<g.getChildCount();i++){
 				View a=g.getChildAt(i);
-				if(!a.hasOnClickListeners())a.setOnClickListener(edittextfocus);
+				if(!a.hasOnClickListeners()&&!(a instanceof AdapterView))a.setOnClickListener(edittextfocus);
 				else viewFocusClick(a);
 			}
 		}

@@ -65,7 +65,9 @@ public class ImageViewer implements Window.OnButtonDown
 	@Override
 	public void onButtonDown(int code)
 	{
-		if(code==Window.ButtonCode.CLOSE)b.recycle();
+		if(code==Window.ButtonCode.CLOSE){
+			if(b!=null)b.recycle();
+		}
 		else if(code==Window.ButtonCode.ADD||code==Window.ButtonCode.ADD_LONG)
 		{
 			lock=!lock;

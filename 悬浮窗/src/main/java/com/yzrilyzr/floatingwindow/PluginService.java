@@ -209,8 +209,8 @@ public class PluginService extends android.app.Service implements Thread.Uncaugh
 		 if(value==null)throw new RuntimeException("");*/
 		//if(!util.sup)util.toast("不支持的设备");
 		
-			//Thread.setDefaultUncaughtExceptionHandler(this);
-			//ct.setUncaughtExceptionHandler(this);
+		Thread.setDefaultUncaughtExceptionHandler(this);
+		ct.setUncaughtExceptionHandler(this);
 		
 		//if(Resurces.getSystem().getDisplayMetrics().density!=3f)
 		//Toast.makeText(this,"安全警告:\n不支持的DPI\n您可以在设置中调节显示效果",1).show();

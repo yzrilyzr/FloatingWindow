@@ -3,6 +3,7 @@ package com.yzrilyzr.homecloud;
 public class C
 {
 	public static final byte 
+	QUERY=0,
 	LOGIN=1,
 	LOGINSUC=2,
 	LOGINFAIL=3,

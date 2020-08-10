@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import com.yzrilyzr.myclass.*;
+import android.media.audiofx.*;
 public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListener
 {
 	int index=0,mode=1;//0播放列表后停止，1播放列表后循环，2单曲循环,3随机,4单曲播放
@@ -207,7 +208,7 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				}
 			});
 			index=queue.indexOf(new File(path));
-			/*new Thread(new Runnable(){
+			new Thread(new Runnable(){
 
 					@Override
 					public void run()
@@ -215,15 +216,36 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 						myPlayer pl=new myPlayer(queue.get(index).getAbsolutePath());
 					}
 				}).start();
-			*/
+			
 			mp=new MediaPlayer();
 			readMusic();
 			mp.setDataSource(queue.get(index).getAbsolutePath());
 			mp.prepare();
-			mp.start();
+			//mp.start();
 			mp.setOnCompletionListener(this);
 			ref();
 			mp.seekTo(pro);
+			/*final Oscilloscope osc=new Oscilloscope(c,null);
+			Visualizer vis=new Visualizer(mp.getAudioSessionId());
+			vis.setCaptureSize(8192);
+			vis.setDataCaptureListener(new Visualizer.OnDataCaptureListener(){
+
+					@Override
+					public void onWaveFormDataCapture(Visualizer p1, byte[] p2, int p3)
+					{
+						int[] in=new int[p2.length];
+						for(int i=0;i<in.length;i++)in[i] = (byte) (p2[i] + 128 + 1) * 2;
+						osc.append(in);
+					}
+
+					@Override
+					public void onFftDataCapture(Visualizer p1, byte[] p2, int p3)
+					{
+						// TODO: Implement this method
+					}
+				},Visualizer.getMaxCaptureRate(),true,false);
+				vis.setEnabled(true);
+				*/
 		}
 		catch(Exception pe)
 		{
