@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <item
+        android:id="@+id/splash"
+        android:title="Splash"/>
+    <item
+        android:id="@+id/mainmenu"
+        android:title="MainMenu"/>
+	<item
+        android:id="@+id/intro"
+        android:title="Intro"/>
+	<item
+        android:id="@+id/reload2"
+        android:title="重载"/>
+</menu>
