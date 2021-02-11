@@ -1,0 +1,10 @@
+
+@yzr
+vec:vec/mainmenu/yzr
+gravity:7
+size:50%,-2
+pos:50d,-5d
+anim:type:alpha|duration:500|fromto:0,100
+anim:type:translate|delay:800|duration:500|fromto:50%-50s,-50%+50s,0,0
+anim:type:scale|delay:800|duration:500|fromto:100,70,100,70|pos:0,100s
+*
