@@ -26,7 +26,7 @@ public class Splash extends Scene
 			loadGUI(Utils.readTxt((Utils.mainDir+"GUI/intro.txt")));
 			setBackgroundColor(0xff333333);
 		}
-		if(time>3500&&b2){
+		if(time>3600&&b2){
 			b2=!b2;
 			for(int i=0;i<20;i++)loadGUI(Utils.readTxt((Utils.mainDir+"GUI/intro_bugs.txt")));
 		}

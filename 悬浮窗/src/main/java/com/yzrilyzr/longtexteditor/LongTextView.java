@@ -37,8 +37,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff;
+import android.widget.*;
 
-public class LongTextView extends View
+public class LongTextView extends EditText
 {
 	BaseInputConnection b;
 	public static String CRLF="\n",TAB="    ";
@@ -547,7 +548,7 @@ public class LongTextView extends View
 		if(i>=stringLines.size())i=stringLines.size() -1;
 		stringLines.set(i,text);
 	}
-	public String getText()
+	public String mgetText()
 	{
 		StringBuffer s=new StringBuffer();
 		for(String a:stringLines)
@@ -1020,7 +1021,7 @@ public class LongTextView extends View
 			else if((i==1&&!isSelection)||(i==3&&isSelection))commitText(util.paste(),0);
 			else if(i==2&&!isSelection)
 			{
-				String s=getText();
+				String s=mgetText();
 				//s=s.replace("+"," + ");
 				//s=s.replaceAll("="," = ");
 				s=s.replaceAll("\\{","{\n\t").replaceAll("\\}","\n\t}");
@@ -1069,7 +1070,7 @@ public class LongTextView extends View
 			else if((i==6&&!isSelection)||(i==11&&isSelection))commitText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(System.currentTimeMillis())),0);
 			else if((i==7&&!isSelection)||(i==12&&isSelection))
 			{
-				String a=getText();
+				String a=mgetText();
 				int[] l={0,0,0,0,0,0};
 				for(int is=0;is<a.length();is++)
 				{

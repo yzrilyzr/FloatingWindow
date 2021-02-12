@@ -21,10 +21,9 @@ public class Utils
 	{
 		ctx.scenes.clear();
 	}
-	public static float px(float parseFloat)
-	{
-		// TODO: Implement this method
-		return parseFloat*Resources.getSystem().getDisplayMetrics().density*getWidth()/Resources.getSystem().getDisplayMetrics().widthPixels;
+	public static float px(float dipValue)
+    {
+        return  (dipValue *Resources.getSystem().getDisplayMetrics().density)*(ctx.sv.getHeight()>ctx.sv.getWidth()?(float)ctx.sv.getWidth()/(float)ctx.sv.getHeight():1f);//*(getScreenHeight()>getScreenWidth()?1:0.5f));
 	}
 	public static float parseUiNumExp(Ui ui,int widthOrHeight,String p)
 	{

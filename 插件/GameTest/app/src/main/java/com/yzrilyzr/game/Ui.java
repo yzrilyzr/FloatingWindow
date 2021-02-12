@@ -22,6 +22,17 @@ public class Ui
 	boolean down=false;
 	public CopyOnWriteArrayList<Ui> child=new CopyOnWriteArrayList<Ui>();
 	public Ui parent=null;
+
+	public void reverseAnim()
+	{
+		int lt=0;
+		for(BaseAnim b:anim)lt=Math.max(lt,b.delay+b.duration);
+		for(BaseAnim b:anim){
+			b.delay=lt-b.delay-b.duration;
+			b.reverse();
+		}
+		for(Ui x:child)x.reverseAnim();
+	}
 	public boolean onTouch(Scene sc,MotionEvent p2)
 	{
 		switch(p2.getAction())
@@ -116,19 +127,15 @@ public class Ui
 		matrix.mapRect(rectf);
 		/*if(bound||backcolor!=0)
 		{
-			//c.save();
-			//c.clipRect(rectf);
+			c.save();
+			c.clipRect(rectf);
 			c.drawColor(backcolor);
 			if(bmp!=null)c.drawBitmap(bmp,matrix,p);
-			//c.restore();
+			c.restore();
 		}*/
-		
 		if(backcolor!=0)c.drawRect(rectf,p);
-		else if(bmp!=null)c.drawBitmap(bmp,matrix,p);
+		if(bmp!=null)c.drawBitmap(bmp,matrix,p);
 		p.setStyle(Paint.Style.STROKE);
-		p.setStrokeWidth(3);
-		p.setColor(0xffff0000);
 		c.drawRect(rectf,p);
-		//if(bound||backcolor!=0)c.restore();
 	}
 }

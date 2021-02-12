@@ -46,6 +46,9 @@ public class Scene
 		if(ps.id.equals(s))return ps;
 		return null;
 	}
+	public void removeGUI(String s){
+		uis.remove(findUi(s));
+	}
 	public void loadGUI(String s)
 	{
 		try

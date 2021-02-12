@@ -7,10 +7,13 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
 		android:largeHeap="true"
-        android:theme="@style/AppTheme">
+		 android:theme="@style/AppTheme">
+		<meta-data
+			android:name="android.max_aspect"
+			android:value="3"/>
         <activity
             android:name=".MainActivity"
-			
+			android:resizeableActivity="false"
 			android:configChanges="screenSize|keyboard|keyboardHidden|orientation"
 			android:launchMode="singleInstance"
 			android:label="@string/app_name" >

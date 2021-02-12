@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import android.os.Build;
+import android.view.inputmethod.*;
 public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,TextWatcher
 {
 	private LongTextView l;
@@ -80,6 +81,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 		 */
 		v=(ViewGroup) w.addView(R.layout.window_longtexteditor);
 		l=(LongTextView)v.findViewById(R.id.mainLongTextView1);
+		l.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN|EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 		(v.findViewById(R.id.windowlongtexteditorVecView1)).setOnClickListener(this);
 		(v.findViewById(R.id.windowlongtexteditorVecView2)).setOnClickListener(this);
 		(v.findViewById(R.id.windowlongtexteditorVecView3)).setOnClickListener(this);
@@ -289,7 +291,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 		if(a.exists())file=a.getName();
 		else file="未保存.txt";
 		BufferedOutputStream os=new BufferedOutputStream(new FileOutputStream(f.getAbsolutePath()+"/"+file));
-		String s=l.getText();
+		String s=l.mgetText();
 		os.write(s.getBytes());
 		os.flush();
 		os.close();
@@ -446,7 +448,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 			case R.id.windowlongtexteditorVecView13:
 				String s=((EditText)v.findViewById(R.id.mainEditText1)).getText().toString();
 				String s2=((EditText)v.findViewById(R.id.mainEditText2)).getText().toString();
-				String gg=l.getText();
+				String gg=l.mgetText();
 				gg=gg.replace(s,s2);
 				l.setText(gg);
 				break;
@@ -481,7 +483,7 @@ public class Main implements Window.OnButtonDown,Window.OnCrash,OnClickListener,
 			File f=new File(file);
 			w.setTitle(f.getName());
 			BufferedOutputStream os=new BufferedOutputStream(new FileOutputStream(f));
-			String s=l.getText();
+			String s=l.mgetText();
 			os.write(s.getBytes());
 			os.flush();
 			os.close();

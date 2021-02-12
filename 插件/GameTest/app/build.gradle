@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.yzrilyzr.bugs"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }

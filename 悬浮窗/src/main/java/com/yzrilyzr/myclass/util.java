@@ -115,13 +115,13 @@ public final class util
 	public static int compareD(double a,double b){
 		return a>b?1:a==b?0:-1;
 	}
-	public static void openIME(View v)
+	public static void openIME(EditText v)
 	{
 		v.setFocusable(true);
 		v.setFocusableInTouchMode(true);
 		v.requestFocus();
 		InputMethodManager ime=((InputMethodManager)ctx.getSystemService(Context.INPUT_METHOD_SERVICE));
-		ime.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+		ime.showSoftInput(v, InputMethodManager.SHOW_FORCED);
 	}
 	public static String getFileSizeStr(double size)
 	{
