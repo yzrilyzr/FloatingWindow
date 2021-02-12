@@ -11,6 +11,6 @@ public class BaseAnim
 			antime=Utils.NonLinearFunc((time-delay)/duration);
 		}
 		else antime=1;
-		time+=Utils.dt;
+		time+=Utils.dt/1000000f;
 	}
 }

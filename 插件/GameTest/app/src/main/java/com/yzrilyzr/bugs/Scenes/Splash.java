@@ -40,10 +40,12 @@ public class Splash extends Scene
 			}
 			loadGUI(Utils.readTxt((Utils.mainDir+"GUI/intro_yzrilyzr.txt")));
 		}
-		/*if(time>4700&&b5){
+		if(time>5000&&b5){
 			b5=!b5;
-			
-		}*/
+			for(Ui u:uis){
+				if(u.id.contains("bug"))uis.remove(u);
+			}
+		}
 		if(time>5800&&b4){
 			b4=!b4;
 			Utils.unloadScene("splash");

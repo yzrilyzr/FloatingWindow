@@ -19,9 +19,10 @@ public class Scene
 	}
 	public void onTouch(MotionEvent p2)
 	{
-		for(Ui u:uis)
+		for(int i=uis.size()-1;i>=0;i--)
 		{
-			u.onTouch(p2);
+			Ui u=uis.get(i);
+			if(u!=null&&u.onTouch(this,p2))break;
 		}
 	}
 	public void clearGUI(){
@@ -38,7 +39,12 @@ public class Scene
 		{
 			u.onDraw(c);
 		}
-		time+=Utils.dt;
+		time+=Utils.dt/1000000f;
+	}
+	public Ui findUi(String s){
+		for(Ui ps:uis)
+		if(ps.id.equals(s))return ps;
+		return null;
 	}
 	public void loadGUI(String s)
 	{
@@ -76,10 +82,21 @@ public class Scene
 					switch(t)
 					{
 						case "vec":
-							buf.vec=VECfile.readFileFromIs(Utils.ctx.getAssets().open(p+".vec"));
+							if(p.contains("file:"))buf.vec=VECfile.readFile(Utils.mainDir+"/vec/"+p.substring(5)+".vec");
+							else buf.vec=VECfile.readFileFromIs(Utils.ctx.getAssets().open(p+".vec"));
 							break;
 						case "gravity":
 							buf.gravity=Integer.parseInt(p);
+							break;
+						case "parent":
+							Ui parent=findUi(p);
+							parent.child.add(buf);
+							buf.parent=parent;
+							
+							
+							break;
+						case "event":
+							buf.event=p;
 							break;
 						case "size"://%  p  d  s
 							String[] d=p.split(",");
