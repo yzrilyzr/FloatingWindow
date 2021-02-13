@@ -12,11 +12,10 @@ public class Utils
 	public static String mainDir="";
 	public static com.yzrilyzr.game.MainActivity ctx;
 	public static float dt;
-
 	public static int fpslimit=500;
-	
 	public static boolean showfps=true;
-
+	public static int draws=0;
+	public static int backcolor=0;
 	public static void unloadAll()
 	{
 		ctx.scenes.clear();

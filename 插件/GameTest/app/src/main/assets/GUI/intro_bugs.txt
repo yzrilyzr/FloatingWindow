@@ -5,5 +5,5 @@ size:10%,-2
 pos:prandom100%-50s,prandom100%-50s
 anim:type:alpha|delay:prandom500|duration:prandom500|fromto:0,100
 anim:type:rotate|delay:0|duration:1000|fromto:0,prandom720-360|pos:50s,50s
-anim:type:scale|delay:prandom500|duration:prandom500|fromto:0,100,0,100|pos:50s,50s
+anim:type:scale|delay:prandom500|duration:prandom500|fromto:0,0,100,100|pos:50s,50s
 *

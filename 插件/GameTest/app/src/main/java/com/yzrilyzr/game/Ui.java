@@ -17,12 +17,13 @@ public class Ui
 	public RectF rectf;
 	public int gravity;
 	public CopyOnWriteArrayList<BaseAnim> anim=new CopyOnWriteArrayList<BaseAnim>();
+	public CopyOnWriteArrayList<BaseAnim> eanim=new CopyOnWriteArrayList<BaseAnim>();
 	public boolean bound=false;
 	float downx,downy;
 	boolean down=false;
 	public CopyOnWriteArrayList<Ui> child=new CopyOnWriteArrayList<Ui>();
 	public Ui parent=null;
-
+	public boolean exit=false;
 	public void reverseAnim()
 	{
 		int lt=0;
@@ -101,7 +102,7 @@ public class Ui
 		float rhei=parent==null?Utils.getHeight():parent.height;
 		mx=0;
 		my=0;
-
+		p.setTextSize(Utils.px(12));
 		if(gravity==2||gravity==5||gravity==8)mx+=rwid/2-width/2;
 		if(gravity==4||gravity==5||gravity==6)my+=rhei/2-height/2;
 
@@ -122,7 +123,11 @@ public class Ui
 		}
 		if(backcolor!=0)p.setColor(backcolor);
 		p.setStyle(Paint.Style.FILL);
-		for(BaseAnim an:anim)an.doAnim();
+		if(!exit)for(BaseAnim an:anim)an.doAnim();
+		else {
+			if(eanim.size()==0)return;
+			for(BaseAnim an:eanim)an.doAnim();
+		}
 		rectf.set(0,0,width,height);
 		matrix.mapRect(rectf);
 		/*if(bound||backcolor!=0)
@@ -135,6 +140,8 @@ public class Ui
 		}*/
 		if(backcolor!=0)c.drawRect(rectf,p);
 		if(bmp!=null)c.drawBitmap(bmp,matrix,p);
+		c.drawText(String.format("Index:%d,%dx%d",Utils.draws,(int)rectf.width(),(int)rectf.height()),rectf.left,rectf.top+p.getTextSize(),p);
+		Utils.draws++;
 		p.setStyle(Paint.Style.STROKE);
 		c.drawRect(rectf,p);
 	}

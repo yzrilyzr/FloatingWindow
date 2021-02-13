@@ -10,12 +10,16 @@ import java.util.concurrent.*;
 import android.widget.*;
 import android.content.*;
 
-public class MainActivity extends Activity implements SurfaceHolder.Callback,OnTouchListener
+public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*/OnTouchListener
 {
 	//SurfaceView sv;
 	public CopyOnWriteArrayList<Scene> scenes=new CopyOnWriteArrayList<Scene>();
-	Render renderRunn=null;
+	//Render renderRunn=null;
 	mView sv;
+	
+	public Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+	int lt,avgfps,fps,fps2,ram;
+	Runtime ru=Runtime.getRuntime();
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -27,7 +31,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		VECfile.VTypeface.DEFAULT=Typeface.createFromAsset(getAssets(),"font.ttf");
 		//sv=new SurfaceView(this);
 		//sv.getHolder().addCallback(this);
-		renderRunn=new Render();
+		//renderRunn=new Render();
 		//sv.setOnTouchListener(this);
 		//setContentView(sv);
 		setContentView(sv=new mView(this));
@@ -36,7 +40,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		sv.setBackgroundColor(0x00000000);
 		sv.setOnTouchListener(this);
     }
-	@Override
+	/*@Override
 	public void surfaceCreated(SurfaceHolder p1)
 	{
 		new Thread(renderRunn).start();
@@ -54,7 +58,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		renderRunn.render=false;
 	}
 
-	class Render implements Runnable
+	/*class Render implements Runnable
 	{
 		public boolean render=true;
 		public long nt=System.nanoTime();
@@ -98,7 +102,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 									 {
 									 Thread.sleep(20);
 									 continue;
-									 }*/
+									 }
 									Canvas cs=new Canvas();//h.lockCanvas();
 									if(cs!=null)
 									{
@@ -207,7 +211,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 			render=true;
 		}
 	}
-
+*/
 	@Override
 	public boolean onTouch(View p1, MotionEvent p2)
 	{
@@ -230,8 +234,35 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,OnT
 		{
 			// TODO: Implement this method
 			//super.onDraw(canvas);
+			Utils.draws=0;
+			if(Utils.backcolor!=0)canvas.drawColor(Utils.backcolor);
 			for(Scene sc:scenes)
 				sc.onDraw(canvas);
+			if(Utils.showfps)
+			{
+				if(Utils.dt==0)Utils.dt=1;
+				p.setTextAlign(Paint.Align.LEFT);
+				lt++;
+				if(lt<=10)avgfps+=1000000000l/Utils.dt;
+				else
+				{
+					fps=(int)(avgfps/10f);
+					lt=0;
+					avgfps=0;
+				}
+				p.setColor(0xffff0000);
+				p.setTextSize(Utils.px(20));
+				ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
+				canvas.drawText(String.format("FPS(B):%d FPS(F):%d RAM:%dMB Size:%fx%f Draws:%d",fps,fps2,ram,Utils.getWidth(),Utils.getHeight(),Utils.draws),0,Utils.px(20),p);
+				/*int to=0;
+				for(int i=0;i<bmpcuseage2.length;i++)to+=bmpcuseage2[i];
+				c.drawLine(0,Utils.px(30),bmpcuseage2.length*Utils.px(30),Utils.px(30),p);
+				if(to!=0)
+					for(int i=0;i<bmpcuseage2.length;i++)
+					{
+						c.drawRect(i*Utils.px(30),Utils.px(60)-bmpcuseage2[i]*Utils.px(30)/to,(i+1)*Utils.px(30),Utils.px(60),p);
+					}*/
+			}
 			long t=System.nanoTime()-st;
 			st=System.nanoTime();
 			Utils.dt=t;

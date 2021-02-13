@@ -2,30 +2,31 @@
 vec:vec/startanim/loadcode
 size:100%,100%
 pos:0,0
+anim:type:alpha|fromto:0,100|duration:200
 *
 
 @bug
 vec:bugs/0
-gravity:9
-size:15%,-2
-pos:-27%,-17%
+gravity:6
+size:100d,-2
+pos:-200d,0
 anim:type:alpha|delay:800|duration:200|fromto:0,100
-anim:type:rotate|delay:800|duration:1000|fromto:0,prandom360|pos:50s,50s
+anim:type:rotate|delay:800|duration:1000|fromto:0,prandom720-360|pos:50s,50s
 *
 
 @loadpp
 vec:vec/startanim/loadpp
-gravity:9
-size:30%,-2
-pos:-27%+20s,-17%+20s
-anim:type:alpha|delay:1480|duration:50|fromto:0,100
-anim:type:scale|delay:1480|duration:100|fromto:70,100,70,100|pos:50s,50s
+gravity:6
+size:180d,-2
+pos:-160d,0
+anim:type:alpha|delay:1400|duration:100|fromto:0,100
+anim:type:scale|delay:1400|duration:100|fromto:70,70,100,100|pos:50s,50s
 *
 
 @loadp
 vec:vec/startanim/loadp
-gravity:9
-size:40%,-2
-pos:-27%+50s,-17%+50s
-anim:type:scale|delay:1300|duration:200|fromto:0,100,0,100|pos:100s,100s
+gravity:6
+size:250d,-2
+pos:-70d,21s
+anim:type:scale|delay:1300|duration:200|fromto:0,0,100,100|pos:100s,100s
 *

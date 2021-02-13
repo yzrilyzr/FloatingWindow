@@ -10,9 +10,9 @@ bound:false
 vec:yzrilyzr
 gravity:5
 pos:0p,-15%
-size:50%,-2
+size:300d,-2
 anim:type:alpha|duration:700|fromto:0,100|delay:100|func:nonlinear
-anim:type:scale|duration:700|fromto:70,100,70,100|delay:100|pos:50s,50s|func:nonlinear
+anim:type:scale|duration:700|fromto:70,70,100,100|delay:100|pos:50s,50s|func:nonlinear
 anim:type:translate|duration:700|fromto:0,50s,0,0|delay:100|func:nonlinear
 *
 @mask
