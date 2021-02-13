@@ -6,16 +6,23 @@ import android.app.*;
 import java.util.regex.*;
 import android.content.res.*;
 import java.util.*;
+import java.lang.reflect.*;
 
 public class Utils
 {
 	public static String mainDir="";
 	public static com.yzrilyzr.game.MainActivity ctx;
-	public static float dt;
+	protected static float dt;
 	public static int fpslimit=500;
 	public static boolean showfps=true;
-	public static int draws=0;
+	protected static int draws=0;
 	public static int backcolor=0;
+
+	public static float getDtMs()
+	{
+		// TODO: Implement this method
+		return dt/1000000f;
+	}
 	public static void unloadAll()
 	{
 		ctx.scenes.clear();
@@ -65,15 +72,19 @@ public class Utils
 		return height;
 	}
 
-	public static void alert(final Object e)
+	public static void alert(final Object ep)
 	{
 		ctx.runOnUiThread(new Runnable(){
 				@Override
 				public void run()
 				{
-					String a=e+"";
+					String a=ep+"";
+					Object e=ep;
 					if(e instanceof Throwable)
 					{
+						if(e instanceof InvocationTargetException){
+							e=((InvocationTargetException)e).getTargetException();
+						}
 						ByteArrayOutputStream b=new ByteArrayOutputStream();
 						PrintWriter p=new PrintWriter(b);
 						((Throwable)e).printStackTrace(p);
@@ -92,7 +103,9 @@ public class Utils
 		try
 		{
 			File f=new File(path);
-			BufferedReader fr=new BufferedReader(new FileReader(f));
+			BufferedReader fr=null;
+			if(!f.exists())fr=new BufferedReader(new InputStreamReader(ctx.getAssets().open(path.replace(mainDir,""))));
+			else fr=new BufferedReader(new FileReader(f));
 			StringBuilder sb=new StringBuilder();
 			String bf=null;
 			while((bf=fr.readLine())!=null)sb.append(bf).append("\n");

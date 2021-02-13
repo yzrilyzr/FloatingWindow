@@ -12,4 +12,16 @@ public class LevelSelect extends Scene
 		Utils.loadScene(new MainMenu("mainmenul"));
 		exitAnim();
 	}
+	public void help(Ui s){
+		Utils.loadScene(new GameMain(Utils.readTxt("maps/map0")));
+		exitAnim();
+	}
+	public void achi(Ui s){
+		Utils.loadScene(new GameMain(Utils.readTxt("maps/map2")));
+		exitAnim();
+	}
+	public void bugs(Ui s){
+		Utils.loadScene(new GameMain(Utils.readTxt("maps/map1")));
+		exitAnim();
+	}
 }

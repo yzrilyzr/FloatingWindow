@@ -12,20 +12,24 @@ public class Scene
 	public CopyOnWriteArrayList<Ui> uis=new CopyOnWriteArrayList<Ui>();
 	//int backcolor=0;
 	public Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-	String id=null;
+	protected String id=null;
 	public float time=0;
 	float exittime=-1000;
 	public Scene(String id)
 	{
 		this.id=id;
 	}
-	public void onTouch(MotionEvent p2)
+	public String getId(){
+		return id;
+	}
+	public boolean onTouch(MotionEvent p2)
 	{
 		for(int i=uis.size()-1;i>=0;i--)
 		{
 			Ui u=uis.get(i);
-			if(u!=null&&u.onTouch(this,p2))break;
+			if(u!=null&&u.onTouch(this,p2))return true;
 		}
+		return false;
 	}
 	public void clearGUI()
 	{
@@ -37,14 +41,17 @@ public class Scene
 	}
 	public void onDraw(Canvas c)
 	{
-		time+=Utils.dt/1000000f;
+		time+=Utils.getDtMs();
 		if(exittime!=-1000)
 			if(exittime>0)
 			{
-				exittime-=Utils.dt/1000000f;
+				exittime-=Utils.getDtMs();
 				for(Ui u:uis)u.exit=true;
 			}
-			else clearGUI();
+			else {
+				clearGUI();
+				Utils.unloadScene(id);
+			}
 			for(Ui u:uis)
 			{
 				u.onDraw(c);
@@ -87,6 +94,7 @@ public class Scene
 				{
 					buf=new Ui();
 					buf.id=l.substring(1);
+					if(findUi(buf.id)!=null)throw new Exception("GUI\""+buf.id+"\"的ID重复");
 					continue;
 				}
 				else if(l.equals("*"))
@@ -113,8 +121,9 @@ public class Scene
 							Ui parent=findUi(p);
 							parent.child.add(buf);
 							buf.parent=parent;
-
-
+							break;
+						case "animclickable":
+							buf.animclickable=Boolean.parseBoolean(p);
 							break;
 						case "event":
 							buf.event=p;
@@ -161,13 +170,13 @@ public class Scene
 										break;
 									case "fromto":
 										String[] jk=q.split(",");
-										int[] pp=new int[jk.length];
+										float[] pp=new float[jk.length];
 										for(int i=0;i<jk.length;i++)
 										{
 											/*if(an instanceof TransAnim||an instanceof RotateAnim||an instanceof)pp[i]=(int)Utils.parseUiNumExp(buf,0,jk[i]);
 											 else if(an instanceof AlphaAnim)
 											 pp[i]=Integer.parseInt(jk[i]);*/
-											pp[i]=(int)Utils.parseUiNumExp(buf,i%2==0?0:1,jk[i]);
+											pp[i]=Utils.parseUiNumExp(buf,i%2==0?0:1,jk[i]);
 										}
 										an.fromto=pp;
 										break;

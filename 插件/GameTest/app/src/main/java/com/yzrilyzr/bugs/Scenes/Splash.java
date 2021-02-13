@@ -34,7 +34,7 @@ public class Splash extends Scene
 			b3=!b3;
 			for(Ui u:uis){
 				AlphaAnim a=new AlphaAnim(u.p);
-				a.fromto=new int[]{100,0};
+				a.fromto=new float[]{100,0};
 				a.duration=500;
 				u.anim.add(a);
 			}

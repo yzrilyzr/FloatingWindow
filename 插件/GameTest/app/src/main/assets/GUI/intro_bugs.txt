@@ -1,4 +1,4 @@
-@bugprandom19
+@bugprandom10prandom10prandom10prandom10prandom10prandom10prandom10prandom10
 vec:bugs/prandom19
 gravity:1
 size:10%,-2

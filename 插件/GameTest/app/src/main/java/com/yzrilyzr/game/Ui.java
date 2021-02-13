@@ -24,6 +24,7 @@ public class Ui
 	public CopyOnWriteArrayList<Ui> child=new CopyOnWriteArrayList<Ui>();
 	public Ui parent=null;
 	public boolean exit=false;
+	public boolean animclickable=false,isanim=false;
 	public void reverseAnim()
 	{
 		int lt=0;
@@ -55,13 +56,14 @@ public class Ui
 					}
 				}
 			case MotionEvent.ACTION_UP:
-				if(event!=null&&down==true)
+				if(down==true)
 				{
 					float x=p2.getX(),y=p2.getY();
 					if(rectf.contains(x,y))
 					{
 						down=false;
-						try
+						if(event!=null&&(!isanim||(animclickable&&isanim))
+						)try
 						{
 							Method m=sc.getClass().getMethod(event,Ui.class);
 							m.invoke(sc,this);
@@ -123,10 +125,19 @@ public class Ui
 		}
 		if(backcolor!=0)p.setColor(backcolor);
 		p.setStyle(Paint.Style.FILL);
-		if(!exit)for(BaseAnim an:anim)an.doAnim();
+		isanim=false;
+		if(!exit){
+			for(BaseAnim an:anim){
+				an.doAnim();
+			if(an.antime<1)isanim=true;
+		}
+		}
 		else {
-			if(eanim.size()==0)return;
-			for(BaseAnim an:eanim)an.doAnim();
+			if(eanim.size()==0&&parent==null)return;
+			for(BaseAnim an:eanim){
+				an.doAnim();
+				if(an.antime<1)isanim=true;
+			}
 		}
 		rectf.set(0,0,width,height);
 		matrix.mapRect(rectf);
@@ -140,9 +151,10 @@ public class Ui
 		}*/
 		if(backcolor!=0)c.drawRect(rectf,p);
 		if(bmp!=null)c.drawBitmap(bmp,matrix,p);
-		c.drawText(String.format("Index:%d,%dx%d",Utils.draws,(int)rectf.width(),(int)rectf.height()),rectf.left,rectf.top+p.getTextSize(),p);
+		//p.setColor(0xffff0000);
+		//c.drawText(String.format("Index:%d,%dx%d",Utils.draws,(int)rectf.width(),(int)rectf.height()),rectf.left,rectf.top+p.getTextSize(),p);
 		Utils.draws++;
-		p.setStyle(Paint.Style.STROKE);
-		c.drawRect(rectf,p);
+		//p.setStyle(Paint.Style.STROKE);
+		//c.drawRect(rectf,p);
 	}
 }

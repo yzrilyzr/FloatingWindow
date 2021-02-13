@@ -58,8 +58,10 @@ eanim:type:translate|fromto:0,0,-100s,0|duration:500
 @title
 gravity:2
 vec:vec/mainmenu/title
+animclickable:true
 size:300d,-2
 pos:0,0
+event:title
 anim:type:scale|fromto:0,100,100,100|duration:500|pos:50s,50s
 eanim:type:scale|fromto:100,100,60,60|duration:500|pos:50s,50s
 eanim:type:translate|fromto:0,0,0,-100s|duration:500

@@ -1,9 +1,9 @@
-@backp
+@backinfo
 size:100%,100%
 pos:0,0
 color:ff000000
 anim:type:alpha|duration:200|fromto:0,30
-anim:type:scale|fromto:0,0,100,100
+eanim:type:alpha|duration:200|fromto:30,0
 *
 @uiabout
 gravity:5
@@ -13,6 +13,9 @@ pos:0,0
 anim:type:alpha|duration:400|fromto:0,100
 anim:type:translate|duration:400|fromto:50%-10d,50%-80d,0,0
 anim:type:scale|duration:400|fromto:0,0,100,100|pos:50s,50s
+eanim:type:alpha|duration:400|fromto:100,0
+eanim:type:translate|duration:400|fromto:0,0,50%-10d,50%-80d
+eanim:type:scale|duration:400|fromto:100,100,0,0|pos:50s,50s
 *
 @uiaboutok
 gravity:8
@@ -21,5 +24,4 @@ event:uiaboutok
 vec:vec/mainmenu/uiaboutok
 size:20%,-2
 pos:0,-7%
-#anim:type:alpha|duration:400|fromto:0,100
 *

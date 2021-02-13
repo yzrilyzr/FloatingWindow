@@ -25,7 +25,7 @@ public class MainActivity extends com.yzrilyzr.game.MainActivity
 					}
 					catch (InterruptedException e)
 					{}
-					Utils.loadScene(new Splash("splash"));
+					Utils.loadScene(new LevelSelect("splash"));
 				}
 			}).start();
 

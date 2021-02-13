@@ -1,8 +1,10 @@
 @tip
-gravity:7
+parent:yzr
+gravity:3
 vec:vec/mainmenu/tip
-size:140d,-2
-pos:60d,-240d
+size:50%,-2
+pos:-35%,-20%
 anim:type:scale|duration:300|pos:75s,95s|fromto:0,0,100,100
 anim:type:scale|delay:2000|duration:300|pos:75s,95s|fromto:100,100,0,0
+eanim:type:alpha|duration:400|fromto:100,0
 *

@@ -3,7 +3,7 @@ package com.yzrilyzr.game;
 public class BaseAnim
 {
 	public int duration,delay;
-	public int[] fromto=new int[0];
+	public float[] fromto=new float[0];
 	public float time,antime,cx,cy;
 	public void doAnim(){
 		if(time<delay)antime=0;
@@ -11,10 +11,10 @@ public class BaseAnim
 			antime=Utils.NonLinearFunc((time-delay)/duration);
 		}
 		else antime=1;
-		time+=Utils.dt/1000000f;
+		time+=Utils.getDtMs();
 	}
 	public void reverse(){
-		int y;
+		float y;
 		if(fromto.length==2){
 			y=fromto[0];
 			fromto[0]=fromto[1];

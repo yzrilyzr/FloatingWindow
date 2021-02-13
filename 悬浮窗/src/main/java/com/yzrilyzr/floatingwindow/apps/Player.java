@@ -208,14 +208,14 @@ public class Player implements Window.OnButtonDown,MediaPlayer.OnCompletionListe
 				}
 			});
 			index=queue.indexOf(new File(path));
-			new Thread(new Runnable(){
+			/*new Thread(new Runnable(){
 
 					@Override
 					public void run()
 					{
 						myPlayer pl=new myPlayer(queue.get(index).getAbsolutePath());
 					}
-				}).start();
+				}).start();*/
 			
 			mp=new MediaPlayer();
 			readMusic();

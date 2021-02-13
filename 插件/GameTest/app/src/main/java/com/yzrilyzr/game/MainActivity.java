@@ -215,11 +215,12 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 	@Override
 	public boolean onTouch(View p1, MotionEvent p2)
 	{
-		for(Scene s:scenes)
+		for(int i=scenes.size()-1;i>=0;i--)
 		{
-			s.onTouch(p2);
+			Scene u=scenes.get(i);
+			if(u!=null&&u.onTouch(p2))return true;
 		}
-		return true;
+		return false;
 	}
 	class mView extends ImageView
 	{
@@ -236,8 +237,13 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 			//super.onDraw(canvas);
 			Utils.draws=0;
 			if(Utils.backcolor!=0)canvas.drawColor(Utils.backcolor);
+			try{
 			for(Scene sc:scenes)
 				sc.onDraw(canvas);
+			}catch(Throwable e){
+				scenes.clear();
+				Utils.alert(e);
+			}
 			if(Utils.showfps)
 			{
 				if(Utils.dt==0)Utils.dt=1;

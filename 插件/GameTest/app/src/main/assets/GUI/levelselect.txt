@@ -43,3 +43,4 @@ anim:type:translate|fromto:0,100s,0,0|duration:500|delay:500
 eanim:type:scale|fromto:100,100,0,0|duration:500|pos:50s,50s|delay:300
 eanim:type:translate|fromto:0,0,0,100s|duration:500|delay:300
 *
+
