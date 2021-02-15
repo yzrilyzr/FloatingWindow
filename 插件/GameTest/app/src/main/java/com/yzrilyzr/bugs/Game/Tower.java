@@ -11,21 +11,21 @@ import com.yzrilyzr.bugs.MainActivity;
 
 public class Tower extends GObj
 {
-	float dmg,dtime,cdtime;
+	public float dmg,dtime,cdtime;
 	float rdmg,rtime,rdtime,brtime;
-	float x,y,money,slow;
+	float money,slow;
 	VECfile ico;
 	Bitmap bico;
 	int level;
 	Bug target;
 	Matrix ma=new Matrix();
-	int id;
+	public int id;
 	CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
-	static final float[] moneys=new float[]{50,80,170,200,100,300,350,400,350,350};
-	static final float[] dmgs=new float[]{20,7,36,50,30,100,15,50,40,40};
-	static final float[] rs=new float[]{1.5f,1.5f,1.9f,2.5f,1.3f,2f,1.2f,2.5f,1.4f,1.4f};
-	static final float[] dts=new float[]{0.9f,0.4f,1f,1.5f,0.6f,1f,0.4f,1.5f,1.3f,1.3f};
+	public static final float[] moneys=new float[]{50,80,170,200,100,300,350,400,350,350};
+	public static final float[] dmgs=new float[]{20,7,36,50,30,100,15,50,40,40};
+	public static final float[] rs=new float[]{1.5f,1.5f,1.9f,2.5f,1.3f,2f,1.2f,2.5f,1.4f,1.4f};
+	public static final float[] dts=new float[]{0.9f,0.4f,1f,1.5f,0.6f,1f,0.4f,1.5f,1.3f,1.3f};
 	public Tower(int id,float x,float y)
 	{
 		this.x=x;
@@ -41,6 +41,7 @@ public class Tower extends GObj
 			//r=rs[id];
 			dmg=dmgs[id];
 			money=moneys[id];
+			r=rs[id];
 		}
 		catch(Throwable e)
 		{

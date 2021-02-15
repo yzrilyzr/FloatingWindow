@@ -7,7 +7,7 @@ eanim:type:alpha|duration:200|fromto:30,0
 *
 @settingsm
 vec:vec/settings/setting
-size:-2,-2
+size:-2,80%
 gravity:5
 pos:0,0
 anim:type:scale|fromto:70,70,100,100|duration:400|pos:50s,50s
@@ -32,7 +32,7 @@ anim:type:alpha|fromto:0,100|duration:400
 *
 @smainmenu
 vec:buttonmainmenu
-size:-2,30d
+size:-2,40d
 gravity:1
 pos:10d,20d
 event:mainmenu

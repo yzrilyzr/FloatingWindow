@@ -215,14 +215,18 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 	@Override
 	public boolean onTouch(View p1, MotionEvent p2)
 	{
+		try{
 		for(int i=scenes.size()-1;i>=0;i--)
 		{
 			Scene u=scenes.get(i);
 			if(u!=null&&u.onTouch(p2))return true;
 		}
+		}catch(Throwable e){
+			Utils.alert(e);
+		}
 		return false;
 	}
-	class mView extends ImageView
+	class mView extends View
 	{
 		long st=System.nanoTime();
 		public mView(Context c)

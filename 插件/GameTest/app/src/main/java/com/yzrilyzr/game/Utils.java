@@ -125,11 +125,12 @@ public class Utils
 	{
 		mainDir=path;
 	}
-	public static void loadScene(Scene cls)
+	public static void loadScene(Scene id)
 	{
-		ctx.scenes.add(cls);
+		if(findScene(id.id)!=null)throw new IllegalArgumentException("Scene \""+id.id+"\" 的ID重复");
+		ctx.scenes.add(id);
 	}
-	public static Scene getScene(String id)
+	public static Scene findScene(String id)
 	{
 		for(Scene s:ctx.scenes)
 			if(s.id.equals(id))return s;

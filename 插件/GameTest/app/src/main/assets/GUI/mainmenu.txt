@@ -47,7 +47,7 @@ eanim:type:translate|fromto:0,0,100s,0|duration:500
 @yzr
 vec:vec/mainmenu/yzr
 gravity:7
-size:-2,288d
+size:-2,75%
 pos:20d,-5d
 event:yzr
 anim:type:scale|fromto:60,60,100,100|duration:500|pos:50s,50s

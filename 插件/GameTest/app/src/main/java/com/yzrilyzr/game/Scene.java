@@ -12,14 +12,15 @@ public class Scene
 	public CopyOnWriteArrayList<Ui> uis=new CopyOnWriteArrayList<Ui>();
 	//int backcolor=0;
 	public Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-	protected String id=null;
+	public String id=null;
 	public float time=0;
 	float exittime=-1000;
 	public Scene(String id)
 	{
 		this.id=id;
 	}
-	public String getId(){
+	public String getId()
+	{
 		return id;
 	}
 	public boolean onTouch(MotionEvent p2)
@@ -46,16 +47,17 @@ public class Scene
 			if(exittime>0)
 			{
 				exittime-=Utils.getDtMs();
-				for(Ui u:uis)u.exit=true;
+				//for(Ui u:uis)u.exit=true;
 			}
-			else {
+			else
+			{
 				clearGUI();
 				Utils.unloadScene(id);
 			}
-			for(Ui u:uis)
-			{
-				u.onDraw(c);
-			}
+		for(Ui u:uis)
+		{
+			u.onDraw(c);
+		}
 	}
 	public Ui findUi(String s)
 	{
@@ -71,30 +73,35 @@ public class Scene
 	{
 		exittime=0;
 		for(Ui u:uis)
+		{
+			u.exit=true;
 			for(BaseAnim b:u.eanim)exittime=Math.max(exittime,b.delay+b.duration);
+		}
 	}
-	public void loadGUI(String s)
+	public void loadGUI(String s,String... replacement)
 	{
 		try
 		{
-			BufferedReader r=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(s.getBytes())));
+			Pattern pat=Pattern.compile("(prandom|replacement)\\d+");
+			Matcher match=pat.matcher(s);
+			while(match.find())
+			{
+				String p=match.group();
+				if(p.contains("prandom"))s=s.replaceFirst(p,Integer.toString(new Random().nextInt(Integer.parseInt(p.substring(7)))));
+				else if(p.contains("replacement"))s=s.replaceAll(p,replacement[Integer.parseInt(p.substring(11))]);
+			}
 			String l=null;
 			Ui buf=null;
-			Pattern pat=Pattern.compile("prandom\\d+");
-			while((l=r.readLine())!=null)
+			String[] ppp=s.split("\n");
+			for(int fg=0;fg<ppp.length;fg++)
 			{
-				Matcher match=pat.matcher(l);
-				while(match.find())
-				{
-					String p=match.group();
-					l=l.replaceFirst(p,Integer.toString(new Random().nextInt(Integer.parseInt(p.substring(7)))));
-				}
+				l=ppp[fg];
 				if(l.startsWith("#")||l.replace(" ","").length()==0)continue;
 				if(l.startsWith("@"))
 				{
 					buf=new Ui();
 					buf.id=l.substring(1);
-					if(findUi(buf.id)!=null)throw new Exception("GUI\""+buf.id+"\"的ID重复");
+					if(findUi(buf.id)!=null)throw new IllegalArgumentException("GUI \""+buf.id+"\" 的ID重复");
 					continue;
 				}
 				else if(l.equals("*"))
@@ -118,9 +125,21 @@ public class Scene
 							buf.gravity=Integer.parseInt(p);
 							break;
 						case "parent":
-							Ui parent=findUi(p);
-							parent.child.add(buf);
-							buf.parent=parent;
+							if(p.contains("/"))
+							{
+								String[] tt=p.split("/");
+								Scene sc=Utils.findScene(tt[0]);
+								if(sc==null)throw new NullPointerException("Scene \""+tt[0]+"\" 未找到");
+								Ui parent=sc.findUi(tt[1]);
+								parent.child.add(buf);
+								buf.parent=parent;
+							}
+							else
+							{
+								Ui parent=findUi(p);
+								parent.child.add(buf);
+								buf.parent=parent;
+							}
 							break;
 						case "animclickable":
 							buf.animclickable=Boolean.parseBoolean(p);
@@ -195,7 +214,7 @@ public class Scene
 				}
 			}
 		}
-		catch(Throwable e)
+		catch(IOException e)
 		{
 			Utils.alert(e);
 		}

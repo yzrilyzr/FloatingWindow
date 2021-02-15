@@ -13,15 +13,15 @@ public class LevelSelect extends Scene
 		exitAnim();
 	}
 	public void help(Ui s){
-		Utils.loadScene(new GameMain(Utils.readTxt("maps/map0")));
+		Utils.loadScene(new GameMain("gamemain",Utils.readTxt("maps/map3")));
 		exitAnim();
 	}
 	public void achi(Ui s){
-		Utils.loadScene(new GameMain(Utils.readTxt("maps/map2")));
+		Utils.loadScene(new GameMain("gamemain",Utils.readTxt("maps/map2")));
 		exitAnim();
 	}
 	public void bugs(Ui s){
-		Utils.loadScene(new GameMain(Utils.readTxt("maps/map1")));
+		Utils.loadScene(new GameMain("gamemain",Utils.readTxt("maps/map1")));
 		exitAnim();
 	}
 }

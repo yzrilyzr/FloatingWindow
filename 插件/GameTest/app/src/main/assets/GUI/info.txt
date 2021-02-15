@@ -8,7 +8,7 @@ eanim:type:alpha|duration:200|fromto:30,0
 @uiabout
 gravity:5
 vec:vec/mainmenu/uiabout
-size:-2,-2
+size:-2,90%
 pos:0,0
 anim:type:alpha|duration:400|fromto:0,100
 anim:type:translate|duration:400|fromto:50%-10d,50%-80d,0,0

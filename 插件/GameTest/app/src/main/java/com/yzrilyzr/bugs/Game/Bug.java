@@ -10,12 +10,13 @@ public class Bug extends GObj
 	Bitmap bugicon,bugdicon;
 	float mscale=1;
 	//float x,y;
+	public int id;
 	public float vel;
 	public float hp,maxhp,frztime;
 	float rdmg,rtime,rdtime,rdcdtime;
 	float slow,dir;
 	VECfile ico,dico;
-	Map.AstarPoint wayp;
+	//AstarPoint wayp;
 	int wayIndex;
 	int score,money,exp;
 	Matrix ma=new Matrix();

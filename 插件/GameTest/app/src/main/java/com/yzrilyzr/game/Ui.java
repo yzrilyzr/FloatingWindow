@@ -23,8 +23,8 @@ public class Ui
 	boolean down=false;
 	public CopyOnWriteArrayList<Ui> child=new CopyOnWriteArrayList<Ui>();
 	public Ui parent=null;
-	public boolean exit=false;
-	public boolean animclickable=false,isanim=false;
+	public boolean exit=false,animreversed=false;
+	public boolean animclickable=false,isanim=false,show=true;
 	public void reverseAnim()
 	{
 		int lt=0;
@@ -34,6 +34,19 @@ public class Ui
 			b.reverse();
 		}
 		for(Ui x:child)x.reverseAnim();
+		animreversed=!animreversed;
+	}
+	public void resetEAnim(){
+		for(BaseAnim b:eanim){
+			b.time=0;
+			b.antime=0;
+		}
+	}
+	public void resetAnim(){
+		for(BaseAnim b:anim){
+			b.time=0;
+			b.antime=0;
+		}
 	}
 	public boolean onTouch(Scene sc,MotionEvent p2)
 	{
@@ -149,10 +162,10 @@ public class Ui
 			if(bmp!=null)c.drawBitmap(bmp,matrix,p);
 			c.restore();
 		}*/
-		if(backcolor!=0)c.drawRect(rectf,p);
-		if(bmp!=null)c.drawBitmap(bmp,matrix,p);
+		if(backcolor!=0&&show)c.drawRect(rectf,p);
+		if(bmp!=null&&show)c.drawBitmap(bmp,matrix,p);
 		//p.setColor(0xffff0000);
-		//c.drawText(String.format("Index:%d,%dx%d",Utils.draws,(int)rectf.width(),(int)rectf.height()),rectf.left,rectf.top+p.getTextSize(),p);
+		//c.drawText(String.format("Index:%d,Id:%s",Utils.draws,id),rectf.left,rectf.top+p.getTextSize(),p);
 		Utils.draws++;
 		//p.setStyle(Paint.Style.STROKE);
 		//c.drawRect(rectf,p);
