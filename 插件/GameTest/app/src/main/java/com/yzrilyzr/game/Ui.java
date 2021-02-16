@@ -32,6 +32,12 @@ public class Ui
 		vecRtr=b;
 		return b?vec:null;
 	}
+	@Override
+	public String toString()
+	{
+		return String.format("Ui{\nid:%s,\nevent:%s,\nx:%f,\ny:%f,\nw:%f,\nh:%f\n}\nparent:\n%s",id,event,x,y,width,height,parent);
+	}
+	
 	public void reverseAnim()
 	{
 		int lt=0;

@@ -66,6 +66,7 @@
 				<action android:name="android.intent.action.BOOT_COMPLETED" />		
 				<action android:name="com.yzrilyzr.close" />
 				<action android:name="com.yzrilyzr.callback" />
+				<action android:name="com.yzrilyzr.sysprinter" />
 				<action android:name="android.intent.action.PACKAGES_SUSPENDED"/>
 				<action android:name="android.intent.action.PACKAGES_UNSUSPENDED"/>
 				<action android:name="android.intent.action.PACKAGE_ADDED"/>

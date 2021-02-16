@@ -7,24 +7,44 @@ import java.util.*;
 
 public class Bug extends GObj
 {
-	Bitmap bugicon,bugdicon;
-	float mscale=1;
+	//Bitmap bugicon,bugdicon;
+	//float mscale=1;
 	//float x,y;
 	public int id;
 	public float vel;
+	//冻结行动时间
 	public float hp,maxhp,frztime;
-	float rdmg,rtime,rdtime,rdcdtime;
-	float slow,dir;
-	VECfile ico,dico;
+	//float rdmg,rtime,rdtime,rdcdtime;
+	//float slow,dir;
+	//VECfile ico,dico;
 	//AstarPoint wayp;
-	int wayIndex;
-	int score,money,exp;
-	Matrix ma=new Matrix();
+	//寻路的路组，前往路点
+	public int wayIndex;
+	public Point curPoint;
+	public int score,money,exp;
+	//Matrix ma=new Matrix();
 	static final float[] hps=new float[]{50,100,400,200,1600,210,420,340,230,250,1024,512,768,384,256,448,256,832,512,8192};
 	static final int[] moneys=new int[]{12,23,35,25,78,41,45,33,28,36,124,68,94,52,41,69,47,97,81,500};
 	static final int[] exps=new int[]{1,2,4,6,10,3,8,6,3,7,15,8,9,7,5,6,4,12,9,23};
 	static final int[] scores=new int[]{6,12,23,28,46,28,35,27,24,26,56,42,49,34,29,42,25,50,37,95};
-	static final float[] vels=new float[]{5,5,5,8,3,9,5,6,5,9,5,5,5,5,5,6,5,6,5,3};
+	public static final float[] vels=new float[]{5,5,5,8,3,9,5,6,5,9,5,5,5,5,5,6,5,6,5,3};
+	public Bug(int id){
+		this.id=id;
+		vel=vels[id];
+		hp=hps[id]*2;
+		maxhp=hp;
+		money=moneys[id];
+		exp=exps[id];
+		score=scores[id];
+	}
+	public boolean contains(float px,float py){
+		if(Math.pow(px-x,2)+Math.pow(py-y,2)<r*r)return true;
+		return false;
+	}
+	public boolean contains(float px,float py,float r){
+		if(Math.pow(px-x,2)+Math.pow(py-y,2)<r*r)return true;
+		return false;
+	}
 	/*public Bug(float x,float y,int size)
 	{
 		try

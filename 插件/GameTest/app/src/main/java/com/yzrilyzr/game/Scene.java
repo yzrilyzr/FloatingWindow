@@ -6,6 +6,7 @@ import java.io.*;
 import com.yzrilyzr.icondesigner.*;
 import java.util.regex.*;
 import java.util.*;
+import java.text.*;
 
 public class Scene
 {
@@ -114,6 +115,7 @@ public class Scene
 				else
 				{
 					int c=l.indexOf(":");
+					if(c==-1)throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(fg+1));
 					String t=l.substring(0,c),p=l.substring(c+1);
 					switch(t)
 					{
@@ -131,12 +133,14 @@ public class Scene
 								Scene sc=Utils.findScene(tt[0]);
 								if(sc==null)throw new NullPointerException("Scene \""+tt[0]+"\" 未找到");
 								Ui parent=sc.findUi(tt[1]);
+								if(parent==null)throw new NullPointerException("Parent \""+tt[1]+"\" 未找到");
 								parent.child.add(buf);
 								buf.parent=parent;
 							}
 							else
 							{
 								Ui parent=findUi(p);
+								if(parent==null)throw new NullPointerException("Parent \""+p+"\" 未找到");
 								parent.child.add(buf);
 								buf.parent=parent;
 							}
@@ -164,6 +168,9 @@ public class Scene
 							break;
 						case "bound":
 							buf.bound=Boolean.parseBoolean(p);
+							break;
+						case "show":
+							buf.show=Boolean.parseBoolean(p);
 							break;
 						case "anim":
 						case "eanim":
@@ -210,6 +217,8 @@ public class Scene
 							if(t.equals("anim"))buf.anim.add(an);
 							else if(t.equals("eanim"))buf.eanim.add(an);
 							break;
+						default:
+							throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(fg+1));
 					}
 				}
 			}

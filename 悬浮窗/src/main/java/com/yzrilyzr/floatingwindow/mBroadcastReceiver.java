@@ -15,7 +15,7 @@ public class mBroadcastReceiver extends BroadcastReceiver
     {
 		util.ctx=p1;
 		Window.readData();
-		System.out.println(p2);
+		//System.out.println(p2);
 		String act=p2.getAction();
 		if("com.yzrilyzr.close".equals(act))PluginService.fstop(p1);
 		else if("com.yzrilyzr.callback".equals(act)){
@@ -30,6 +30,12 @@ public class mBroadcastReceiver extends BroadcastReceiver
 				catch (Throwable e)
 				{}
 			}
+		}
+		else if("com.yzrilyzr.sysprinter".equals(act)){
+			String print=p2.getStringExtra("out");
+			String err=p2.getStringExtra("err");
+			if(print!=null)System.out.println(print);
+			if(err!=null)System.err.println(err);
 		}
 		else if(Intent.ACTION_PACKAGE_ADDED.equals(act)||Intent.ACTION_PACKAGE_INSTALL.equals(act)){
 			String packageName=p2.getData().getSchemeSpecificPart();

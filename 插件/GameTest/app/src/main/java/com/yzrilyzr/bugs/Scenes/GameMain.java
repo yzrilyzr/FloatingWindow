@@ -29,6 +29,7 @@ public class GameMain extends Scene
 	public int lives,money,score;
 	public Wave nextwave;
 	int curwave=0;
+	private boolean gamex2=false,pause=false;
 	//绘图数据
 	public Bitmap background=null;
 	public VECfile backvec;
@@ -37,12 +38,14 @@ public class GameMain extends Scene
 	Tower tmptower=null;
 	float sendnowcool=-1000;
 	float tilew;
+	Matrix ma=new Matrix();
 	public CopyOnWriteArrayList<TowerInfo> towerInfo=new CopyOnWriteArrayList<TowerInfo>();
 	public GameMain(String id,String data)
 	{
 		super(id);
 		try
 		{
+			p.setTextSize(Utils.px(15));
 			loadMap(data);
 			tilew=Utils.getHeight()/map[0].length;
 			loadTextures();
@@ -65,6 +68,7 @@ public class GameMain extends Scene
 		catch (Exception e)
 		{
 			Utils.alert(e);
+			exitAnim();
 			Utils.loadScene(new LevelSelect("levelselect"));
 			return;
 		}
@@ -73,10 +77,25 @@ public class GameMain extends Scene
 	public void buytower(Ui s)
 	{
 		String id=s.id.replaceAll("(item|rightmenuitem)","");
-		tmptower=new Tower(Integer.parseInt(id),0,0);
+		tmptower=new Tower(Integer.parseInt(id));
 		tmptower.x=-99;
 		tmptower.y=-99;
+		if(money-tmptower.money<0)tmptower=null;
 		towerinfo();
+	}
+	public void x2(Ui s){
+		Ui x1=findUi("gamex1");
+		gamex2=!gamex2;
+		x1.show=gamex2;
+		/*if(gamex2){
+			s.exit=true;
+		}
+		*/
+	}
+	public void pause(Ui s){
+		Ui con=findUi("gamecontinue");
+		pause=!pause;
+		con.show=pause;
 	}
 	//设置按钮
 	public void setting(Ui s)
@@ -113,7 +132,16 @@ public class GameMain extends Scene
 				{
 					tmptower.x=(int)(x/tilew);
 					tmptower.y=(int)(y/tilew);
-					if(!isWall((int)tmptower.x,(int)tmptower.y))
+					boolean cbug=false;
+					for(Bug b:bugs)
+					{
+						if(b.contains(tmptower.x,tmptower.y,1f))
+						{
+							cbug=true;
+							break;
+						}
+					}
+					if(!cbug&&!isWall((int)tmptower.x,(int)tmptower.y))
 					{
 						//放置塔
 						towers.add(tmptower);
@@ -122,6 +150,8 @@ public class GameMain extends Scene
 							towers.remove(tmptower);
 							tmptower=null;
 						}
+						else money-=tmptower.money;
+						//tmptower=null;
 						//else towerinfo();
 					}
 					else tmptower=null;
@@ -149,7 +179,7 @@ public class GameMain extends Scene
 	@Override
 	public void onDraw(Canvas c)
 	{
-		// TODO: Implement this method
+		//立即出发的ui
 		if(sendnowcool>0)sendnowcool-=Utils.getDtMs();
 		else if(sendnowcool!=-1000)
 		{
@@ -157,10 +187,56 @@ public class GameMain extends Scene
 			sendnowcool=-1000;
 		}
 		c.drawBitmap(background,0,0,p);
+		float dt=Utils.getDtMs();
+		if(gamex2)dt*=2;
+		if(pause)dt=0;
+		//画塔
 		for(Tower t:towers)
 		{
-			c.drawBitmap(towersicon[t.id],t.x*tilew,t.y*tilew,p);
+			ma.reset();
+			ma.postTranslate(t.x*tilew,t.y*tilew);
+			float sc=1+0.3f*t.cdtime/t.dtime;
+			ma.preScale(sc,sc,tilew/2,tilew/2);
+			c.drawBitmap(towersicon[t.id],ma,p);
+			ma.reset();
+			if(t.cdtime>0)t.cdtime-=dt;
+			//bug摧毁塔 塔攻击bug
+			t.inRbugs.clear();
+			for(Bug b:bugs)
+			{
+				//bug摧毁塔
+				if(b.contains(t.x,t.y,0.90f))
+				{
+					towers.remove(t);
+					if(t==tmptower)
+					{
+						tmptower=null;
+						towerinfo();
+					}
+					continue;
+				}
+				//加入攻击队列
+				if(b.contains(t.x,t.y,t.r)&&t.inRbugs.size()<t.inRBugCount)
+				{
+					t.inRbugs.add(b);
+				}
+			}
+			//攻击
+			if(t.cdtime<=0&&t.inRbugs.size()>0)
+			{
+				for(Bug b:t.inRbugs)
+				{
+					b.frztime=Math.max(b.frztime,t.frztime[t.id]);
+					if(t.attacktype==Tower.AttackType.INSTANT){
+						b.hp-=t.dmg;
+						Bullet et=new Bullet(b,t);
+						bullets.add(et);
+					}
+				}
+				t.cdtime=t.dtime;
+			}
 		}
+		//画选中的塔
 		if(tmptower!=null)
 		{
 			p.setStyle(Paint.Style.STROKE);
@@ -169,13 +245,80 @@ public class GameMain extends Scene
 			p.setColor(0xff000000);
 			c.drawCircle(tmptower.x*tilew+tilew/2,tmptower.y*tilew+tilew/2,tmptower.r*tilew,p);
 			p.setStyle(Paint.Style.FILL);
-			c.drawBitmap(towersicon[tmptower.id],tmptower.x*tilew,tmptower.y*tilew,p);
+			if(!towers.contains(tmptower))c.drawBitmap(towersicon[tmptower.id],tmptower.x*tilew,tmptower.y*tilew,p);
 		}
+		//画bug
 		for(Bug b:bugs)
 		{
+			if(b.hp<=0)
+			{
+				bugs.remove(b);
+				money+=b.money;
+				score+=b.score;
+				continue;
+			}
+			//冻结行动时间
+			if(b.frztime>0){
+				b.frztime-=dt;
+				b.vel=0;
+			}
+			else b.vel=Bug.vels[b.id];
 			Bitmap bm=bugsicon[b.id];
+			//选择路点组
+			ArrayList<Point> wp=wpwaypoint.get(b.wayIndex);
+			//这个 已 经过路点 和 它的index  和 目标路点
+			Point ppc=b.curPoint;
+			int ind=wp.indexOf(ppc);
+			//到结束点
+			if(ind==wp.size()-1)
+			{
+				//扣生命值
+				lives--;
+				bugs.remove(b);
+			}
+			else
+			{
+				//寻找距离最近可通过路点
+				Point pp=null;
+				if(ind!=-1)pp=wp.get(ind+1);
+				else
+				{
+					float mind=-1;
+					for(int i=wp.size()-1;i>=0;i--)
+					{
+						Point a=wp.get(i);
+						float dd=(float)Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
+						if(mind==-1)
+						{
+							mind=dd;
+							continue;
+						}
+						if(dd<mind)
+						{
+							ind=i;
+							mind=dd;
+							break;
+						}
+					}
+					if(ind==-1)ind=0;
+					pp=wp.get(ind);
+				}
+				//是否到达目标路点
+				if(b.contains(pp.x,pp.y,0.05f))b.curPoint=pp;
+				//↑↑↑↑初始化的时候直接向第二个路点走,cur=1;
+				//前往目标
+				//正交距离除以直线距离，即为sin和cos值，vx+=v*cos()，vy+=v*sin()
+				float r=(float)Math.sqrt(Math.pow(pp.x-b.x,2)+Math.pow(pp.y-b.y,2));
+				b.x+=(pp.x-b.x)/r*b.vel*dt/3000f;
+				b.y+=(pp.y-b.y)/r*b.vel*dt/3000f;
+			}
 			c.drawBitmap(bm,b.x*bm.getWidth(),b.y*bm.getHeight(),p);
+			p.setColor(0xffaaaaaa);
+			c.drawRect(b.x*bm.getWidth(),(b.y-0.1f)*bm.getHeight(),(1+b.x)*bm.getWidth(),b.y*bm.getHeight(),p);
+			p.setColor(0xff20ff20);
+			c.drawRect(b.x*bm.getWidth(),(b.y-0.1f)*bm.getHeight(),b.x*bm.getWidth()+bm.getWidth()*b.hp/b.maxhp,b.y*bm.getHeight(),p);
 		}
+		//画地图
 		for(int i=0;i<map.length;i++)
 		{
 			for(int j=0;j<map[i].length;j++)
@@ -184,23 +327,66 @@ public class GameMain extends Scene
 				if(map[i][j]!=0)c.drawBitmap(tiles[id],i*tilew+tilew/2-tiles[id].getWidth()/2,j*tilew+tilew-tiles[id].getHeight(),p);
 			}
 		}
-		for(Point pp:wpwaypoint.get(0))
-			c.drawBitmap(tiles[5],pp.x*tilew,pp.y*tilew,p);
+		//画子弹
+		for(Bullet bu:bullets){
+			bu.onDraw(c,tilew);
+			if(bu.brtime!=-1)
+				if(bu.brtime>0)bu.brtime-=dt;
+				else bullets.remove(bu);
+		}
+		//画路点
+		//for(Point pp:wpwaypoint.get(0))
+		//	c.drawBitmap(tiles[5],pp.x*tilew,pp.y*tilew,p);
 		if(nextwave!=null)
 		{
+			//下一波倒计时
 			waveVec.shapes.get(7).txt=String.format("×%d",nextwave.count);
 			waveVec.shapes.get(8).txt=String.format("%d秒",(int)Math.round(nextwave.sec/1000));
-			nextwave.sec-=Utils.getDtMs();
+			nextwave.sec-=dt;
 			if(nextwave.sec<=0)nextwave=null;
 		}
-		else if(curwave<waves.size()){
+		else if(curwave<waves.size())
+		{
+			//下一波
 			nextwave=waves.get(curwave++);
 		}
-		else{
+		else
+		{
+			//波完
 			waveVec.shapes.get(7).txt="没有啦";
 			waveVec.shapes.get(8).txt="(´・ω・`)";
-			
 		}
+		//刷出bug
+		for(int i=0;i<curwave-1;i++)
+		{
+			Wave cur=waves.get(i);
+			if(cur.sec<=0&&cur.count>0)
+			{
+				//到达间隔时间
+				if(cur.cd<=0)
+				{
+					cur.cd=700;
+					cur.count--;
+					Bug b=new Bug(cur.id);
+					//选择路点组
+					b.wayIndex=cur.wpindex;
+					//获取出生点
+					if(b.wayIndex>=wpwaypoint.size())
+						throw new IndexOutOfBoundsException(String.format("第%d波设置的出生点组%d不符合要求(0～%d)",i,b.wayIndex,wpwaypoint.size()-1));
+					Point yu=wpwaypoint.get(b.wayIndex).get(0);
+					//设置到出生点
+					b.x=yu.x;
+					b.y=yu.y;
+					//设置目标到路点
+					b.curPoint=wpwaypoint.get(b.wayIndex).get(0);
+
+					bugs.add(b);
+				}
+				else cur.cd-=dt;
+			}
+		}
+		p.setColor(0xffff0000);
+		c.drawText(String.format("分数%d   生命：%d  金钱:%d",score,lives,money),0,p.getTextSize(),p);
 		super.onDraw(c);
 	}
 	//右上角信息
@@ -276,9 +462,13 @@ public class GameMain extends Scene
 		ArrayList<Point> possible=findAllPossibleWayPoints();
 		for(Point[] asp:wpmap)//寻找对应路点，刷出顺序:1,2,3…
 		{
+			//对可能路点 按组 进行排序
 			ArrayList<Point> sort=sortWayPoints(possible, asp),opt=null;
-			if(sort==null||sort.size()==0)return false;
+			//寻路失败 空数组或没有开始结束点
+			if(sort==null||sort.size()<2)return false;
+			//优化
 			while((opt=optimize(sort)).size()<sort.size())sort=opt;
+			//加入该组
 			wpwaypointt.add(opt);
 //			ArrayList<AstarPoint> c=new ArrayList<AstarPoint>();
 //			ArrayList<AstarPoint> u=new ArrayList<AstarPoint>();
@@ -357,10 +547,11 @@ public class GameMain extends Scene
 		ArrayList<Point> mpossible=new ArrayList<Point>();
 		ArrayList<Point> sort=new ArrayList<Point>();
 		ArrayList<Point> reach=new ArrayList<Point>();
-		mpossible.addAll(possible);
-		mpossible.add(asp[1]);
 		final Point start=asp[0];
 		final Point finish=asp[1];
+		mpossible.addAll(possible);
+		if(mpossible.contains(start))mpossible.remove(start);
+		if(!mpossible.contains(finish))mpossible.add(finish);
 		Point p=start;
 		sort.add(start);
 		int findcount=0;
@@ -368,7 +559,7 @@ public class GameMain extends Scene
 		{
 			for(Point p1:mpossible)
 				if(reachable(p,p1))reach.add(p1);
-			final Point g=p;
+			//final Point g=p;
 			Collections.sort(reach,new Comparator<Point>(){
 					@Override
 					public int compare(Point p1, Point p2)
@@ -424,6 +615,7 @@ public class GameMain extends Scene
 				mpossible.remove(p);
 				reach.clear();
 			}
+			//到达结束点
 			if(p==finish)
 			{
 				return sort;
@@ -436,20 +628,28 @@ public class GameMain extends Scene
 	private ArrayList<Point> optimize(ArrayList<Point> c)
 	{
 		ArrayList<Point> u=new ArrayList<Point>();
-		Point a=c.get(0),d=null;
+		//从起点出发
+		Point a=c.get(0);
+		//终点
+		Point finish=c.get(c.size()-1);
+		//加入起点
 		u.add(a);
+		//从后往前
 		for(int i=c.size()-1;i>=0;i--)
 		{
 			Point b=c.get(i);
-			if(a==b)break;
+			//b可以到达
 			if(reachable(a,b))
 			{
+				//加入b
 				u.add(b);
-				i=c.size()-1;
-				a=b;
+				a=b;//到b点
+				//结束点就停止
+				if(a==finish)break;
+				//重置指针
+				i=c.size();
 			}
 		}
-		u.add(c.get(c.size()-1));
 		return u;
 	}
 	private boolean isWall(int x,int y)
@@ -557,22 +757,29 @@ public class GameMain extends Scene
 		}
 	}
 	//每波攻击
+	//id count sec wpindex
 	private static class Wave
 	{
-		int id,count;
+		//bug 的id  数量  在第几个传送点组
+		int id,count,wpindex;
+		//倒计时
 		float sec;
-		//float cd;
+		float cd=0;
 		public Wave(String pas)
 		{
 			String[] f=pas.split(" ");
 			id=Integer.parseInt(f[0]);
 			count=Integer.parseInt(f[1]);
 			sec=Integer.parseInt(f[2])*1000f;
+			if(f.length>=4)wpindex=Integer.parseInt(f[3]);
+			else wpindex=0;
+			if(sec<1000)sec=1000;
 		}
 	}
 	//右上角信息
 	private class TowerInfo extends Scene
 	{
+		CopyOnWriteArrayList<Shape> hs,hs1,hs2;
 		public TowerInfo(String id)
 		{
 			super(id);
@@ -581,10 +788,10 @@ public class GameMain extends Scene
 				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gametowerinfo.txt"),Integer.toString(tmptower.id));
 				Ui u=findUi("gametowerinfo");
 				VECfile v=u.setVecRealTimeRender(true);
-				CopyOnWriteArrayList<Shape> hs=v.getShapes();
-				hs.get(1).txt="范围:"+Integer.toString((int)(tmptower.r*10f));
-				hs.get(2).txt="伤害:"+Integer.toString((int)tmptower.dmg);
-				hs.get(3).txt="攻速:"+Integer.toString((int)(10f/tmptower.dtime));
+				hs=v.getShapes();
+				//hs.get(1).txt="范围:"+Integer.toString((int)(tmptower.r*10f));
+				//hs.get(2).txt="伤害:"+Integer.toString((int)tmptower.dmg);
+				//hs.get(3).txt="攻速:"+Integer.toString((int)(10000f/tmptower.dtime));
 
 				v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("towers/"+tmptower.id+".vec"));
 				u=findUi("gametowerinfoicon");
@@ -594,23 +801,48 @@ public class GameMain extends Scene
 				{
 					Ui up=findUi("gameupgrade");
 					up.show=true;
-					up.setVecRealTimeRender(true).getShapes().get(1).txt="升级:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
+					hs1=up.setVecRealTimeRender(true).getShapes();//.get(1).txt=tmptower.getUpgradeMoney()==-1?"最大等级":"升级:"+Integer.toString(tmptower.getUpgradeMoney());
 
 					Ui se=findUi("gamesell");
 					se.show=true;
-					se.setVecRealTimeRender(true).getShapes().get(1).txt="出售:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
+					hs2=se.setVecRealTimeRender(true).getShapes();//get(1).txt="出售:"+Integer.toString(tmptower.getSellMoney());
 				}
 				else
 				{
 					findUi("gameupgrade").show=false;
 					findUi("gamesell").show=false;
 				}
+				update();
 			}
-
 			catch(Throwable e)
 			{
 				Utils.alert(e);
 			}
+		}
+		public void towerupgrade(Ui s)
+		{
+			int m=tmptower.getUpgradeMoney();
+			if(m!=-1&&money-m>=0)
+			{
+				money-=m;
+				tmptower.levelup();
+			}
+			update();
+		}
+		private void update()
+		{
+			if(hs1!=null)hs1.get(1).txt=tmptower.getUpgradeMoney()==-1?"最大等级":"升级:"+Integer.toString(tmptower.getUpgradeMoney());
+			if(hs2!=null)hs2.get(1).txt="出售:"+Integer.toString(tmptower.getSellMoney());
+			hs.get(1).txt="范围:"+Integer.toString((int)(tmptower.r*10f));
+			hs.get(2).txt="伤害:"+Integer.toString((int)tmptower.dmg);
+			hs.get(3).txt="攻速:"+Integer.toString((int)(10000f/tmptower.dtime));
+		}
+		public void towersell(Ui s)
+		{
+			money+=tmptower.getSellMoney();
+			towers.remove(tmptower);
+			tmptower=null;
+			exitAnim();
 		}
 	}
 }

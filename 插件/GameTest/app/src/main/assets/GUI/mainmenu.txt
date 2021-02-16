@@ -2,7 +2,7 @@
 size:100%,100%
 pos:0,0
 color:ff40bbff
-anim:type:alpha|duration:200|fromto:0,100
+anim:type:alpha|duration:900|fromto:0,100
 *
 
 @play

@@ -71,7 +71,9 @@ public class Utils
 		if(height>width)height=width*width/height;
 		return height;
 	}
-
+	public static void print(Object a){
+		ctx.sendBroadcast(new Intent().setAction("com.yzrilyzr.sysprinter").putExtra("out",a+""));
+	}
 	public static void alert(final Object ep)
 	{
 		ctx.runOnUiThread(new Runnable(){
@@ -91,6 +93,7 @@ public class Utils
 						p.flush();
 						p.close();
 						a=b.toString();
+						ctx.sendBroadcast(new Intent().setAction("com.yzrilyzr.sysprinter").putExtra("err",a));
 					}
 					new AlertDialog.Builder(ctx)
 						.setMessage(a)
