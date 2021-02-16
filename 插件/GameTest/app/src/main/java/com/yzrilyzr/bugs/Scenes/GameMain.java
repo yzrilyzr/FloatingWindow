@@ -21,16 +21,18 @@ public class GameMain extends Scene
 	public Bitmap[] bugsicon=new Bitmap[20];
 	//游戏内容列表
 	public ArrayList<Wave> waves=new ArrayList<Wave>();
-	public ArrayList<Wave> curwaves=new ArrayList<Wave>();
+	//public ArrayList<Wave> curwaves=new ArrayList<Wave>();
 	public ArrayList<Point[]> wpmap=new ArrayList<Point[]>();
 	public ArrayList<ArrayList<Point>> wpwaypoint=new ArrayList<ArrayList<Point>>();
 	//游戏基本数据
 	public String name="";
 	public int lives,money,score;
 	public Wave nextwave;
+	int curwave=0;
 	//绘图数据
 	public Bitmap background=null;
 	public VECfile backvec;
+	VECfile waveVec;
 	int[][] map=null;
 	Tower tmptower=null;
 	float sendnowcool=-1000;
@@ -46,6 +48,7 @@ public class GameMain extends Scene
 			loadTextures();
 			findWayPoint();
 			loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemain.txt"));
+			waveVec=findUi("rightmenu").setVecRealTimeRender(true);
 			for(int i=0;i<10;i++)	
 			{
 				String r=Integer.toString(i);
@@ -54,7 +57,7 @@ public class GameMain extends Scene
 				VECfile v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/rightmenuitems.vec"));
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
 				hs.get(0).txt="$"+Integer.toString((int)Tower.moneys[i]);
-				u.vec=v;
+				//u.vec=v;
 				u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
 
 			}
@@ -83,6 +86,7 @@ public class GameMain extends Scene
 	//现在出动
 	public void sendnow(Ui s)
 	{
+		if(nextwave!=null)nextwave.sec=0;
 		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemain_sendnow.txt"));
 		sendnowcool=5300;
 	}
@@ -182,6 +186,21 @@ public class GameMain extends Scene
 		}
 		for(Point pp:wpwaypoint.get(0))
 			c.drawBitmap(tiles[5],pp.x*tilew,pp.y*tilew,p);
+		if(nextwave!=null)
+		{
+			waveVec.shapes.get(7).txt=String.format("×%d",nextwave.count);
+			waveVec.shapes.get(8).txt=String.format("%d秒",(int)Math.round(nextwave.sec/1000));
+			nextwave.sec-=Utils.getDtMs();
+			if(nextwave.sec<=0)nextwave=null;
+		}
+		else if(curwave<waves.size()){
+			nextwave=waves.get(curwave++);
+		}
+		else{
+			waveVec.shapes.get(7).txt="没有啦";
+			waveVec.shapes.get(8).txt="(´・ω・`)";
+			
+		}
 		super.onDraw(c);
 	}
 	//右上角信息
@@ -540,15 +559,15 @@ public class GameMain extends Scene
 	//每波攻击
 	private static class Wave
 	{
-		int id,c,wpi;
+		int id,count;
 		float sec;
-		float cd;
+		//float cd;
 		public Wave(String pas)
 		{
 			String[] f=pas.split(" ");
 			id=Integer.parseInt(f[0]);
-			c=Integer.parseInt(f[1]);
-			sec=Integer.parseInt(f[2]);
+			count=Integer.parseInt(f[1]);
+			sec=Integer.parseInt(f[2])*1000f;
 		}
 	}
 	//右上角信息
@@ -561,36 +580,25 @@ public class GameMain extends Scene
 			{
 				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gametowerinfo.txt"),Integer.toString(tmptower.id));
 				Ui u=findUi("gametowerinfo");
-				VECfile v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/gametowerinfo.vec"));
+				VECfile v=u.setVecRealTimeRender(true);
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
 				hs.get(1).txt="范围:"+Integer.toString((int)(tmptower.r*10f));
 				hs.get(2).txt="伤害:"+Integer.toString((int)tmptower.dmg);
 				hs.get(3).txt="攻速:"+Integer.toString((int)(10f/tmptower.dtime));
-				u.vec=v;
-				u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
 
 				v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("towers/"+tmptower.id+".vec"));
 				u=findUi("gametowerinfoicon");
-				u.vec=v;
 				u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
 
 				if(towers.contains(tmptower))
 				{
 					Ui up=findUi("gameupgrade");
 					up.show=true;
-					v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/gameupgrade.vec"));
-					hs=v.getShapes();
-					hs.get(1).txt="升级:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
-					up.vec=v;
-					up.bmp=VECfile.createBitmap(v,(int)up.width,(int)up.height);
+					up.setVecRealTimeRender(true).getShapes().get(1).txt="升级:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
 
 					Ui se=findUi("gamesell");
 					se.show=true;
-					v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/gamesell.vec"));
-					hs=v.getShapes();
-					hs.get(1).txt="出售:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
-					se.vec=v;
-					se.bmp=VECfile.createBitmap(v,(int)se.width,(int)se.height);
+					se.setVecRealTimeRender(true).getShapes().get(1).txt="出售:"+Integer.toString((int)tmptower.moneys[tmptower.id]);
 				}
 				else
 				{

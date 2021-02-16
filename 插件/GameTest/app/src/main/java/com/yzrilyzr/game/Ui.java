@@ -8,7 +8,7 @@ import java.lang.reflect.*;
 public class Ui
 {
 	public String id,event;
-	public VECfile vec;
+	protected VECfile vec;
 	public float x=0,y=0,width=1000,height=1000,mx,my;
 	public Bitmap bmp;
 	public Matrix matrix=new Matrix();
@@ -25,6 +25,13 @@ public class Ui
 	public Ui parent=null;
 	public boolean exit=false,animreversed=false;
 	public boolean animclickable=false,isanim=false,show=true;
+	//vec实时渲染
+	protected boolean vecRtr=false;
+	private Canvas vcan;
+	public VECfile setVecRealTimeRender(boolean b){
+		vecRtr=b;
+		return b?vec:null;
+	}
 	public void reverseAnim()
 	{
 		int lt=0;
@@ -111,8 +118,12 @@ public class Ui
 	public void init()
 	{
 		//if(height==-2)height=100;
-		if(vec!=null)bmp=VECfile.createBitmap(vec,(int)width,(int)height);
-		//if(bmp==null)bmp=Bitmap.createBitmap((int)width,(int)height,Bitmap.Config.ARGB_8888);
+		if(vec!=null){
+			CopyOnWriteArrayList<Shape> s=new CopyOnWriteArrayList<Shape>();
+			s.addAll(vec.shapes);
+			bmp=VECfile.createBitmap(vec,(int)width,(int)height);
+			vec.shapes.addAll(s);
+		}//if(bmp==null)bmp=Bitmap.createBitmap((int)width,(int)height,Bitmap.Config.ARGB_8888);
 		float rwid=parent==null?Utils.getWidth():parent.width;
 		float rhei=parent==null?Utils.getHeight():parent.height;
 		mx=0;
@@ -124,6 +135,7 @@ public class Ui
 		if(gravity==7||gravity==8||gravity==9)my+=rhei-height;
 		if(gravity==3||gravity==6||gravity==9)mx+=rwid-width;
 		rectf=new RectF();
+		if(bmp!=null)vcan=new Canvas(bmp);
 	}
 	public void onDraw(Canvas c)
 	{
@@ -163,6 +175,14 @@ public class Ui
 			c.restore();
 		}*/
 		if(backcolor!=0&&show)c.drawRect(rectf,p);
+		if(vecRtr){
+			vec.sp.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+			vcan.drawPaint(vec.sp);
+			vec.sp.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+			for(Shape s:vec.shapes){
+				s.onDraw(vcan,true,vec.antialias,vec.dither,0,0,1,width/(vec.width/vec.dp),vec.sp);
+			}
+		}
 		if(bmp!=null&&show)c.drawBitmap(bmp,matrix,p);
 		//p.setColor(0xffff0000);
 		//c.drawText(String.format("Index:%d,Id:%s",Utils.draws,id),rectf.left,rectf.top+p.getTextSize(),p);

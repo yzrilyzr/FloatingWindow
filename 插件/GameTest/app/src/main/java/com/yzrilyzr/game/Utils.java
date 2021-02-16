@@ -13,10 +13,10 @@ public class Utils
 	public static String mainDir="";
 	public static com.yzrilyzr.game.MainActivity ctx;
 	protected static float dt;
-	public static int fpslimit=500;
-	public static boolean showfps=true;
+	public static int fpslimit=30;
+	public static boolean showfps=false;
 	protected static int draws=0;
-	public static int backcolor=0;
+	protected static int backcolor=0;
 
 	public static float getDtMs()
 	{

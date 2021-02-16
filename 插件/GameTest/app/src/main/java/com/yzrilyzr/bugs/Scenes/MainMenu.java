@@ -73,15 +73,13 @@ public class MainMenu extends Scene
 				ud=uh[new Random().nextInt(uh.length)].split("\\\\n");
 				loadGUI(Utils.readTxt((Utils.mainDir+"GUI/mainmenutip.txt")));
 				Ui tipui=findUi("tip");
-				VECfile v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/mainmenu/tip.vec"));
+				VECfile v=tipui.setVecRealTimeRender(true);
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
 				for(int i=2;i<6;i++)
 				{
 					if(i-2<ud.length)hs.get(i).txt=ud[i-2];
 					else hs.get(i).txt="";
 				}
-				tipui.vec=v;
-				tipui.bmp=VECfile.createBitmap(v,(int)tipui.width,(int)tipui.height);
 				tip=2500;
 			}
 			catch(Throwable e)

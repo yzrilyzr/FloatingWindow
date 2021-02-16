@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 		sv.getLayoutParams().height=-1;
 		sv.setBackgroundColor(0x00000000);
 		sv.setOnTouchListener(this);
+		//sv.setLayerType(sv.LAYER_TYPE_SOFTWARE, null);
     }
 	/*@Override
 	public void surfaceCreated(SurfaceHolder p1)
