@@ -135,7 +135,7 @@ public class GameMain extends Scene
 					boolean cbug=false;
 					for(Bug b:bugs)
 					{
-						if(b.contains(tmptower.x,tmptower.y,1f))
+						if(b.contains(tmptower.x,tmptower.y,0.5f))
 						{
 							cbug=true;
 							break;
@@ -205,7 +205,7 @@ public class GameMain extends Scene
 			for(Bug b:bugs)
 			{
 				//bug摧毁塔
-				if(b.contains(t.x,t.y,0.90f))
+				if(b.contains(t.x,t.y,0.45f))
 				{
 					towers.remove(t);
 					if(t==tmptower)
@@ -232,6 +232,10 @@ public class GameMain extends Scene
 						Bullet et=new Bullet(b,t);
 						bullets.add(et);
 					}
+					else{
+						Bullet et=new Bullet(b,t);
+						bullets.add(et);
+					}
 				}
 				t.cdtime=t.dtime;
 			}
@@ -247,6 +251,16 @@ public class GameMain extends Scene
 			p.setStyle(Paint.Style.FILL);
 			if(!towers.contains(tmptower))c.drawBitmap(towersicon[tmptower.id],tmptower.x*tilew,tmptower.y*tilew,p);
 		}
+		//画地图
+		for(int i=0;i<map.length;i++)
+		{
+			for(int j=0;j<map[i].length;j++)
+			{
+				int id=map[i][j];
+				if(map[i][j]!=0)c.drawBitmap(tiles[id],i*tilew+tilew/2-tiles[id].getWidth()/2,j*tilew+tilew-tiles[id].getHeight(),p);
+			}
+		}
+		
 		//画bug
 		for(Bug b:bugs)
 		{
@@ -269,6 +283,7 @@ public class GameMain extends Scene
 			//这个 已 经过路点 和 它的index  和 目标路点
 			Point ppc=b.curPoint;
 			int ind=wp.indexOf(ppc);
+			float vx=0,vy=0,r=0;
 			//到结束点
 			if(ind==wp.size()-1)
 			{
@@ -308,30 +323,28 @@ public class GameMain extends Scene
 				//↑↑↑↑初始化的时候直接向第二个路点走,cur=1;
 				//前往目标
 				//正交距离除以直线距离，即为sin和cos值，vx+=v*cos()，vy+=v*sin()
-				float r=(float)Math.sqrt(Math.pow(pp.x-b.x,2)+Math.pow(pp.y-b.y,2));
-				b.x+=(pp.x-b.x)/r*b.vel*dt/3000f;
-				b.y+=(pp.y-b.y)/r*b.vel*dt/3000f;
+				r=(float)Math.sqrt(Math.pow(pp.x-b.x,2)+Math.pow(pp.y-b.y,2));
+				b.x+=(vx=(pp.x-b.x))/r*b.vel*dt/3000f;
+				b.y+=(vy=(pp.y-b.y))/r*b.vel*dt/3000f;
 			}
-			c.drawBitmap(bm,b.x*bm.getWidth(),b.y*bm.getHeight(),p);
+			ma.reset();
+			ma.preRotate((float)(90f+180f*(float)Utils.getArc(vx,vy,r)/Math.PI),tilew/2,tilew/2);
+			ma.postTranslate(b.x*bm.getWidth(),b.y*bm.getHeight());
+			c.drawBitmap(bm,ma,p);
+			//血条
 			p.setColor(0xffaaaaaa);
 			c.drawRect(b.x*bm.getWidth(),(b.y-0.1f)*bm.getHeight(),(1+b.x)*bm.getWidth(),b.y*bm.getHeight(),p);
 			p.setColor(0xff20ff20);
 			c.drawRect(b.x*bm.getWidth(),(b.y-0.1f)*bm.getHeight(),b.x*bm.getWidth()+bm.getWidth()*b.hp/b.maxhp,b.y*bm.getHeight(),p);
 		}
-		//画地图
-		for(int i=0;i<map.length;i++)
-		{
-			for(int j=0;j<map[i].length;j++)
-			{
-				int id=map[i][j];
-				if(map[i][j]!=0)c.drawBitmap(tiles[id],i*tilew+tilew/2-tiles[id].getWidth()/2,j*tilew+tilew-tiles[id].getHeight(),p);
-			}
-		}
 		//画子弹
 		for(Bullet bu:bullets){
-			bu.onDraw(c,tilew);
+			bu.onDraw(c,tilew,dt);
 			if(bu.brtime!=-1)
 				if(bu.brtime>0)bu.brtime-=dt;
+				else bullets.remove(bu);
+			if(bu.branimtime!=-1)
+				if(bu.branimtime>0)bu.branimtime-=dt;
 				else bullets.remove(bu);
 		}
 		//画路点
@@ -341,7 +354,7 @@ public class GameMain extends Scene
 		{
 			//下一波倒计时
 			waveVec.shapes.get(7).txt=String.format("×%d",nextwave.count);
-			waveVec.shapes.get(8).txt=String.format("%d秒",(int)Math.round(nextwave.sec/1000));
+			waveVec.shapes.get(8).txt=String.format("%d秒",(int)Math.floor(nextwave.sec/1000));
 			nextwave.sec-=dt;
 			if(nextwave.sec<=0)nextwave=null;
 		}
@@ -675,6 +688,10 @@ public class GameMain extends Scene
 		{
 			for(int y=y1;y<=y2;y++)
 				if(isWall(x1,y))return false;
+		}
+		else if(x2-x1==y2-y1){
+			for(int d=0;d<=x2-x1;d++)
+				if(isWall(x1+d,y1+d))return false;
 		}
 		else
 		{

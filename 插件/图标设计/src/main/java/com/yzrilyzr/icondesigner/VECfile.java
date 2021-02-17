@@ -43,6 +43,7 @@ public class VECfile
 	Shape tmpShape;
 	byte version=3;
 	boolean MD=false;
+	public static final CopyOnWriteArrayList<TypefaceMap> typefaceMap=new CopyOnWriteArrayList<TypefaceMap>();
 	public static class VTypeface
 	{
 		public static Typeface DEFAULT_BOLD=Typeface.DEFAULT_BOLD;
@@ -50,6 +51,17 @@ public class VECfile
 		public static Typeface SANS_SERIF=Typeface.SANS_SERIF;
 		public static Typeface SERIF=Typeface.SERIF;
 		public static Typeface DEFAULT=Typeface.DEFAULT;
+	}
+	public static class TypefaceMap{
+		public int[] charSection=new int[2];
+		public Typeface typeface;
+	}
+	public static void addTypefaceMap(int start,int end,Typeface type){
+		TypefaceMap t=new TypefaceMap();
+		t.charSection[0]=start;
+		t.charSection[1]=end;
+		t.typeface=type;
+		typefaceMap.add(t);
 	}
 	public VECfile(int width,int height,float dp,String b)
 	{

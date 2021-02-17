@@ -29,9 +29,9 @@ public class Tower extends GObj
 	public CopyOnWriteArrayList<Bug> inRbugs=new CopyOnWriteArrayList<Bug>();
 	//range r
 	public static final int[] moneys=new int[]{50,80,170,200,100,300,350,400,350,350};
-	public static final float[] dmgs=new float[]{20,7,36,50,30,100,15,50,40,40};
-	public static final float[] rs=new float[]{1.5f,1.5f,1.9f,2.5f,1.3f,2f,1.2f,2.5f,1.4f,1.4f};
-	public static final float[] dts=new float[]{0.9f,0.2f,1f,1.5f,0.4f,1f,0.4f,1.5f,1.3f,1.3f};
+	public static final float[] dmgs=new float[]{20,7,36,50,10,100,15,50,40,40};
+	public static final float[] rs=new float[]{1.5f,1.4f,1.9f,2.5f,1.25f,2f,1.3f,2.5f,1.4f,1.4f};
+	public static final float[] dts=new float[]{0.9f,0.2f,1f,1.5f,0.25f,1f,0.4f,1.5f,1.3f,1.3f};
 	public static final float[] frztime=new float[]{0,0,0,150,50,500,0,150,100,700};
 	public static final int[] attacktypes=new int[]{
 		AttackType.BULLET,

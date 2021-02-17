@@ -33,6 +33,34 @@ import java.util.ArrayList;
 
 public class RenderThread implements InputConnection,Thread.UncaughtExceptionHandler
 {
+
+	@Override
+	public boolean deleteSurroundingTextInCodePoints(int p1, int p2)
+	{
+		// TODO: Implement this method
+		return false;
+	}
+
+	@Override
+	public Handler getHandler()
+	{
+		// TODO: Implement this method
+		return null;
+	}
+
+	@Override
+	public void closeConnection()
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public boolean commitContent(InputContentInfo p1, int p2, Bundle p3)
+	{
+		// TODO: Implement this method
+		return false;
+	}
+	
 	public MainActivity ctx;
 	public float dpi;
 	public VECfile vec=new VECfile(384,384,19.2f,null);//文件

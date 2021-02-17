@@ -9,18 +9,18 @@ public final class Shape
 {
 	public ArrayList<Point> pts=new ArrayList<Point>();
 	public int[] par=new int[]{
-	0xffff0000,
-	0xff000000,
-	0,
-	100,
-	0,
-	0,
-	0,
-	0xff000000,
-	0,
-	0,
-	0,
-	0
+		0xffff0000,
+		0xff000000,
+		0,
+		100,
+		0,
+		0,
+		0,
+		0xff000000,
+		0,
+		0,
+		0,
+		0
 	};
 	//0:color,1:strokecolor,2:miter,3:strokewidth
 	//4:shadowD.x,5:.y,6:shadowR,7:shadowcolor
@@ -400,11 +400,11 @@ public final class Shape
 			else if(hasFlag(TEXT.SANS_SERIF))typefac=VECfile.VTypeface.SANS_SERIF;
 			else if(hasFlag(TEXT.SERIF))typefac=VECfile.VTypeface.SERIF;
 			sp.setTypeface(typefac);
-			Paint.Align align=Paint.Align.LEFT;
+			/*Paint.Align align=Paint.Align.LEFT;
 			if(hasFlag(TEXT.LEFT))align=Paint.Align.LEFT;
 			else if(hasFlag(TEXT.RIGHT))align=Paint.Align.RIGHT;
 			else if(hasFlag(TEXT.CENTER))align=Paint.Align.CENTER;
-			sp.setTextAlign(align);
+			//sp.setTextAlign(align);*/
 			String[] tx=txt.split("\n");
 			float yyy=(r.y*dp+yy)*sc;
 			if(st())fill(sp);
@@ -412,14 +412,86 @@ public final class Shape
 				{
 
 					sf(sp);
-					c.drawText(ss,(r.x*dp+xx)*sc,yyy,sp);
+					float st=0,maxst=0;
+					//测量总体宽度
+					for(int e=0;e<ss.length();e++)
+					{
+						char sss=ss.charAt(e);
+						String ssss=Character.toString(sss);
+						Typeface ty=typefac;
+						for(VECfile.TypefaceMap m:VECfile.typefaceMap){
+							if(sss>=m.charSection[0]&&sss<=m.charSection[1]){
+								ty=m.typeface;
+								break;
+							}
+						}
+						sp.setTypeface(ty);
+						//c.drawText(ssss,(r.x*dp+xx)*sc+st,yyy,sp);
+						maxst+=sp.measureText(ssss);
+					}
+					if(hasFlag(TEXT.LEFT))st=0;
+					else if(hasFlag(TEXT.RIGHT))st=-maxst;
+					else if(hasFlag(TEXT.CENTER))st=-maxst/2;
+					
+					for(int e=0;e<ss.length();e++)
+					{
+						char sss=ss.charAt(e);
+						String ssss=Character.toString(sss);
+						Typeface ty=typefac;
+						for(VECfile.TypefaceMap m:VECfile.typefaceMap){
+							if(sss>=m.charSection[0]&&sss<=m.charSection[1]){
+								ty=m.typeface;
+								break;
+							}
+						}
+						sp.setTypeface(ty);
+						c.drawText(ssss,(r.x*dp+xx)*sc+st,yyy,sp);
+						st+=sp.measureText(ssss);
+					}
+					
 					fs(sp);
 					yyy+=sp.getTextSize();
 				}
 			yyy=(r.y*dp+yy)*sc;
 			for(String ss:tx)
 			{
-				c.drawText(ss,(r.x*dp+xx)*sc,yyy,sp);
+				float st=0,maxst=0;
+				//测量总体宽度
+				for(int e=0;e<ss.length();e++)
+				{
+					char sss=ss.charAt(e);
+					String ssss=Character.toString(sss);
+					Typeface ty=typefac;
+					for(VECfile.TypefaceMap m:VECfile.typefaceMap){
+						if(sss>=m.charSection[0]&&sss<=m.charSection[1]){
+							ty=m.typeface;
+							break;
+						}
+					}
+					sp.setTypeface(ty);
+					//c.drawText(ssss,(r.x*dp+xx)*sc+st,yyy,sp);
+					maxst+=sp.measureText(ssss);
+				}
+				if(hasFlag(TEXT.LEFT))st=0;
+				else if(hasFlag(TEXT.RIGHT))st=-maxst;
+				else if(hasFlag(TEXT.CENTER))st=-maxst/2;
+
+				for(int e=0;e<ss.length();e++)
+				{
+					char sss=ss.charAt(e);
+					String ssss=Character.toString(sss);
+					Typeface ty=typefac;
+					for(VECfile.TypefaceMap m:VECfile.typefaceMap){
+						if(sss>=m.charSection[0]&&sss<=m.charSection[1]){
+							ty=m.typeface;
+							break;
+						}
+					}
+					sp.setTypeface(ty);
+					c.drawText(ssss,(r.x*dp+xx)*sc+st,yyy,sp);
+					st+=sp.measureText(ssss);
+				}
+				
 				yyy+=sp.getTextSize();
 			}
 		}
@@ -533,8 +605,8 @@ public final class Shape
 		else
 		if(s==null)eff=new ComposePathEffect(l,r);
 		else eff=new ComposePathEffect(
-			new ComposePathEffect(l,r)
-			,s);
+				new ComposePathEffect(l,r)
+				,s);
 		return eff;
 	}
 	private Shader createShader(float xx,float yy,float dp,float sc)
@@ -602,8 +674,8 @@ public final class Shape
 		else
 		if(s==null)shader=new ComposeShader(l,r,PorterDuff.Mode.ADD);
 		else shader=new ComposeShader(
-			new ComposeShader(l,r,PorterDuff.Mode.ADD)
-			,s,PorterDuff.Mode.ADD);
+				new ComposeShader(l,r,PorterDuff.Mode.ADD)
+				,s,PorterDuff.Mode.ADD);
 		return shader;
 	}
 	public static final void Catmull_Rom(ArrayList<PointF> point, int cha,Path path)

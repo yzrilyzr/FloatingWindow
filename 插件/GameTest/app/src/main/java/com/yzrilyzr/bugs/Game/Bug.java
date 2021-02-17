@@ -38,12 +38,7 @@ public class Bug extends GObj
 		score=scores[id];
 	}
 	public boolean contains(float px,float py){
-		if(Math.pow(px-x,2)+Math.pow(py-y,2)<r*r)return true;
-		return false;
-	}
-	public boolean contains(float px,float py,float r){
-		if(Math.pow(px-x,2)+Math.pow(py-y,2)<r*r)return true;
-		return false;
+		return contains(px,py);
 	}
 	/*public Bug(float x,float y,int size)
 	{
