@@ -1,3 +1,4 @@
+
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 
 public class Main
 {
+	/*
 	static int bpm=120,sr=44100;
 	public static void main(String[] args)
 	{
@@ -221,7 +223,7 @@ public class Main
 		"x_ x_ y_ x_ x_ x_ y_ x_ x_ x_ y_ x_ x_ x_ y_ x_ x_ x_ y_ x_ x_ x_ y_ x_ 0--- 0---"
 		)
 */
-		};/*
+		/*};/*
 		int[][]  pp=new int[][]{
 		 parse(
 		 "1._ 7__ 1.__ 1._ 5_+__ 1._ 1.__ 7 "+
@@ -326,13 +328,13 @@ int[][] p=new int[][]{
 		),
 		parse("0--- 0--- 0--- 0--- 1- 3- 2- 1- .5- 1- 2- 3- ")
 };*/
-				float[] ins=new float[]{
+				/*float[] ins=new float[]{
 		0.0f,0.5f,0.5f,
 		0,0.5f,0.5f//,
 		//0,0.5f,0.5f,
 		//-1,-1,-1
 		};
-		float[] gain=new float[]{1,2f/*,0,0*/};
+		float[] gain=new float[]{1,2f/*,0,0*//*};
 		try
 		{
 			AudioTrack t=new AudioTrack(
@@ -375,13 +377,13 @@ int[][] p=new int[][]{
 					e.printStackTrace();
 					t.stop();
 				}*/
-		}
+	/*	}
 		catch(Throwable e)
 		{
 			e.printStackTrace();
 		}
-	}
-	public static byte[] getMusic2(int[][] p,float[] ins,float[] gains,int pi)
+	}*/
+	/*public static byte[] getMusic2(int[][] p,float[] ins,float[] gains,int pi)
 	{
 		float[] da=null;
 		int bl=0;
@@ -476,7 +478,7 @@ int[][] p=new int[][]{
 //_ 时长/2   - 时长*2
 //# 升调   b 降调
 //* 附点   + 连嘤   () 三连嘤   [] 一起嘤
-	static int[] parse(String s)
+	/*static int[] parse(String s)
 	{
 		int[] ids=new int[]{-100,48,50,52,53,55,57,59};
 		ArrayList<Integer> list=new ArrayList<Integer>();
@@ -596,5 +598,5 @@ int[][] p=new int[][]{
 		o.write(buff);
 		o.flush();
 		o.close();
-	}
+	}*/
 }

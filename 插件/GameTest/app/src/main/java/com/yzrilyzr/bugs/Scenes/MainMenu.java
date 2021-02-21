@@ -43,13 +43,13 @@ public class MainMenu extends Scene
 		catch(Throwable pe)
 		{
 		}
-		uh=sb.toString().split("\n");	
+		uh=sb.toString().split("\n");
 	}
 	public void info(Ui s)
 	{
 		Utils.loadScene(new Info("info"));
 	}
-	
+
 	public void title(Ui s)
 	{
 		float[] p=new float[]{100,110,90,105,95,100f/1.10f/0.90f/1.05f/0.95f};
@@ -73,13 +73,14 @@ public class MainMenu extends Scene
 				ud=uh[new Random().nextInt(uh.length)].split("\\\\n");
 				loadGUI(Utils.readTxt((Utils.mainDir+"GUI/mainmenutip.txt")));
 				Ui tipui=findUi("tip");
-				VECfile v=tipui.setVecRealTimeRender(true);
+				VECfile v=tipui.getVec();
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
 				for(int i=2;i<6;i++)
 				{
 					if(i-2<ud.length)hs.get(i).txt=ud[i-2];
 					else hs.get(i).txt="";
 				}
+				tipui.reDrawVecBmp();
 				tip=2500;
 			}
 			catch(Throwable e)
@@ -95,7 +96,7 @@ public class MainMenu extends Scene
 	}
 	public void setting(Ui s)
 	{
-	Utils.loadScene(new Settings("settingsmainmenu"));
+		Utils.loadScene(new Settings("settingsmainmenu"));
 	}
 	@Override
 	public void onDraw(Canvas c)

@@ -1,12 +1,11 @@
 package com.yzrilyzr.game;
 import android.graphics.*;
-import java.util.concurrent.*;
 import android.view.*;
-import java.io.*;
 import com.yzrilyzr.icondesigner.*;
-import java.util.regex.*;
+import java.io.*;
 import java.util.*;
-import java.text.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
 
 public class Scene
 {
@@ -54,6 +53,7 @@ public class Scene
 			{
 				clearGUI();
 				Utils.unloadScene(id);
+				return;
 			}
 		for(Ui u:uis)
 		{
@@ -81,6 +81,7 @@ public class Scene
 	}
 	public void loadGUI(String s,String... replacement)
 	{
+		int line=1;
 		try
 		{
 			Pattern pat=Pattern.compile("(prandom|replacement)\\d+");
@@ -97,6 +98,7 @@ public class Scene
 			for(int fg=0;fg<ppp.length;fg++)
 			{
 				l=ppp[fg];
+				line=fg+1;
 				if(l.startsWith("#")||l.replace(" ","").length()==0)continue;
 				if(l.startsWith("@"))
 				{
@@ -115,7 +117,7 @@ public class Scene
 				else
 				{
 					int c=l.indexOf(":");
-					if(c==-1)throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(fg+1));
+					if(c==-1)throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(line));
 					String t=l.substring(0,c),p=l.substring(c+1);
 					switch(t)
 					{
@@ -218,13 +220,14 @@ public class Scene
 							else if(t.equals("eanim"))buf.eanim.add(an);
 							break;
 						default:
-							throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(fg+1));
+							throw new IndexOutOfBoundsException("语法错误 未知的 \""+l+"\"\n @行"+(line));
 					}
 				}
 			}
 		}
 		catch(IOException e)
 		{
+			Utils.alert("line:"+line);
 			Utils.alert(e);
 		}
 	}

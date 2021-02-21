@@ -7,10 +7,10 @@ event:buytower
 pos:replacement1,replacement2+16.666666%
 *
 
-@itemreplacement3
+@itemreplacement0
 event:buytower
-vec:towers/replacement4
-parent:rightmenuitemreplacement5
+vec:towers/replacement0
+parent:rightmenuitemreplacement0
 size:-2,100%
 pos:0,0
 *

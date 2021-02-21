@@ -2,6 +2,8 @@ package com.yzrilyzr.bugs.Scenes;
 import android.graphics.*;
 import com.yzrilyzr.game.*;
 import com.yzrilyzr.icondesigner.*;
+import java.util.concurrent.*;
+import com.yzrilyzr.bugs.Game.*;
 
 public class Splash extends Scene
 {
@@ -22,9 +24,11 @@ public class Splash extends Scene
 		if(time>2000&&b){
 			b=!b;
 			clearGUI();
-			VECfile.TypefaceMap t=VECfile.typefaceMap.remove(1);
+			CopyOnWriteArrayList<VECfile.TypefaceMap> l=new CopyOnWriteArrayList<VECfile.TypefaceMap>();
+			l.addAll(VECfile.typefaceMap);
+			VECfile.typefaceMap.clear();
 			loadGUI(Utils.readTxt((Utils.mainDir+"GUI/intro.txt")));
-			VECfile.typefaceMap.add(t);
+			VECfile.typefaceMap.addAll(l);
 			setBackgroundColor(0xff333333);
 		}
 		if(time>3600&&b2){

@@ -1,0 +1,9 @@
+@itemreplacement0
+vec:vec/levelselect/item
+gravity:3
+size:8%,-2
+event:level
+pos:-replacement1s-10d,+replacement2s+10d
+anim:type:scale|delay:replacement3|duration:400|fromto:0,0,100,100|pos:50s,50s
+anim:type:alpha|delay:replacement3|duration:400|fromto:0,100
+*

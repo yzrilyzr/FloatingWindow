@@ -15,8 +15,8 @@ pos:70s,25s
 anim:type:scale|fromto:50,50,100,100|duration:500|pos:50s,50s|delay:150
 anim:type:translate|fromto:0,50s,0,0|duration:500|delat:150
 anim:type:alpha|fromto:0,100|duration:500|delay:150
-eanim:type:scale|fromto:100,100,110,110|duration:100|pos:50s,50s
-eanim:type:scale|fromto:110,110,0,0|duration:400|delay:100|pos:50s,50s
+eanim:type:scale|fromto:100,100,110,110|duration:200|pos:50s,50s
+eanim:type:scale|fromto:110,110,0,0|duration:400|delay:200|pos:50s,50s
 *
 @setting
 gravity:9

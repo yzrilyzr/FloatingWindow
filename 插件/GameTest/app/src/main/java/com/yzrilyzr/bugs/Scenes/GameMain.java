@@ -4,6 +4,7 @@ import android.view.*;
 import com.yzrilyzr.bugs.Game.*;
 import com.yzrilyzr.game.*;
 import com.yzrilyzr.icondesigner.*;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -29,22 +30,25 @@ public class GameMain extends Scene
 	public int lives,money,score;
 	public Wave nextwave;
 	int curwave=0;
-	private boolean gamex2=false,pause=false;
+	private boolean gamex2=false,pause=false,gameend=false;
 	//绘图数据
 	public Bitmap background=null;
 	public VECfile backvec;
 	VECfile waveVec;
+	Ui nextwaveui;
 	int[][] map=null;
 	Tower tmptower=null;
 	float sendnowcool=-1000;
 	float tilew;
 	Matrix ma=new Matrix();
+	int mapid=0;
 	public CopyOnWriteArrayList<TowerInfo> towerInfo=new CopyOnWriteArrayList<TowerInfo>();
-	public GameMain(String id,String data)
+	public GameMain(String id,int mapid,String data)
 	{
 		super(id);
 		try
 		{
+			this.mapid=mapid;
 			p.setTextSize(Utils.px(15));
 			loadMap(data);
 			tilew=Utils.getHeight()/map[0].length;
@@ -52,17 +56,19 @@ public class GameMain extends Scene
 			findWayPoint();
 			loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemain.txt"));
 			waveVec=findUi("rightmenu").setVecRealTimeRender(true);
-			for(int i=0;i<10;i++)	
+			nextwaveui=findUi("nextwavebug");
+			int[] ids=new int[]{0,3,1,4,2,5,6,7,8,9};
+			for(int ip=0;ip<10;ip++)	
 			{
-				String r=Integer.toString(i);
-				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamerightmenuitems.txt"),r,(i%2==0?"0":"100s"),(i/2)*100+"s",r,r,r);
+				String r=Integer.toString(ip);
+				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamerightmenuitems.txt"),r,(ip%2==0?"0":"100s"),(ip/2)*100+"s");
 				Ui u=findUi("rightmenuitem"+r);
 				VECfile v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/rightmenuitems.vec"));
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
-				hs.get(0).txt="$"+Integer.toString((int)Tower.moneys[i]);
+				hs.get(0).txt="$"+Integer.toString(Tower.moneys[ip]);
 				//u.vec=v;
 				u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
-
+				if(Data.unlocktower<ids[ip])u.show=false;
 			}
 		}
 		catch (Exception e)
@@ -72,6 +78,7 @@ public class GameMain extends Scene
 			Utils.loadScene(new LevelSelect("levelselect"));
 			return;
 		}
+
 	}
 	//购买塔，右边列表
 	public void buytower(Ui s)
@@ -83,24 +90,35 @@ public class GameMain extends Scene
 		if(money-tmptower.money<0)tmptower=null;
 		towerinfo();
 	}
-	public void x2(Ui s){
+	public void x2(Ui s)
+	{
 		Ui x1=findUi("gamex1");
 		gamex2=!gamex2;
 		x1.show=gamex2;
-		/*if(gamex2){
-			s.exit=true;
-		}
-		*/
+		findUi("gamex2").resetAnim();
 	}
-	public void pause(Ui s){
+	public void pause(Ui s)
+	{
 		Ui con=findUi("gamecontinue");
 		pause=!pause;
 		con.show=pause;
+		findUi("gamepause").resetAnim();
 	}
 	//设置按钮
 	public void setting(Ui s)
 	{
-		Utils.loadScene(new Settings("settings"));
+		final boolean isp=pause;
+		Data.save();
+		Utils.loadScene(new Settings("settings"){
+				@Override
+				public void close(Ui s)
+				{
+					super.close(s);
+					pause=isp;
+				}
+			});
+		pause=true;
+		s.resetAnim();
 	}
 	//现在出动
 	public void sendnow(Ui s)
@@ -189,7 +207,7 @@ public class GameMain extends Scene
 		c.drawBitmap(background,0,0,p);
 		float dt=Utils.getDtMs();
 		if(gamex2)dt*=2;
-		if(pause)dt=0;
+		if(pause||gameend)dt=0;
 		//画塔
 		for(Tower t:towers)
 		{
@@ -227,12 +245,15 @@ public class GameMain extends Scene
 				for(Bug b:t.inRbugs)
 				{
 					b.frztime=Math.max(b.frztime,t.frztime[t.id]);
-					if(t.attacktype==Tower.AttackType.INSTANT){
+					if(t.attacktype==Tower.AttackType.INSTANT)
+					{
 						b.hp-=t.dmg;
+						b.score+=t.money/20;
 						Bullet et=new Bullet(b,t);
 						bullets.add(et);
 					}
-					else{
+					else
+					{
 						Bullet et=new Bullet(b,t);
 						bullets.add(et);
 					}
@@ -260,19 +281,32 @@ public class GameMain extends Scene
 				if(map[i][j]!=0)c.drawBitmap(tiles[id],i*tilew+tilew/2-tiles[id].getWidth()/2,j*tilew+tilew-tiles[id].getHeight(),p);
 			}
 		}
-		
+
 		//画bug
 		for(Bug b:bugs)
 		{
+			//死亡的bug
 			if(b.hp<=0)
 			{
 				bugs.remove(b);
 				money+=b.money;
 				score+=b.score;
+				Data.tmoney+=b.money;
+				Data.tscore+=b.score;
+				Data.tbugs++;
+				Data.exp+=b.exp;
+				if(Data.exp>=Data.getNextlevelExp())
+				{
+					Data.exp=0;
+					Data.level++;
+					Utils.loadScene(new LevelUp("levelup"+Data.level));
+					Data.save();
+				}
 				continue;
 			}
 			//冻结行动时间
-			if(b.frztime>0){
+			if(b.frztime>0)
+			{
 				b.frztime-=dt;
 				b.vel=0;
 			}
@@ -290,6 +324,12 @@ public class GameMain extends Scene
 				//扣生命值
 				lives--;
 				bugs.remove(b);
+				Data.tlives++;
+				Data.save();
+				if(lives==0)
+				{
+					gameend();
+				}
 			}
 			else
 			{
@@ -338,7 +378,8 @@ public class GameMain extends Scene
 			c.drawRect(b.x*bm.getWidth(),(b.y-0.1f)*bm.getHeight(),b.x*bm.getWidth()+bm.getWidth()*b.hp/b.maxhp,b.y*bm.getHeight(),p);
 		}
 		//画子弹
-		for(Bullet bu:bullets){
+		for(Bullet bu:bullets)
+		{
 			bu.onDraw(c,tilew,dt);
 			if(bu.brtime!=-1)
 				if(bu.brtime>0)bu.brtime-=dt;
@@ -355,6 +396,7 @@ public class GameMain extends Scene
 			//下一波倒计时
 			waveVec.shapes.get(7).txt=String.format("×%d",nextwave.count);
 			waveVec.shapes.get(8).txt=String.format("%d秒",(int)Math.floor(nextwave.sec/1000));
+			waveVec.shapes.get(9).txt=String.format("%d/%d波",curwave-1,waves.size());
 			nextwave.sec-=dt;
 			if(nextwave.sec<=0)nextwave=null;
 		}
@@ -362,15 +404,30 @@ public class GameMain extends Scene
 		{
 			//下一波
 			nextwave=waves.get(curwave++);
+			try
+			{
+				nextwaveui.bmp=VECfile.createBitmap(Utils.ctx,String.format("bugs/%s",nextwave.id),(int)nextwaveui.width,(int)nextwaveui.height);
+			}
+			catch (Exception e)
+			{
+				Utils.alert(e);
+			}
+			Data.save();
 		}
 		else
 		{
 			//波完
+			nextwaveui.show=false;
 			waveVec.shapes.get(7).txt="没有啦";
 			waveVec.shapes.get(8).txt="(´・ω・`)";
+			waveVec.shapes.get(9).txt="出完啦～";
+			if(bugs.size()==0&&waves.get(waves.size()-1).count<=0&&!gameend)
+			{
+				gameend();
+			}
 		}
 		//刷出bug
-		for(int i=0;i<curwave-1;i++)
+		for(int i=0;i<curwave;i++)
 		{
 			Wave cur=waves.get(i);
 			if(cur.sec<=0&&cur.count>0)
@@ -398,9 +455,33 @@ public class GameMain extends Scene
 				else cur.cd-=dt;
 			}
 		}
-		p.setColor(0xffff0000);
-		c.drawText(String.format("分数%d   生命：%d  金钱:%d",score,lives,money),0,p.getTextSize(),p);
+		//	p.setColor(0xffff0000);
+		waveVec.shapes.get(10).txt=String.format("分数：%d",score);
+		waveVec.shapes.get(11).txt=String.format("生命：%d",lives);
+		waveVec.shapes.get(12).txt=String.format("金钱：%d",money);
+		waveVec.shapes.get(13).txt=String.format("等级\n%d",Data.level);
+		ArrayList<Point> pts=waveVec.shapes.get(15).pts;
+		Point lt=pts.get(0),rb=pts.get(1),ed=pts.get(3);
+		int nexp=Data.getNextlevelExp();
+		int cx=(rb.x-lt.x)/2;
+		ed.set(
+			lt.x+cx+(int)(cx*Math.sin(2f*(float)Data.exp/(float)nexp*Math.PI)),
+			lt.y+cx+(int)(-cx*Math.cos(2f*(float)Data.exp/(float)nexp*Math.PI)));
+
+		//c.drawText(String.format("分数%d   生命：%d  金钱:%d",score,lives,money),0,p.getTextSize(),p);
 		super.onDraw(c);
+	}
+
+	private void gameend()
+	{
+		gameend=true;
+		if(lives>0){
+			if(mapid==Data.unlockmap)Data.unlockmap++;
+			if(score>Data.scores[mapid])Data.scores[mapid]=score;
+		}
+		Data.save();
+		Utils.unloadAll();
+		Utils.loadScene(new LevelSelect("levelselect"));
 	}
 	//右上角信息
 	private void towerinfo()
@@ -689,7 +770,8 @@ public class GameMain extends Scene
 			for(int y=y1;y<=y2;y++)
 				if(isWall(x1,y))return false;
 		}
-		else if(x2-x1==y2-y1){
+		else if(x2-x1==y2-y1)
+		{
 			for(int d=0;d<=x2-x1;d++)
 				if(isWall(x1+d,y1+d))return false;
 		}
@@ -791,6 +873,84 @@ public class GameMain extends Scene
 			if(f.length>=4)wpindex=Integer.parseInt(f[3]);
 			else wpindex=0;
 			if(sec<1000)sec=1000;
+		}
+	}
+
+	//升级的界面
+	private class LevelUp extends Scene
+	{
+		//CopyOnWriteArrayList<Shape> hs,hs1,hs2;
+		public LevelUp(String id)
+		{
+			super(id);
+			try
+			{
+				int[] ids=new int[]{1,3,5,6,7,8,9,9};
+				pause=true;
+				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamelevelup.txt"),
+					Data.unlocktower<9?Integer.toString(ids[Data.unlocktower-2]):"0",
+					Data.unlocktower<9?"":"#",
+					Data.unlocktower>=9?"money":"tower",
+					Data.unlocklevel>=4?"money":"towerup"
+				);
+				Ui u=findUi("leveluptower");
+				if(Data.unlocktower<9)
+				{
+					StringBuilder sb=new StringBuilder();
+					String g=null;
+					BufferedReader br=new BufferedReader(new InputStreamReader(Utils.ctx.getAssets().open("towers/info.txt")));
+					while((g=br.readLine())!=null)sb.append(g).append("\n");
+					br.close();
+					String[] de=sb.toString().split("\n");
+					VECfile v=u.setVecRealTimeRender(true);
+					String gp=de[ids[Data.unlocktower-2]].replaceAll("\\\\n","\n");
+					v.getShapes().get(2).txt=gp.substring(0,gp.indexOf("\n"));
+				}
+			}
+			catch(Throwable e)
+			{
+				Utils.alert(e);
+			}
+		}
+		public void money(Ui s)
+		{
+			int m=Utils.random(100,1000);
+			money+=m;
+			Data.tmoney+=m;
+			Data.save();
+			exitAnim();
+			pause=false;
+		}
+		public void tower(Ui s)
+		{
+			if(Data.unlocktower>=9)
+			{
+				money(s);
+				return;
+			}
+			Data.unlocktower++;
+			Data.save();
+			exitAnim();
+			pause=false;
+			int[] ids=new int[]{0,3,1,4,2,5,6,7,8,9};
+			for(int ip=0;ip<10;ip++)	
+			{
+				String r=Integer.toString(ip);
+				Ui u=GameMain.this.findUi("rightmenuitem"+r);
+				if(Data.unlocktower>=ids[ip])u.show=true;
+			}
+		}
+		public void towerup(Ui s)
+		{
+			if(Data.unlocklevel>=4)
+			{
+				money(s);
+				return;
+			}
+			Data.unlocklevel++;
+			Data.save();
+			exitAnim();
+			pause=false;
 		}
 	}
 	//右上角信息

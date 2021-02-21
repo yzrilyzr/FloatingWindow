@@ -70,7 +70,7 @@ public class Tower extends GObj
 	}
 	public int getUpgradeMoney()
 	{
-		if(level==4)return -1;
+		if(level==Data.unlocklevel)return -1;
 		return (int)(money/1.5f);
 	}
 	public int getSellMoney()
@@ -80,6 +80,7 @@ public class Tower extends GObj
 	public void levelup()
 	{
 		level++;
+		level=Utils.limit(level,0,Data.unlocklevel);
 		money=(int)(moneys[id]*Math.pow(1.3,level));
 		dmg=(float)(dmgs[id]*Math.pow(1.15,level));
 		r=(float)(rs[id]*Math.pow(1.1,level));

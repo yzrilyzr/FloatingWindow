@@ -47,11 +47,11 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 		sv.getLayoutParams().height=-1;
 		sv.setBackgroundColor(0x00000000);
 		sv.setOnTouchListener(this);
-		try{
+		/*try{
 		mp=new MIDIParser(getAssets().open("2_171.mid"));
 		}catch(Throwable d){
 			Utils.alert(d);
-		}
+		}*/
 		//sv.setLayerType(sv.LAYER_TYPE_SOFTWARE, null);
     }
 	/*@Override
@@ -269,13 +269,13 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 				Utils.alert(e);
 			}
 			float dt=0;
-			for(MIDIParser.Event e:mp.events){
+		/*	for(MIDIParser.Event e:mp.events){
 				p.setColor(0x80ff0000);
 				dt+=e.dt/1000f+10;
 				canvas.drawRect(dt,e.noteon*10,dt+10,10+e.noteon*10,p);
 				p.setColor(0x1000ff00);
 				canvas.drawRect(dt,e.keyaftertouch*10,dt+10,10+e.keyaftertouch*10,p);
-			}
+			}*/
 			if(Utils.showfps)
 			{
 				if(Utils.dt==0)Utils.dt=1;

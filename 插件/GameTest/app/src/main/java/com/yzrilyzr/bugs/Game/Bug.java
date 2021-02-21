@@ -31,7 +31,7 @@ public class Bug extends GObj
 	public Bug(int id){
 		this.id=id;
 		vel=vels[id];
-		hp=hps[id]*2;
+		hp=hps[id];
 		maxhp=hp;
 		money=moneys[id];
 		exp=exps[id];

@@ -28,41 +28,58 @@ public class Ui
 	//vec实时渲染
 	protected boolean vecRtr=false;
 	private Canvas vcan;
-	public VECfile setVecRealTimeRender(boolean b){
+	public VECfile setVecRealTimeRender(boolean b)
+	{
 		vecRtr=b;
 		return b?vec:null;
+	}
+	public VECfile getVec(){
+		return vec;
+	}
+	public void reDrawVecBmp(){
+		CopyOnWriteArrayList<Shape> s=new CopyOnWriteArrayList<Shape>();
+		s.addAll(vec.shapes);
+		bmp=VECfile.createBitmap(vec,(int)width,(int)height);
+		vec.shapes.addAll(s);
 	}
 	@Override
 	public String toString()
 	{
 		return String.format("Ui{\nid:%s,\nevent:%s,\nx:%f,\ny:%f,\nw:%f,\nh:%f\n}\nparent:\n%s",id,event,x,y,width,height,parent);
 	}
-	
+
 	public void reverseAnim()
 	{
 		int lt=0;
 		for(BaseAnim b:anim)lt=Math.max(lt,b.delay+b.duration);
-		for(BaseAnim b:anim){
+		for(BaseAnim b:anim)
+		{
 			b.delay=lt-b.delay-b.duration;
 			b.reverse();
 		}
 		for(Ui x:child)x.reverseAnim();
 		animreversed=!animreversed;
 	}
-	public void resetEAnim(){
-		for(BaseAnim b:eanim){
+	public void resetEAnim()
+	{
+		for(BaseAnim b:eanim)
+		{
 			b.time=0;
 			b.antime=0;
 		}
 	}
-	public void resetAnim(){
-		for(BaseAnim b:anim){
+	public void resetAnim()
+	{
+		for(BaseAnim b:anim)
+		{
 			b.time=0;
 			b.antime=0;
 		}
 	}
 	public boolean onTouch(Scene sc,MotionEvent p2)
 	{
+		boolean mshow=show&&(parent==null||parent!=null&&parent.show);
+		if(mshow)
 		switch(p2.getAction())
 		{
 			case MotionEvent.ACTION_DOWN:
@@ -89,19 +106,19 @@ public class Ui
 					{
 						down=false;
 						if(event!=null&&(!isanim||(animclickable&&isanim))
-						)try
-						{
-							Method m=sc.getClass().getMethod(event,Ui.class);
-							m.invoke(sc,this);
-						}
-						catch(NoSuchMethodException e)
-						{
-							Utils.alert("错误:\""+id+"\"按键事件的方法\""+event+"\"未定义");
-						}
-						catch (Throwable e)
-						{
-							Utils.alert(e);
-						}
+							)try
+							{
+								Method m=sc.getClass().getMethod(event,Ui.class);
+								m.invoke(sc,this);
+							}
+							catch(NoSuchMethodException e)
+							{
+								Utils.alert("错误:\""+id+"\"按键事件的方法\""+event+"\"未定义");
+							}
+							catch (Throwable e)
+							{
+								Utils.alert(e);
+							}
 						return true;
 					}
 				}
@@ -124,7 +141,8 @@ public class Ui
 	public void init()
 	{
 		//if(height==-2)height=100;
-		if(vec!=null){
+		if(vec!=null)
+		{
 			CopyOnWriteArrayList<Shape> s=new CopyOnWriteArrayList<Shape>();
 			s.addAll(vec.shapes);
 			bmp=VECfile.createBitmap(vec,(int)width,(int)height);
@@ -157,15 +175,19 @@ public class Ui
 		if(backcolor!=0)p.setColor(backcolor);
 		p.setStyle(Paint.Style.FILL);
 		isanim=false;
-		if(!exit){
-			for(BaseAnim an:anim){
+		if(!exit)
+		{
+			for(BaseAnim an:anim)
+			{
 				an.doAnim();
-			if(an.antime<1)isanim=true;
+				if(an.antime<1)isanim=true;
+			}
 		}
-		}
-		else {
+		else
+		{
 			if(eanim.size()==0&&parent==null)return;
-			for(BaseAnim an:eanim){
+			for(BaseAnim an:eanim)
+			{
 				an.doAnim();
 				if(an.antime<1)isanim=true;
 			}
@@ -173,23 +195,26 @@ public class Ui
 		rectf.set(0,0,width,height);
 		matrix.mapRect(rectf);
 		/*if(bound||backcolor!=0)
+		 {
+		 c.save();
+		 c.clipRect(rectf);
+		 c.drawColor(backcolor);
+		 if(bmp!=null)c.drawBitmap(bmp,matrix,p);
+		 c.restore();
+		 }*/
+		boolean mshow=show&&(parent==null||parent!=null&&parent.show);
+		if(backcolor!=0&&mshow)c.drawRect(rectf,p);
+		if(vecRtr&&mshow)
 		{
-			c.save();
-			c.clipRect(rectf);
-			c.drawColor(backcolor);
-			if(bmp!=null)c.drawBitmap(bmp,matrix,p);
-			c.restore();
-		}*/
-		if(backcolor!=0&&show)c.drawRect(rectf,p);
-		if(vecRtr){
 			vec.sp.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 			vcan.drawPaint(vec.sp);
 			vec.sp.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-			for(Shape s:vec.shapes){
+			for(Shape s:vec.shapes)
+			{
 				s.onDraw(vcan,true,vec.antialias,vec.dither,0,0,1,width/(vec.width/vec.dp),vec.sp);
 			}
 		}
-		if(bmp!=null&&show)c.drawBitmap(bmp,matrix,p);
+		if(bmp!=null&&mshow)c.drawBitmap(bmp,matrix,p);
 		//p.setColor(0xffff0000);
 		//c.drawText(String.format("Index:%d,Id:%s",Utils.draws,id),rectf.left,rectf.top+p.getTextSize(),p);
 		Utils.draws++;
