@@ -14,7 +14,7 @@ public class Utils
 	public static com.yzrilyzr.game.MainActivity ctx;
 	protected static float dt;
 	public static int fpslimit=30;
-	public static boolean showfps=false;
+	public static boolean showfps=true;
 	protected static int draws=0;
 	protected static int backcolor=0;
 	public static InputStream res(String path) throws IOException

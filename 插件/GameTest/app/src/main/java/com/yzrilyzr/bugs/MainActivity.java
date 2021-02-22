@@ -17,6 +17,8 @@ public class MainActivity extends com.yzrilyzr.game.MainActivity
         super.onCreate(savedInstanceState);
 		Utils.setContext(this);
         Utils.setMainDir(Environment.getExternalStorageDirectory().getAbsolutePath()+"/yzr的app/Bugs/");
+		File md=new File(Utils.mainDir);
+		if(!md.exists())md.mkdirs();
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		Data.load();
 		new Thread(new Runnable(){
@@ -86,6 +88,7 @@ public class MainActivity extends com.yzrilyzr.game.MainActivity
 		File[] f=new File(Utils.mainDir+"/GUI").listFiles();
 		menu.add(0,0,0,"重载");
 		menu.add(0,1,1,"屏幕旋转切换");
+		if(f!=null)
 		for (int i=2; i<f.length+2; i++)
 		{
 			menu.add(0, i, i, f[i-2].getName());

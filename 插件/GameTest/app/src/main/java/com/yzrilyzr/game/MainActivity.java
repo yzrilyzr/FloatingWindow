@@ -292,6 +292,15 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 				p.setTextSize(Utils.px(20));
 				ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
 				canvas.drawText(String.format("FPS(B):%d FPS(F):%d RAM:%dMB Size:%fx%f Draws:%d",fps,fps2,ram,Utils.getWidth(),Utils.getHeight(),Utils.draws),0,Utils.px(20),p);
+				float y=p.getTextSize(),yy=y;
+				p.setTextSize(Utils.px(12));
+				for(Scene s:scenes){
+					canvas.drawText(s.id,0,y+=p.getTextSize(),p);
+					for(Ui u:s.uis){
+						canvas.drawText(u.id,getWidth()/2,yy+=p.getTextSize(),p);
+					}
+					
+				}
 				/*int to=0;
 				 for(int i=0;i<bmpcuseage2.length;i++)to+=bmpcuseage2[i];
 				 c.drawLine(0,Utils.px(30),bmpcuseage2.length*Utils.px(30),Utils.px(30),p);
