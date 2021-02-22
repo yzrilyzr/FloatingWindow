@@ -22,6 +22,7 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 	int lt,avgfps,fps,fps2,ram;
 	public MIDIParser mp;
 	Runtime ru=Runtime.getRuntime();
+	float lowfps=-1;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -291,6 +292,10 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 				p.setColor(0xffff0000);
 				p.setTextSize(Utils.px(20));
 				ram=(int)((ru.totalMemory()-ru.freeMemory())*100/ru.maxMemory());
+				if(lowfps>0){
+					canvas.drawText("■LOW  FPS!",0,getHeight(),p);
+					lowfps-=Utils.getDtMs();
+				}
 				canvas.drawText(String.format("FPS(B):%d FPS(F):%d RAM:%dMB Size:%fx%f Draws:%d",fps,fps2,ram,Utils.getWidth(),Utils.getHeight(),Utils.draws),0,Utils.px(20),p);
 				float y=p.getTextSize(),yy=y;
 				p.setTextSize(Utils.px(12));
@@ -312,7 +317,8 @@ public class MainActivity extends Activity implements /*SurfaceHolder.Callback,*
 			}
 			long t=System.nanoTime()-st;
 			st=System.nanoTime();
-			Utils.dt=t;
+			if(t>33000000)lowfps=1000;
+			Utils.dt=Math.min(t,20000000);
 			invalidate();
 		}
 
