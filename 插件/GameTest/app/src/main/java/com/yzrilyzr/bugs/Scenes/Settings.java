@@ -7,7 +7,7 @@ public class Settings extends Scene
 	float dt=-1;
 	public Settings(String id){
 		super(id);
-		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/settings.txt"));
+		loadGUIPath("GUI/settings.txt");
 		if(id.equals("settingsmainmenu"))removeGUI("smainmenu");
 	}
 	public void close(Ui s){
@@ -16,7 +16,7 @@ public class Settings extends Scene
 	public void mainmenu(Ui s){
 		//Utils.unloadAll();
 		dt=0;
-		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/mainmenuload.txt"));
+		loadGUIPath("GUI/mainmenu/mainmenuload.txt");
 	}
 
 	@Override

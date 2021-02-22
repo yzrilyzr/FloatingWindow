@@ -10,7 +10,7 @@ public class Achievements extends Scene
 {
 	public Achievements(String id){
 		super(id);
-		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/achievements.txt"));
+		loadGUIPath("GUI/achievements/achievements.txt");
 		Ui stat=findUi("stat");
 		CopyOnWriteArrayList<Shape> s=stat.getVec().getShapes();
 		s.get(5).txt=Long.toString(Data.tmoney);

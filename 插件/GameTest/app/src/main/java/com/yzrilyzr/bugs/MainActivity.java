@@ -52,6 +52,19 @@ public class MainActivity extends com.yzrilyzr.game.MainActivity
     }
 
 	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if(keyCode==KeyEvent.KEYCODE_BACK&&event.getAction()==KeyEvent.ACTION_DOWN)
+		{
+			Scene s=Utils.findScene("exit");
+			if(s==null)Utils.loadScene(new ExitDialog("exit"));
+			else s.exitAnim();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
 	protected void onPause()
 	{
 		// TODO: Implement this method
@@ -99,7 +112,7 @@ public class MainActivity extends com.yzrilyzr.game.MainActivity
 			{
 				File[] f=new File(Utils.mainDir+"/GUI").listFiles();
 				Utils.ctx.scenes.get(scenes.size()-1).uis.clear();
-				Utils.ctx.scenes.get(scenes.size()-1).loadGUI(Utils.readTxt(f[item.getOrder()-2].getPath()));
+				Utils.ctx.scenes.get(scenes.size()-1).loadGUIPath(f[item.getOrder()-2].getPath().replace(Utils.mainDir,""));
 			}
 			catch(Throwable e)
 			{

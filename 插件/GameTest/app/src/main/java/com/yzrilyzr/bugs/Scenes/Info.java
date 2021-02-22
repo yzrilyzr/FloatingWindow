@@ -5,7 +5,7 @@ public class Info extends Scene
 {
 	public Info(String id){
 		super(id);
-		loadGUI(Utils.readTxt((Utils.mainDir+"GUI/info.txt")));
+		loadGUIPath("GUI/info.txt");
 	}
 	public void uiaboutok(Ui s)
 	{

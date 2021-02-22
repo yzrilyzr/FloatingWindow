@@ -33,10 +33,12 @@ public class Ui
 		vecRtr=b;
 		return b?vec:null;
 	}
-	public VECfile getVec(){
+	public VECfile getVec()
+	{
 		return vec;
 	}
-	public void reDrawVecBmp(){
+	public void reDrawVecBmp()
+	{
 		CopyOnWriteArrayList<Shape> s=new CopyOnWriteArrayList<Shape>();
 		s.addAll(vec.shapes);
 		bmp=VECfile.createBitmap(vec,(int)width,(int)height);
@@ -80,51 +82,51 @@ public class Ui
 	{
 		boolean mshow=show&&(parent==null||parent!=null&&parent.show);
 		if(mshow)
-		switch(p2.getAction())
-		{
-			case MotionEvent.ACTION_DOWN:
-				{
-					float x=p2.getX(),y=p2.getY();
-					if(rectf.contains(x,y))
+			switch(p2.getAction())
+			{
+				case MotionEvent.ACTION_DOWN:
 					{
-						downx=x;
-						downy=y;
-						down=true;
-						return true;
+						float x=p2.getX(),y=p2.getY();
+						if(rectf.contains(x,y))
+						{
+							downx=x;
+							downy=y;
+							down=true;
+							return true;
+						}
+						else
+						{
+							down=false;
+							return false;
+						}
 					}
-					else
+				case MotionEvent.ACTION_UP:
+					if(down==true)
 					{
-						down=false;
-						return false;
+						float x=p2.getX(),y=p2.getY();
+						if(rectf.contains(x,y))
+						{
+							down=false;
+							if(event!=null&&(!isanim||(animclickable&&isanim))
+								)try
+								{
+									Method m=sc.getClass().getMethod(event,Ui.class);
+									m.invoke(sc,this);
+								}
+								catch(NoSuchMethodException e)
+								{
+									Utils.alert("错误:\""+id+"\"按键事件的方法\""+event+"\"未定义");
+								}
+								catch (Throwable e)
+								{
+									Utils.alert(e);
+								}
+							return true;
+						}
 					}
-				}
-			case MotionEvent.ACTION_UP:
-				if(down==true)
-				{
-					float x=p2.getX(),y=p2.getY();
-					if(rectf.contains(x,y))
-					{
-						down=false;
-						if(event!=null&&(!isanim||(animclickable&&isanim))
-							)try
-							{
-								Method m=sc.getClass().getMethod(event,Ui.class);
-								m.invoke(sc,this);
-							}
-							catch(NoSuchMethodException e)
-							{
-								Utils.alert("错误:\""+id+"\"按键事件的方法\""+event+"\"未定义");
-							}
-							catch (Throwable e)
-							{
-								Utils.alert(e);
-							}
-						return true;
-					}
-				}
-				break;
+					break;
 
-		}
+			}
 		return false;
 	}
 	public void measure()
@@ -194,15 +196,15 @@ public class Ui
 		}
 		rectf.set(0,0,width,height);
 		matrix.mapRect(rectf);
-		/*if(bound||backcolor!=0)
-		 {
-		 c.save();
-		 c.clipRect(rectf);
-		 c.drawColor(backcolor);
-		 if(bmp!=null)c.drawBitmap(bmp,matrix,p);
-		 c.restore();
-		 }*/
 		boolean mshow=show&&(parent==null||parent!=null&&parent.show);
+		if(bound&&mshow)
+		{
+			c.save();
+			c.clipRect(rectf);
+			///c.drawColor(backcolor);
+			if(bmp!=null)c.drawBitmap(bmp,matrix,p);
+			c.restore();
+		}
 		if(backcolor!=0&&mshow)c.drawRect(rectf,p);
 		if(vecRtr&&mshow)
 		{

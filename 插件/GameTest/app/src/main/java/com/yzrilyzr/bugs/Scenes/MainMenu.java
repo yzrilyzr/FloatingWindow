@@ -17,7 +17,7 @@ public class MainMenu extends Scene
 	public MainMenu(String id)
 	{
 		super(id);
-		loadGUI(Utils.readTxt((Utils.mainDir+"GUI/mainmenu.txt")));
+		loadGUIPath("GUI/mainmenu/mainmenu.txt");
 		if(id.equals("mainmenul"))
 		{
 			removeGUI("back");
@@ -32,18 +32,7 @@ public class MainMenu extends Scene
 			y.anim.add(b);
 			setBackgroundColor(0xff333333);
 		}
-		StringBuilder sb=new StringBuilder();
-		try
-		{
-			String g=null;
-			BufferedReader br=new BufferedReader(new InputStreamReader(Utils.ctx.getAssets().open("tips.txt")));
-			while((g=br.readLine())!=null)sb.append(g).append("\n");
-			br.close();
-		}
-		catch(Throwable pe)
-		{
-		}
-		uh=sb.toString().split("\n");
+		uh=Utils.readTxt("tips.txt").split("\n");
 	}
 	public void info(Ui s)
 	{
@@ -71,7 +60,7 @@ public class MainMenu extends Scene
 			try
 			{
 				ud=uh[new Random().nextInt(uh.length)].split("\\\\n");
-				loadGUI(Utils.readTxt((Utils.mainDir+"GUI/mainmenutip.txt")));
+				loadGUIPath("GUI/mainmenu/mainmenutip.txt");
 				Ui tipui=findUi("tip");
 				VECfile v=tipui.getVec();
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();

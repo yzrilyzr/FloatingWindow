@@ -54,20 +54,22 @@ public class GameMain extends Scene
 			tilew=Utils.getHeight()/map[0].length;
 			loadTextures();
 			findWayPoint();
-			loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemain.txt"));
+			loadGUIPath("GUI/game/gamemain.txt");
 			waveVec=findUi("rightmenu").setVecRealTimeRender(true);
 			nextwaveui=findUi("nextwavebug");
 			int[] ids=new int[]{0,3,1,4,2,5,6,7,8,9};
 			for(int ip=0;ip<10;ip++)	
 			{
 				String r=Integer.toString(ip);
-				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamerightmenuitems.txt"),r,(ip%2==0?"0":"100s"),(ip/2)*100+"s");
+				loadGUIPath("GUI/game/gamerightmenuitems.txt",r,(ip%2==0?"0":"100s"),(ip/2)*100+"s");
 				Ui u=findUi("rightmenuitem"+r);
-				VECfile v=VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/rightmenuitems.vec"));
+				VECfile v=u.getVec();
+				//VECfile.readFileFromIs(Utils.ctx.getAssets().open("vec/game/rightmenuitems.vec"));
 				CopyOnWriteArrayList<Shape> hs=v.getShapes();
 				hs.get(0).txt="$"+Integer.toString(Tower.moneys[ip]);
+				u.reDrawVecBmp();
 				//u.vec=v;
-				u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
+				//u.bmp=VECfile.createBitmap(v,(int)u.width,(int)u.height);
 				if(Data.unlocktower<ids[ip])u.show=false;
 			}
 		}
@@ -124,7 +126,7 @@ public class GameMain extends Scene
 	public void sendnow(Ui s)
 	{
 		if(nextwave!=null)nextwave.sec=0;
-		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemain_sendnow.txt"));
+		loadGUIPath("GUI/game/gamemain_sendnow.txt");
 		sendnowcool=5300;
 	}
 	//触摸
@@ -421,9 +423,16 @@ public class GameMain extends Scene
 			waveVec.shapes.get(7).txt="没有啦";
 			waveVec.shapes.get(8).txt="(´・ω・`)";
 			waveVec.shapes.get(9).txt="出完啦～";
-			if(bugs.size()==0&&waves.get(waves.size()-1).count<=0&&!gameend)
+			if(bugs.size()==0)
 			{
-				gameend();
+				boolean oc=true;
+				for(Wave w:waves)
+					if(w.count>0)
+					{
+						oc=false;
+						break;
+					}
+				if(oc&&!gameend)gameend();
 			}
 		}
 		//刷出bug
@@ -465,8 +474,8 @@ public class GameMain extends Scene
 		int nexp=Data.getNextlevelExp();
 		int cx=(rb.x-lt.x)/2;
 		ed.set(
-			lt.x+cx+(int)(cx*Math.sin(2f*(float)Data.exp/(float)nexp*Math.PI)),
-			lt.y+cx+(int)(-cx*Math.cos(2f*(float)Data.exp/(float)nexp*Math.PI)));
+			lt.x+cx+(int)(100f*cx*Math.sin(2f*(float)Data.exp/(float)nexp*Math.PI)),
+			lt.y+cx+(int)(100f*-cx*Math.cos(2f*(float)Data.exp/(float)nexp*Math.PI)));
 
 		//c.drawText(String.format("分数%d   生命：%d  金钱:%d",score,lives,money),0,p.getTextSize(),p);
 		super.onDraw(c);
@@ -475,7 +484,8 @@ public class GameMain extends Scene
 	private void gameend()
 	{
 		gameend=true;
-		if(lives>0){
+		if(lives>0)
+		{
 			if(mapid==Data.unlockmap)Data.unlockmap++;
 			if(score>Data.scores[mapid])Data.scores[mapid]=score;
 		}
@@ -887,7 +897,7 @@ public class GameMain extends Scene
 			{
 				int[] ids=new int[]{1,3,5,6,7,8,9,9};
 				pause=true;
-				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamelevelup.txt"),
+				loadGUIPath("GUI/game/gamelevelup.txt",
 					Data.unlocktower<9?Integer.toString(ids[Data.unlocktower-2]):"0",
 					Data.unlocktower<9?"":"#",
 					Data.unlocktower>=9?"money":"tower",
@@ -962,7 +972,7 @@ public class GameMain extends Scene
 			super(id);
 			try
 			{
-				loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gametowerinfo.txt"),Integer.toString(tmptower.id));
+				loadGUIPath("GUI/game/gametowerinfo.txt",Integer.toString(tmptower.id));
 				Ui u=findUi("gametowerinfo");
 				VECfile v=u.setVecRealTimeRender(true);
 				hs=v.getShapes();

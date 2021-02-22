@@ -79,8 +79,12 @@ public class Scene
 			for(BaseAnim b:u.eanim)exittime=Math.max(exittime,b.delay+b.duration);
 		}
 	}
+	public void loadGUIPath(String p,String... r){
+		loadGUI(Utils.readTxt(p),r);
+	}
 	public void loadGUI(String s,String... replacement)
 	{
+		if(s==null)return;
 		int line=1;
 		try
 		{

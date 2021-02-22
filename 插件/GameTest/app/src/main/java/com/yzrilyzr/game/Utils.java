@@ -17,7 +17,14 @@ public class Utils
 	public static boolean showfps=false;
 	protected static int draws=0;
 	protected static int backcolor=0;
-
+	public static InputStream res(String path) throws IOException
+	{
+		InputStream fr=null;
+		if(new File(mainDir+"/"+path).exists())fr=new FileInputStream(mainDir+"/"+path);
+		else if(new File("/storage/emulated/0/AppProjects/FloatingWindow/插件/GameTest/app/src/main/assets/"+path).exists())fr=new FileInputStream("/storage/emulated/0/AppProjects/FloatingWindow/插件/GameTest/app/src/main/assets/"+path);
+		else fr=ctx.getAssets().open(path.replace(mainDir,""));
+		return fr;
+	}
 	public static float getDtMs()
 	{
 		// TODO: Implement this method
@@ -71,7 +78,8 @@ public class Utils
 		if(height>width)height=width*width/height;
 		return height;
 	}
-	public static void print(Object a){
+	public static void print(Object a)
+	{
 		ctx.sendBroadcast(new Intent().setAction("com.yzrilyzr.sysprinter").putExtra("out",a+""));
 	}
 	public static void alert(final Object ep)
@@ -84,7 +92,8 @@ public class Utils
 					Object e=ep;
 					if(e instanceof Throwable)
 					{
-						if(e instanceof InvocationTargetException){
+						if(e instanceof InvocationTargetException)
+						{
 							e=((InvocationTargetException)e).getTargetException();
 						}
 						ByteArrayOutputStream b=new ByteArrayOutputStream();
@@ -105,10 +114,7 @@ public class Utils
 	{
 		try
 		{
-			File f=new File(path);
-			BufferedReader fr=null;
-			if(!f.exists())fr=new BufferedReader(new InputStreamReader(ctx.getAssets().open(path.replace(mainDir,""))));
-			else fr=new BufferedReader(new FileReader(f));
+			BufferedReader fr=new BufferedReader(new InputStreamReader(res(path)));
 			StringBuilder sb=new StringBuilder();
 			String bf=null;
 			while((bf=fr.readLine())!=null)sb.append(bf).append("\n");

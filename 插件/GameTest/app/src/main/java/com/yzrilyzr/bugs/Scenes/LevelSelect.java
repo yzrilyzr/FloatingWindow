@@ -10,10 +10,10 @@ public class LevelSelect extends Scene
 	{
 		super(id);
 		setBackgroundColor(0xff40bbff);
-		loadGUI(Utils.readTxt(Utils.mainDir+"GUI/levelselect.txt"),Data.unlockmap>15?"":"#");
+		loadGUIPath("GUI/levelselect/levelselect.txt",Data.unlockmap>18?"":"#");
 		for(int i=0;i<20;i++)
 		{
-			loadGUI(Utils.readTxt(Utils.mainDir+"GUI/levelselectitem.txt"),
+			loadGUIPath("GUI/levelselect/levelselectitem.txt",
 				Integer.toString(i),
 				Integer.toString(130*(i%5)),
 				Integer.toString(130*(i/5)),
@@ -29,7 +29,7 @@ public class LevelSelect extends Scene
 				v.getShapes().get(2).par[0]=0xff666666;
 			}
 			v.getShapes().get(1).txt=Integer.toString(it);
-			v.getShapes().get(2).txt=String.format("分数:%s",Data.scores[i]);
+			v.getShapes().get(2).txt=String.format("分数:%s",Data.scores[it-1]);
 			s.reDrawVecBmp();
 		}
 	}
@@ -60,11 +60,12 @@ public class LevelSelect extends Scene
 	}
 	public void edit(Ui s)
 	{
-
+		Utils.loadScene(new Editor("editor"));
+		//exitAnim();
 	}
 	public void help(Ui s)
 	{
-		Utils.loadScene(new MainMenu("help"));
+		Utils.loadScene(new Help("help"));
 		exitAnim();
 	}
 	public void achi(Ui s)
@@ -74,8 +75,21 @@ public class LevelSelect extends Scene
 	}
 	public void bugs(Ui s)
 	{
-		//Utils.loadScene(new GameMain("gamemain",Utils.readTxt("maps/map2")));
+		Utils.loadScene(new BugsTowers("bugstowers"));
 		exitAnim();
+	}
+	//编辑器
+	private class Editor extends Scene{
+		public Editor(String id){
+			super(id);
+			loadGUIPath("GUI/levelselect/editorconfig.txt");
+		}
+		public void close(Ui s){
+			exitAnim();
+		}
+		public void confirm(Ui s){
+			exitAnim();
+		}
 	}
 	//载入界面
 	private class Load extends Scene
@@ -86,7 +100,7 @@ public class LevelSelect extends Scene
 		public Load(String id,final Ui s)
 		{
 			super(id);
-			loadGUI(Utils.readTxt(Utils.mainDir+"GUI/gamemainload.txt"));
+			loadGUIPath("GUI/game/gamemainload.txt");
 			new Thread(){
 				public void run()
 				{
